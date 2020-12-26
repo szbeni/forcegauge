@@ -35,18 +35,39 @@
       background-color: #4CAF50;
       color: white;
     }
+
+    .block {
+      /*display: block;*/
+      width: 300px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      padding: 14px 28px;
+      font-size: 16px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .block:hover {
+      background-color: #ddd;
+      color: black;
+    }
+
     </style>
 </head>
 
 <body>
-    <div style="text-align:center;"><b>Force Gauge</b>
-      <button onclick="graphingOn = !graphingOn;">Start/Stop</button>
+    <div style="text-align:center;"><b>Force Gauge</b><br>
+      <input type="button" class="block" onclick="graphingOn = !graphingOn;" value="Start/Stop"><br>
+      <b>Number of points: </b><input id="maxRows" type="number" value="500" step="50" min="300" style="width:60px;"><br>
+      
     </div>
     <div class="chart-container" position: relative; height:350px; width:100%">
         <canvas id="Chart" width="400" height="400"></canvas>
         
     </div>
 <div>
+    Enable Table: <input id="showTable" type="checkbox">
     <table id="dataTable">
       <tr><th>Time</th><th>Value</th></tr>
     </table>
@@ -55,13 +76,12 @@
 <br>	
 
 <script>
-//Graphs visit: https://www.chartjs.org
 var values = [];
 var ctx = document.getElementById("Chart").getContext('2d');
 var MyChart;
 var timeStamp = [];
-var maxRows = 500;
 var graphingOn = true;
+
 
 function showGraph()
 {
@@ -120,6 +140,8 @@ function getData() {
     if (this.readyState == 4 && this.status == 200) {
       //Push the data in array
       try {
+        var showTable = document.getElementById("showTable").checked;
+        var maxRows = document.getElementById("maxRows").value; 
         var table = document.getElementById("dataTable");
         var data = JSON.parse(this.responseText)["data"];
         for(i=0; i<data.length; i++) {
@@ -130,7 +152,7 @@ function getData() {
           values.push(value);
           timeStamp.push(time);
           
-          if (values.length > maxRows) {
+          while (values.length > maxRows) {
             values.shift();
             timeStamp.shift();
           }
@@ -141,9 +163,21 @@ function getData() {
           var cell2 = row.insertCell(1);
           cell1.innerHTML = time;
           cell2.innerHTML = value;
-          
-          if (table.rows.length > maxRows) {
-            table.deleteRow(maxRows);
+          if(showTable)
+          {
+            tableRows = maxRows;
+          }
+          else
+          {
+            tableRows = 1;
+          }
+            
+          if (tableRows < 1) {
+            tableRows = 1;
+          }
+
+          while (table.rows.length > tableRows ) {
+            table.deleteRow(tableRows);
           }
         }
       }
