@@ -2,14 +2,14 @@
 <html>
 
 <head>
-    <title>Line Chart</title>
-    <!---<script src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>	--->
-    <script src = "Chart.min.js"></script>  
-    <style>
-    canvas{
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	-ms-user-select: none;
+  <title>Line Chart</title>
+  <!---<script src = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>	--->
+  <script src="Chart.min.js"></script>
+  <style>
+    canvas {
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
     }
 
     /* Data Table Styling */
@@ -19,14 +19,19 @@
       width: 100%;
     }
 
-    #dataTable td, #dataTable th {
+    #dataTable td,
+    #dataTable th {
       border: 1px solid #ddd;
       padding: 8px;
     }
 
-    #dataTable tr:nth-child(even){background-color: #f2f2f2;}
+    #dataTable tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
 
-    #dataTable tr:hover {background-color: #ddd;}
+    #dataTable tr:hover {
+      background-color: #ddd;
+    }
 
     #dataTable th {
       padding-top: 12px;
@@ -52,147 +57,182 @@
       background-color: #ddd;
       color: black;
     }
-
-    </style>
+  </style>
 </head>
 
 <body>
-    <div style="text-align:center;"><b>Force Gauge</b><br>
-      <input type="button" class="block" onclick="graphingOn = !graphingOn;" value="Start/Stop"><br>
-      <b>Number of points: </b><input id="maxRows" type="number" value="500" step="50" min="300" style="width:60px;"><br>
-      
-    </div>
-    <div class="chart-container" position: relative; height:350px; width:100%">
-        <canvas id="Chart" width="400" height="400"></canvas>
-        
-    </div>
-<div>
+  <div style="text-align:center;"><b>Force Gauge</b><br>
+    <input type="button" class="block" onclick="graphingOn = !graphingOn;" value="Start/Stop"><br>
+    <b>Number of points: </b><input id="maxRows" type="number" value="500" step="50" min="300" style="width:60px;"><br>
+
+  </div>
+  <div class="chart-container" position: relative; height:350px; width:100%">
+    <canvas id="Chart" width="400" height="400"></canvas>
+
+  </div>
+  <div>
     Enable Table: <input id="showTable" type="checkbox">
     <table id="dataTable">
-      <tr><th>Time</th><th>Value</th></tr>
+      <tr>
+        <th>Time</th>
+        <th>Value</th>
+      </tr>
     </table>
-</div>
-<br>
-<br>	
+  </div>
+  <br>
+  <br>
 
-<script>
-var values = [];
-var ctx = document.getElementById("Chart").getContext('2d');
-var MyChart;
-var timeStamp = [];
-var graphingOn = true;
+  <script>
+    var values = [];
+    var ctx = document.getElementById("Chart").getContext('2d');
+    var MyChart;
+    var timeStamp = [];
+    var graphingOn = true;
 
 
-function showGraph()
-{
-    MyChart = new Chart(ctx, {
+    function showGraph() {
+      MyChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: timeStamp,	//Bottom Labeling
-            datasets: [{
-                label: "Force",
-                fill: false,	//Try with true
-                backgroundColor: 'rgba( 243, 156, 18 , 1)', //Dot marker color
-                borderColor: 'rgba( 243, 156, 18 , 1)',	//Graph Line Color
-                data: values,
-            }],
+          labels: timeStamp,	//Bottom Labeling
+          datasets: [{
+            label: "Force",
+            fill: false,	//Try with true
+            backgroundColor: 'rgba( 243, 156, 18 , 1)', //Dot marker color
+            borderColor: 'rgba( 243, 156, 18 , 1)',	//Graph Line Color
+            data: values,
+          }],
         },
         options: {
-            title: {
-                    display: true,
-                    text: "Force"
-                },
-            maintainAspectRatio: false,
-            elements: {
+          animation: {
+            duration: 0 // general animation time
+          },
+          hover: {
+            animationDuration: 0 // duration of animations when hovering an item
+          },
+          responsiveAnimationDuration: 0, // animation duration after a resize
+          title: {
+            display: true,
+            text: "Force"
+          },
+          maintainAspectRatio: false,
+          elements: {
             line: {
-                    //tension: 0.5 //Smoothening (Curved) of data lines
-                }
-            },
-            scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero:true
-                        }
-                    }]
+              //tension: 0.5 //Smoothening (Curved) of data lines
+              tension: 0
             }
+          },
+          maxRotation: 0,
+          showLines: false, // disable for all datasets
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: true
+              }
+            }],
+            xAxes: [{
+              ticks: {
+                sampleSize: 0,
+                autoSkip: true,
+                maxRotation: 0,
+                minRotation: 0
+              }
+            }]
+          }
         }
-    });
+      });
 
-}
+    }
 
-//On Page load show graphs
-window.onload = function() {
-    console.log(new Date().toLocaleTimeString());
-    showGraph();
-};
+    //On Page load show graphs
+    window.onload = function () {
+      console.log(new Date().toLocaleTimeString());
+      showGraph();
+    };
 
+    setInterval(function () {
+      getData();
+    }, 100); //500 msec
 
-setInterval(function() {
-  getData();
-}, 100); //100 msec
-
-function getData() {
-  if (graphingOn == false) 
-    return;
-
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
+    function processData(data) {
       //Push the data in array
-      try {
-        var showTable = document.getElementById("showTable").checked;
-        var maxRows = document.getElementById("maxRows").value; 
-        var table = document.getElementById("dataTable");
-        var data = JSON.parse(this.responseText)["data"];
-        for(i=0; i<data.length; i++) {
-          value = parseFloat(data[i]['value']);
-          time = parseFloat(data[i]['time']) / 1000.0;
+      var showTable = document.getElementById("showTable").checked;
+      var maxRows = document.getElementById("maxRows").value;
+      var table = document.getElementById("dataTable");
+      for (i = 0; i < data.length; i++) {
+        value = parseFloat(data[i]['value']);
+        time = parseFloat(data[i]['time']) / 1000.0;
 
-          //Update datapoints
-          values.push(value);
-          timeStamp.push(time);
-          
-          while (values.length > maxRows) {
-            values.shift();
-            timeStamp.shift();
-          }
-          
-          //Update Data Table
-          var row = table.insertRow(1);  //Add after headings
-          var cell1 = row.insertCell(0);
-          var cell2 = row.insertCell(1);
-          cell1.innerHTML = time;
-          cell2.innerHTML = value;
-          if(showTable)
-          {
-            tableRows = maxRows;
-          }
-          else
-          {
-            tableRows = 1;
-          }
-            
-          if (tableRows < 1) {
-            tableRows = 1;
-          }
+        //Update datapoints
+        values.push(value);
+        timeStamp.push(time);
 
-          while (table.rows.length > tableRows ) {
-            table.deleteRow(tableRows);
-          }
+        while (values.length > maxRows) {
+          values.shift();
+          timeStamp.shift();
         }
-      }
-      catch(err) {
-        console.log("Error: ", err);
+
+        //Update Data Table
+        var row = table.insertRow(1);  //Add after headings
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        cell1.innerHTML = time;
+        cell2.innerHTML = value;
+        if (showTable) {
+          tableRows = maxRows;
+        }
+        else {
+          tableRows = 1;
+        }
+
+        if (tableRows < 1) {
+          tableRows = 1;
+        }
+
+        while (table.rows.length > tableRows) {
+          table.deleteRow(tableRows);
+        }
       }
       //update graph
       MyChart.update(0);
     }
-  };
-  xhttp.open("GET", "getData", true);	//Handle getData server on ESP8266
-  xhttp.send();
-}
-	
-</script>
+
+    function getData() {
+      if (graphingOn == false)
+        return;
+
+      var testing = false;
+      if (testing == true) {
+        //Testing:
+        var data = JSON.parse('{"data": [{"time":"1682061", "value":"0.09"},{"time":"1682070", "value":"0.10"},{"time":"1682082", "value":"0.09"},{"time":"1682094", "value":"0.09"},{"time":"1682106", "value":"0.10"},{"time":"1682118", "value":"0.07"},{"time":"1682130", "value":"0.07"},{"time":"1682142", "value":"0.11"},{"time":"1682154", "value":"0.15"},{"time":"1682166", "value":"0.14"},{"time":"1682178", "value":"0.12"},{"time":"1682190", "value":"0.11"},{"time":"1682203", "value":"0.09"},{"time":"1682215", "value":"0.09"},{"time":"1682227", "value":"0.09"},{"time":"1682239", "value":"0.09"},{"time":"1682251", "value":"0.12"},{"time":"1682263", "value":"0.11"},{"time":"1682275", "value":"0.08"},{"time":"1682287", "value":"0.08"},{"time":"1682299", "value":"0.11"},{"time":"1682311", "value":"0.12"},{"time":"1682323", "value":"0.12"},{"time":"1682335", "value":"0.10"},{"time":"1682347", "value":"0.08"},{"time":"1682359", "value":"0.02"},{"time":"1682371", "value":"0.09"},{"time":"1682383", "value":"0.14"},{"time":"1682395", "value":"0.12"},{"time":"1682407", "value":"0.08"},{"time":"1682419", "value":"0.09"},{"time":"1682431", "value":"0.08"},{"time":"1682443", "value":"0.09"},{"time":"1682455", "value":"0.06"},{"time":"1682467", "value":"0.08"},{"time":"1682480", "value":"0.08"},{"time":"1682492", "value":"0.04"},{"time":"1682504", "value":"0.08"},{"time":"1682516", "value":"0.07"},{"time":"1682528", "value":"0.09"},{"time":"1682540", "value":"0.08"},{"time":"1682552", "value":"0.12"},{"time":"1682564", "value":"0.13"},{"time":"1682576", "value":"0.09"},{"time":"1682588", "value":"0.10"},{"time":"1682600", "value":"0.09"},{"time":"1682612", "value":"0.07"},{"time":"1682624", "value":"0.07"},{"time":"1682636", "value":"0.09"},{"time":"1682648", "value":"0.07"},{"time":"1682660", "value":"0.07"},{"time":"1682672", "value":"0.03"},{"time":"1682684", "value":"0.05"},{"time":"1682696", "value":"0.07"},{"time":"1682708", "value":"0.10"},{"time":"1682720", "value":"0.04"},{"time":"1682732", "value":"0.01"},{"time":"1682745", "value":"0.03"},{"time":"1682757", "value":"0.10"},{"time":"1682769", "value":"0.16"},{"time":"1682781", "value":"0.13"},{"time":"1682793", "value":"0.10"},{"time":"1682805", "value":"0.12"},{"time":"1682817", "value":"0.08"}]}')["data"];
+        for (var i = 0; i < data.length; i++) {
+          var d = new Date()
+          var t = d.getTime();
+          data[i].time = t;
+          data[i].value = Math.sin(t / 1000.0) * 5 + Math.random();
+        }
+        processData(data);
+        return;
+      }
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          try {
+            var data = JSON.parse(this.responseText)["data"];
+            processData(data);
+          }
+          catch (err) {
+            console.log("Error: ", err);
+          }
+
+        }
+      };
+      xhttp.open("GET", "getData", true);	//Handle getData server on ESP8266
+      xhttp.send();
+    }
+
+  </script>
 </body>
 
 </html>

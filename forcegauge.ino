@@ -3,6 +3,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+//#include <WiFiManager.h>          //0.16.0
 #include <HX711.h>
 #include <FS.h>               // Include the SPIFFS library 
 
@@ -21,6 +22,7 @@ typedef struct
   long v;
 } data_struct;
 
+//WiFiManager wifiManager;    //Wifi manager
 ESP8266WebServer server(80); //Server on port 80  
 RingBuf<data_struct, 64> dataBuffer;
 long zeroOffset = 0;
@@ -77,21 +79,25 @@ void setup() {
   
   // Start the SPI Flash Files System
   SPIFFS.begin();
-  
+  //wifiManager.autoConnect("ForceGauge", "password");
+
+  //AP mode
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.softAP("ForceGauge", "fafafa");
+  //Client Mode
   // Start WIFI
-  WiFi.begin(ssid, password);     //Connect to your WiFi router
-  Serial.println("");  
-  
+  //WiFi.begin(ssid, password);     //Connect to your WiFi router
+  //Serial.println("");  
   // Wait for connection
-  while (WiFi.status() != WL_CONNECTED) {
-  delay(500);
-    Serial.print(".");
-  }
-  
+  //  while (WiFi.status() != WL_CONNECTED) {
+  //  delay(500);
+  //    Serial.print(".");
+  //  }
+
   //If connection successful show IP address in serial monitor
   Serial.println("");
   Serial.print("Connected to ");
-  Serial.println(ssid);
+  Serial.println(WiFi.SSID());
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());  //IP address assigned to your ESP
 
