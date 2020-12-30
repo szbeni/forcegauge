@@ -1,4 +1,3 @@
-  
 #include <RingBuf.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -12,9 +11,8 @@
  
 HX711 scale(DOUT, CLK);
 
-//SSID and Password of your WiFi router
-const char* ssid = "BT-57AFJ9";
-const char* password = "NhT37kP7RafrQ3";
+const char* APssid = "ForceGauge";
+const char* APpassword = "password";
 
 typedef struct 
 {
@@ -83,7 +81,8 @@ void setup() {
 
   //AP mode
   WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP("ForceGauge", "fafafa");
+  WiFi.softAP(APssid, APpassword);
+  WiFi.begin("ABWifi", "Secret_12345");
   //Client Mode
   // Start WIFI
   //WiFi.begin(ssid, password);     //Connect to your WiFi router
@@ -99,7 +98,7 @@ void setup() {
   Serial.print("Connected to ");
   Serial.println(WiFi.SSID());
   Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());  //IP address assigned to your ESP
+  Serial.println(WiFi.softAPIP());  //IP address assigned to your ESP
 
   server.on("/getData", handleGetData);                 //This page is called by java Script AJAX
   

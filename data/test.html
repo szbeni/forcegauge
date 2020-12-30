@@ -1,0 +1,240 @@
+<html>
+
+<head>
+  <script src="plotly-basic-latest.min.js"></script>
+  <style>
+    /* Data Table Styling */
+    #dataTable {
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    #dataTable td,
+    #dataTable th {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    #dataTable tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    #dataTable tr:hover {
+      background-color: #ddd;
+    }
+
+    #dataTable th {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      text-align: left;
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .block {
+      /*display: block;*/
+      width: 300px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      padding: 14px 28px;
+      font-size: 16px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .block:hover {
+      background-color: #ddd;
+      color: black;
+    }
+  </style>
+</head>
+
+<body>
+  <div style="text-align:center;"><b>Force Gauge</b><br>
+    <input type="button" class="block" onclick="graphingOn = !graphingOn;" value="Start/Stop"><br>
+    <b>Number of points: </b><input id="maxRows" type="number" value="1500" step="50" min="300" style="width:60px;"><br>
+    <div><b>Min Value: </b><span id="minValue">0</span></div>
+    <div><b>Max Value: </b><span id="maxValue">0</span></div>
+  </div>
+  <div id="myChart" style="width:100%; height:600px;"></div>
+  <div>
+    Enable Table: <input id="showTable" type="checkbox">
+    <table id="dataTable">
+      <tr>
+        <th>Time</th>
+        <th>Value</th>
+      </tr>
+    </table>
+  </div>
+
+  <script>
+    var graphingOn = true;
+    var updateInterval = 100;
+    var dataLength = 5000; // number of dataPoints visible at any point
+
+    var dataSeries1 = [{
+      x: [],
+      y: [],
+      mode: 'lines',
+      line: { color: '#80CAF6' }
+    }]
+    var myChart;
+
+    var layout = {
+      title: 'Force',
+      xaxis: {
+        autorange: true,
+        range: ['2015-02-17', '2017-02-16'],
+        rangeselector: {
+          buttons: [
+            {
+              count: 1,
+              label: '1m',
+              step: 'month',
+              stepmode: 'backward'
+            },
+            {
+              count: 6,
+              label: '6m',
+              step: 'month',
+              stepmode: 'backward'
+            },
+            { step: 'all' }
+          ]
+        },
+        // rangeslider: { range: ['2015-02-17', '2017-02-16'] },
+        rangeslider: {},
+        //type: 'date'
+      },
+      yaxis: {
+        autorange: true,
+        range: [86.8700008333, 138.870004167],
+        type: 'linear'
+      }, shapes: [
+        {
+          type: 'line', x0: 0, y0: 0, x1: 0, y1: 0,
+          line: {
+            color: 'blue', width: 3, dash: 'dot'
+          }
+        },
+        {
+          type: 'line', x0: 0, y0: 0, x1: 0, y1: 0,
+          line: {
+            color: 'red', width: 3, dash: 'dot'
+          }
+        }]
+    };
+
+
+
+
+    window.onload = function () {
+
+      myChart = Plotly.newPlot('myChart', dataSeries1, layout);
+
+      setInterval(function () { getData() }, updateInterval);
+
+    }
+    function processData(data) {
+      var showTable = document.getElementById("showTable").checked;
+      var maxRows = document.getElementById("maxRows").value;
+      var table = document.getElementById("dataTable");
+
+      var xArray = Array(data.length)
+      var yArray = Array(data.length)
+      for (let i = 0; i < data.length; i++) {
+        value = parseFloat(data[i]['value']);
+        time = parseFloat(data[i]['time']) / 1000.0;
+        xArray[i] = time;
+        yArray[i] = value;
+      }
+      var update = {
+        x: [xArray],
+        y: [yArray]
+      }
+
+      Plotly.extendTraces('myChart', update, [0])
+
+      //Get min and max
+      var min = Number.MAX_VALUE;
+      var max = -Number.MAX_VALUE;
+      for (let i = 0; i < dataSeries1[0].x.length; i++) {
+        if (dataSeries1[0].y[i] < min)
+          min = dataSeries1[0].y[i];
+        if (dataSeries1[0].y[i] > max)
+          max = dataSeries1[0].y[i];
+      }
+
+
+      layout.shapes[0].x0 = dataSeries1[0].x[0];
+      layout.shapes[0].y0 = min;
+      layout.shapes[0].x1 = dataSeries1[0].x[dataSeries1[0].x.length - 1];
+      layout.shapes[0].y1 = min;
+
+      layout.shapes[1].x0 = dataSeries1[0].x[0];
+      layout.shapes[1].y0 = max;
+      layout.shapes[1].x1 = dataSeries1[0].x[dataSeries1[0].x.length - 1];
+      layout.shapes[1].y1 = max;
+
+      document.getElementById("minValue").innerText = min.toFixed(2);
+      document.getElementById("maxValue").innerText = max.toFixed(2);
+      while (dataSeries1[0].x.length > maxRows) {
+        dataSeries1[0].x.shift();
+        dataSeries1[0].y.shift();
+      }
+    }
+    // while (dataSeries1.length > dataLength) {
+    //   dataSeries1.shift();
+    // }
+
+
+
+    // myChart.axisY[0].stripLines[0].set("value", min);
+    // myChart.axisY[0].stripLines[0].set("label", "Min: " + String(min.toFixed(2)));
+    // myChart.axisY[0].stripLines[1].set("value", max);
+    // myChart.axisY[0].stripLines[1].set("label", "Max: " + String(max.toFixed(2)));
+    //myChart.render();
+
+    // }
+
+
+    function getData() {
+      if (graphingOn == false)
+        return;
+
+      var testing = false;
+      if (testing == true) {
+        //Testing:
+        var data = JSON.parse('{"data": [{"time":"1682061", "value":"0.09"},{"time":"1682070", "value":"0.10"},{"time":"1682082", "value":"0.09"},{"time":"1682094", "value":"0.09"},{"time":"1682106", "value":"0.10"},{"time":"1682118", "value":"0.07"},{"time":"1682130", "value":"0.07"},{"time":"1682142", "value":"0.11"},{"time":"1682154", "value":"0.15"},{"time":"1682166", "value":"0.14"},{"time":"1682178", "value":"0.12"},{"time":"1682190", "value":"0.11"},{"time":"1682203", "value":"0.09"},{"time":"1682215", "value":"0.09"},{"time":"1682227", "value":"0.09"},{"time":"1682239", "value":"0.09"},{"time":"1682251", "value":"0.12"},{"time":"1682263", "value":"0.11"},{"time":"1682275", "value":"0.08"},{"time":"1682287", "value":"0.08"},{"time":"1682299", "value":"0.11"},{"time":"1682311", "value":"0.12"},{"time":"1682323", "value":"0.12"},{"time":"1682335", "value":"0.10"},{"time":"1682347", "value":"0.08"},{"time":"1682359", "value":"0.02"},{"time":"1682371", "value":"0.09"},{"time":"1682383", "value":"0.14"},{"time":"1682395", "value":"0.12"},{"time":"1682407", "value":"0.08"},{"time":"1682419", "value":"0.09"},{"time":"1682431", "value":"0.08"},{"time":"1682443", "value":"0.09"},{"time":"1682455", "value":"0.06"},{"time":"1682467", "value":"0.08"},{"time":"1682480", "value":"0.08"},{"time":"1682492", "value":"0.04"},{"time":"1682504", "value":"0.08"},{"time":"1682516", "value":"0.07"},{"time":"1682528", "value":"0.09"},{"time":"1682540", "value":"0.08"},{"time":"1682552", "value":"0.12"},{"time":"1682564", "value":"0.13"},{"time":"1682576", "value":"0.09"},{"time":"1682588", "value":"0.10"},{"time":"1682600", "value":"0.09"},{"time":"1682612", "value":"0.07"},{"time":"1682624", "value":"0.07"},{"time":"1682636", "value":"0.09"},{"time":"1682648", "value":"0.07"},{"time":"1682660", "value":"0.07"},{"time":"1682672", "value":"0.03"},{"time":"1682684", "value":"0.05"},{"time":"1682696", "value":"0.07"},{"time":"1682708", "value":"0.10"},{"time":"1682720", "value":"0.04"},{"time":"1682732", "value":"0.01"},{"time":"1682745", "value":"0.03"},{"time":"1682757", "value":"0.10"},{"time":"1682769", "value":"0.16"},{"time":"1682781", "value":"0.13"},{"time":"1682793", "value":"0.10"},{"time":"1682805", "value":"0.12"},{"time":"1682817", "value":"0.08"}]}')["data"];
+        for (var i = 0; i < data.length; i++) {
+          var d = new Date()
+          var t = d.getTime();
+          data[i].time = t + i;
+          data[i].value = Math.sin(t / 1000.0) * 5 + Math.random();
+        }
+        processData(data);
+        return;
+      }
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          try {
+            var data = JSON.parse(this.responseText)["data"];
+            processData(data);
+          }
+          catch (err) {
+            console.log("Error: ", err);
+          }
+
+        }
+      };
+      xhttp.open("GET", "getData", true);	//Handle getData server on ESP8266
+      xhttp.send();
+    }
+  </script>
+</body>
+
+</html>
