@@ -2,10 +2,12 @@
 
 <head>
   <script src="plotly-basic-latest.min.js"></script>
+  <script src="forcegauge.js"></script>
+
   <style>
     .block {
       /*display: block;*/
-      width: 300px;
+      /* width: 100px; */
       border: none;
       background-color: #4CAF50;
       color: white;
@@ -43,7 +45,7 @@
     #footer {
       width: 100%;
       clear: both;
-      
+
     }
 
     #container {
@@ -52,10 +54,10 @@
       margin-left: auto;
       font-size: xx-large;
     }
+
     input {
-        font-size: xx-large;
-      }
-    
+      font-size: xx-large;
+    }
   </style>
 </head>
 
@@ -67,7 +69,8 @@
     </div>
     <div id="left">
       <input type="button" class="block" onclick="graphingOn = !graphingOn;" value="Start/Stop">
-      <input type="button" class="block" onclick="clearData();" value="Clear Data"><br>
+      <input type="button" class="block" onclick="clearData();" value="Clear Data">
+      <input type="button" class="block" onclick="zeroOffset();" value="Zero Offset"><br>
       <b>Min Value (kg): </b><b id="minValue">0</b><br>
       <b>Absolute Min Value (kg): </b><b id="absMinValue">0</b><br>
       <b>Max Value (kg): </b><b id="maxValue">0</b><br>
@@ -89,11 +92,21 @@
     </div>
   </div>
   <script>
+    var address = "ws://" + location.host + ":81"
+    if (location.host == "") {
+      address = "ws://192.168.3.152:81"
+    }
+
+    var device1 = new forceGauge("Device1", address);
+    device1.onNewData = function (data) {
+      processData(data);
+    }
+    device1.connect();
     var graphingOn = true;
     var updateInterval = 100;
     var absoluteMinValue = Number.MAX_VALUE;
     var absoluteMaxValue = -Number.MAX_VALUE;
-    
+
 
     var dataSeries1 = [{
       x: [],
@@ -149,13 +162,16 @@
         function (eventdata) {
           getMinMax([eventdata['xaxis.range[0]'], eventdata['xaxis.range[1]']]);
         });
-      setInterval(function () { getData() }, updateInterval);
+      setInterval(function () { updateChart() }, updateInterval);
 
     }
 
     function resetTargetData() {
       timeInTarget = 0;
       longestTimeInTarget = 0;
+    }
+    function zeroOffset() {
+      device1.setOffset();
     }
     function clearData() {
       absoluteMinValue = Number.MAX_VALUE;
@@ -229,11 +245,28 @@
 
     }
 
+    var lastval = 0;
+    var update = {
+      x: [[],],
+      y: [[],]
+    }
+
+
+    function updateChart() {
+      getMinMax(layout.xaxis.range);
+      Plotly.extendTraces('myChart', update, [0]);
+      update.x[0] = [];
+      update.y[0] = [];
+      while (dataSeries1[0].x.length > maxRows) {
+        dataSeries1[0].x.shift();
+        dataSeries1[0].y.shift();
+      }
+      toneLimit(lastval);
+    }
     function processData(data) {
       //var showTable = document.getElementById("showTable").checked;
       var maxRows = document.getElementById("maxRows").value;
       var table = document.getElementById("dataTable");
-      var lastval = 0;
       var xArray = Array(data.length)
       var yArray = Array(data.length)
       for (let i = 0; i < data.length; i++) {
@@ -242,19 +275,10 @@
         xArray[i] = time;
         yArray[i] = value;
         lastval = value;
+        update.x[0].push(time);
+        update.y[0].push(value);
       }
-      var update = {
-        x: [xArray],
-        y: [yArray]
-      }
-      while (dataSeries1[0].x.length > maxRows) {
-        dataSeries1[0].x.shift();
-        dataSeries1[0].y.shift();
-      }
-      getMinMax(layout.xaxis.range);
 
-      Plotly.extendTraces('myChart', update, [0]);
-      toneLimit(lastval);
       document.getElementById("currentValue").innerText = lastval;
 
     }
@@ -344,21 +368,18 @@
         else if (freq > 1500) freq = 1500;
 
         if (Math.abs(diff) < deadband) {
-          if(pervInDeadband == false)
-          {
+          if (pervInDeadband == false) {
             pervInDeadband = true;
-            if ((now - deadbandExitTime) > errorTime)
-            {
+            if ((now - deadbandExitTime) > errorTime) {
               console.log(now);
               deadbandEnterTime = now;
             }
-            else
-            {
+            else {
               deadbandEnterTime += (now - deadbandExitTime);
             }
           }
           timeInTarget = (now - deadbandEnterTime)
-          
+
           if (timeInTarget > longestTimeInTarget)
             longestTimeInTarget = timeInTarget;
 
@@ -366,8 +387,7 @@
             playTone(baseFreq);
         }
         else {
-          if(pervInDeadband == true)
-          {
+          if (pervInDeadband == true) {
             pervInDeadband = false;
             deadbandExitTime = now;
           }
@@ -377,7 +397,7 @@
         }
       }
       document.getElementById("timeInTarget").innerText = timeInTarget / 1000.0;
-      document.getElementById("longestTimeInTarget").innerText = longestTimeInTarget  / 1000.0;
+      document.getElementById("longestTimeInTarget").innerText = longestTimeInTarget / 1000.0;
     }
 
 
@@ -386,7 +406,7 @@
       if (graphingOn == false)
         return;
 
-      var testing = false;
+      var testing = true;
       if (testing == true) {
         //Testing:
         var data = JSON.parse('{"data": [{"time":"1682061", "value":"0.09"},{"time":"1682070", "value":"0.10"},{"time":"1682082", "value":"0.09"},{"time":"1682094", "value":"0.09"},{"time":"1682106", "value":"0.10"},{"time":"1682118", "value":"0.07"},{"time":"1682130", "value":"0.07"},{"time":"1682142", "value":"0.11"},{"time":"1682154", "value":"0.15"},{"time":"1682166", "value":"0.14"},{"time":"1682178", "value":"0.12"},{"time":"1682190", "value":"0.11"},{"time":"1682203", "value":"0.09"},{"time":"1682215", "value":"0.09"},{"time":"1682227", "value":"0.09"},{"time":"1682239", "value":"0.09"},{"time":"1682251", "value":"0.12"},{"time":"1682263", "value":"0.11"},{"time":"1682275", "value":"0.08"},{"time":"1682287", "value":"0.08"},{"time":"1682299", "value":"0.11"},{"time":"1682311", "value":"0.12"},{"time":"1682323", "value":"0.12"},{"time":"1682335", "value":"0.10"},{"time":"1682347", "value":"0.08"},{"time":"1682359", "value":"0.02"},{"time":"1682371", "value":"0.09"},{"time":"1682383", "value":"0.14"},{"time":"1682395", "value":"0.12"},{"time":"1682407", "value":"0.08"},{"time":"1682419", "value":"0.09"},{"time":"1682431", "value":"0.08"},{"time":"1682443", "value":"0.09"},{"time":"1682455", "value":"0.06"},{"time":"1682467", "value":"0.08"},{"time":"1682480", "value":"0.08"},{"time":"1682492", "value":"0.04"},{"time":"1682504", "value":"0.08"},{"time":"1682516", "value":"0.07"},{"time":"1682528", "value":"0.09"},{"time":"1682540", "value":"0.08"},{"time":"1682552", "value":"0.12"},{"time":"1682564", "value":"0.13"},{"time":"1682576", "value":"0.09"},{"time":"1682588", "value":"0.10"},{"time":"1682600", "value":"0.09"},{"time":"1682612", "value":"0.07"},{"time":"1682624", "value":"0.07"},{"time":"1682636", "value":"0.09"},{"time":"1682648", "value":"0.07"},{"time":"1682660", "value":"0.07"},{"time":"1682672", "value":"0.03"},{"time":"1682684", "value":"0.05"},{"time":"1682696", "value":"0.07"},{"time":"1682708", "value":"0.10"},{"time":"1682720", "value":"0.04"},{"time":"1682732", "value":"0.01"},{"time":"1682745", "value":"0.03"},{"time":"1682757", "value":"0.10"},{"time":"1682769", "value":"0.16"},{"time":"1682781", "value":"0.13"},{"time":"1682793", "value":"0.10"},{"time":"1682805", "value":"0.12"},{"time":"1682817", "value":"0.08"}]}')["data"];
