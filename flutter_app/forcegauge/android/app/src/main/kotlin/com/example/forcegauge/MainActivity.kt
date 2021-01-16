@@ -1,4 +1,4 @@
-package net.vojtech.forcegauge
+package com.example.forcegauge
 
 import io.flutter.embedding.android.FlutterActivity
 
