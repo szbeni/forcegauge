@@ -1,8 +1,13 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:forcegauge/models/socket_manager.dart';
 
+import 'device_data.dart';
+
 class Device {
+  List<DeviceData> _historicalData = [];
+  int _historicalDataMaxLength = 3000;
   final String name;
   String _url;
   double offset = 0;
@@ -11,10 +16,20 @@ class Device {
   double lastRawValue = 0;
   double maxValue = 0;
   double minValue = 0;
-  bool _isConnected = false;
 
-  WebSocketsNotifications socket = new WebSocketsNotifications();
-  Device(this.name);
+  WebSocketsNotifications _socket = new WebSocketsNotifications();
+  Device(this.name, url) {
+    this._url = url;
+    connect();
+  }
+
+  WebSocketsNotifications getSocket() {
+    return this._socket;
+  }
+
+  getHistoricalData() {
+    return this._historicalData;
+  }
 
   setUrl(String url) {
     _url = url;
@@ -29,18 +44,20 @@ class Device {
   }
 
   bool isConnected() {
-    return _isConnected;
+    return _socket.isConnected();
+  }
+
+  String connectionStatusMsg() {
+    return _socket.statusMsg();
   }
 
   connect() {
-    if (_url != null) {
-      socket.connect(this._url);
-      socket.addListener(onMessage);
-    }
+    _socket.connect(this._url);
+    _socket.addOnMessageListener(onMessage);
   }
 
   resetOffset() {
-    socket.send("offset:$lastRawValue");
+    _socket.send("offset:$lastRawValue");
   }
 
   clearMaxMin() {
@@ -49,24 +66,58 @@ class Device {
   }
 
   onMessage(msg) {
-    _isConnected = true;
     var message = jsonDecode(msg);
     var data = message['data'];
+    List<DeviceData> newDataList = [];
     if (data is List) {
-      this.lastRawValue = double.parse(data[data.length - 1]['raw']);
-      this.lastValue = double.parse(data[data.length - 1]['value']);
-      if (this.lastValue > this.maxValue) {
-        this.maxValue = this.lastValue;
+      for (var d in data) {
+        // Convert JSON to DeviceData
+        var dd = DeviceData.parseJSON(d);
+        newDataList.add(dd);
+
+        // Store last values
+        this.lastRawValue = dd.raw;
+        this.lastValue = dd.value;
+
+        //Check for min and max
+        if (this.lastValue > this.maxValue) {
+          this.maxValue = this.lastValue;
+        }
+        if (this.lastValue < this.minValue) {
+          this.minValue = this.lastValue;
+        }
       }
-      if (this.lastValue < this.minValue) {
-        this.minValue = this.lastValue;
+
+      // Add new and remove old data
+      _historicalData.addAll(newDataList);
+      int difference = _historicalData.length - _historicalDataMaxLength;
+      if (difference > 0) {
+        _historicalData.removeRange(0, difference);
       }
     }
+    _notifyListeners(newDataList);
   }
 
+  // On data has changed listener
+  ObserverList<Function> _listeners = new ObserverList<Function>();
+
+  addListener(Function callback) {
+    _listeners.add(callback);
+  }
+
+  removeListener(Function callback) {
+    _listeners.remove(callback);
+  }
+
+  _notifyListeners(var data) {
+    _listeners.forEach((Function callback) {
+      callback(data);
+    });
+  }
+
+  // JSON
   factory Device.fromJson(dynamic json) {
-    var dev = Device(json['name']);
-    dev.setUrl(json['url']);
+    var dev = Device(json['name'], json['url']);
     return dev;
   }
 

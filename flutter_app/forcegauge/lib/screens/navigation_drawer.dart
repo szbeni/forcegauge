@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:forcegauge/screens/settings_screen.dart';
 import 'package:forcegauge/screens/devices_screen.dart';
 import 'package:forcegauge/models/settings.dart';
@@ -30,7 +32,7 @@ class NavDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.input),
-            title: Text('Devices'),
+            title: Text('Device settings'),
             onTap: () {
               Navigator.of(context).pop();
               Navigator.push(
@@ -60,10 +62,17 @@ class NavDrawer extends StatelessWidget {
             onTap: () => {Navigator.of(context).pop()},
           ),
           ListTile(
-            leading: Icon(Icons.exit_to_app),
-            title: Text('Logout'),
-            onTap: () => {Navigator.of(context).pop()},
-          ),
+              leading: Icon(Icons.exit_to_app),
+              title: Text('Exit'),
+              onTap: () {
+                // if (Platform.isAndroid) {
+                //   SystemNavigator.pop();
+                // } else if (Platform.isIOS) {
+                //   exit(0);
+                // }
+                SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                //exit(0);
+              }),
         ],
       ),
     );

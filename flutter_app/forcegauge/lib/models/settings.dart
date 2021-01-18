@@ -30,6 +30,7 @@ class Settings {
   }
 
   onSettingsChanged() {
+    save();
     _listeners.forEach((Function callback) {
       callback();
     });

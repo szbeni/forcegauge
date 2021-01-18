@@ -1,7 +1,5 @@
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'device.dart';
 
 DeviceManager deviceManager;
@@ -9,7 +7,6 @@ DeviceManager deviceManager;
 class DeviceManager {
   SharedPreferences _prefs;
   List<Device> _devices = [];
-  Map<String, Device> devicesByName;
 
   DeviceManager(prefs) {
     this._prefs = prefs;
@@ -18,11 +15,9 @@ class DeviceManager {
 
   addDevice(String name, String url) {
     if (getDeviceByName(name) == null) {
-      var dev = new Device(name);
-      dev.setUrl(url);
-      dev.connect();
-      _devices.add(dev);
-      return dev;
+      var newDevice = new Device(name, url);
+      _devices.add(newDevice);
+      return newDevice;
     }
     return null;
   }
@@ -31,6 +26,10 @@ class DeviceManager {
     if (index >= 0 && index < _devices.length) {
       _devices.removeAt(index);
     }
+  }
+
+  List<Device> getDevices() {
+    return _devices;
   }
 
   getDeviceNum() {
@@ -56,8 +55,8 @@ class DeviceManager {
     var devicesString = _prefs.getString('devices') ?? '[]';
     var devicesJson = jsonDecode(devicesString) as List;
     for (var devJson in devicesJson) {
-      var newDev = new Device.fromJson(devJson);
-      _devices.add(newDev);
+      var newDevice = new Device.fromJson(devJson);
+      _devices.add(newDevice);
     }
   }
 

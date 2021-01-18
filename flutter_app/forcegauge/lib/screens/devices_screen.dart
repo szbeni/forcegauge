@@ -9,6 +9,27 @@ class DevicesScreen extends StatefulWidget {
 }
 
 class DevicesScreenState extends State<DevicesScreen> {
+  @override
+  void initState() {
+    for (var d in deviceManager.getDevices()) {
+      d.getSocket().addOnStatusChangedListener(onDeviceChanges);
+    }
+    super.initState();
+  }
+
+  @override
+  dispose() {
+    for (var d in deviceManager.getDevices()) {
+      d.getSocket().removeOnStatusChangedListener(onDeviceChanges);
+    }
+    super.dispose();
+  }
+
+  // When the status of a device has changed
+  onDeviceChanges(status) {
+    setState(() {});
+  }
+
   void _addDevice(String name, String url) {
     setState(() {
       deviceManager.addDevice(name, url);
@@ -23,13 +44,14 @@ class DevicesScreenState extends State<DevicesScreen> {
     });
   }
 
+  // Device remove popup
   void _promptRemoveDevice(int index) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return new AlertDialog(
-              title:
-                  new Text('Remove "${deviceManager.getDevice(index).name}".'),
+              title: new Text(
+                  'Remove Device: "${deviceManager.getDevice(index).name}".'),
               actions: <Widget>[
                 new FlatButton(
                     child: new Text('Cancel'),
@@ -46,7 +68,7 @@ class DevicesScreenState extends State<DevicesScreen> {
         });
   }
 
-  // Build the whole list of todo items
+  // Build the whole list of Devices
   Widget _buildDevicesScreen() {
     return new ListView.builder(
       itemBuilder: (context, index) {
@@ -59,30 +81,37 @@ class DevicesScreenState extends State<DevicesScreen> {
     );
   }
 
-  // Build a single todo item
+  // Build a single Device Item
   Widget _buildDeviceItem(Device device, int index) {
-    // return new Container(
-    //   child: Row(children: [
-    //     new ListTile(
-    //         title: new Text(device.name),
-    //         onTap: () => _promptRemoveDevice(index)),
-    //     new Text("asd"),
-    //   ]),
-    // );
-    //return newnew Row(children: <Widget>[new Text(device.name)], on);
+    var connectedIcon = Icon(Icons.radio_button_checked, color: Colors.red);
+    if (device.isConnected()) {
+      connectedIcon = Icon(Icons.radio_button_checked, color: Colors.green);
+    }
+
     return new ListTile(
-      title: new Text(device.toString()),
-      onTap: () => _promptRemoveDevice(index),
-      trailing: Wrap(
-        spacing: 12, // space between two icons
-        children: <Widget>[
-          Icon(Icons.signal_wifi_4_bar), // icon-1
-          Icon(Icons.signal_wifi_off), // icon-1
-        ],
+      title: new Tooltip(
+        message: device.connectionStatusMsg(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            new Text("Name: " + device.name.toString()),
+            new Text("Address: " + device.getUrl().toString()),
+            connectedIcon
+          ],
+        ),
       ),
+      onTap: () => _promptRemoveDevice(index),
+      // trailing: Wrap(
+      //   spacing: 12, // space between two icons
+      //   children: <Widget>[
+      //     Icon(Icons.signal_wifi_4_bar), // icon-1
+      //     Icon(Icons.signal_wifi_off), // icon-1
+      //   ],
+      // ),
     );
   }
 
+  // Build the whole screen
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
