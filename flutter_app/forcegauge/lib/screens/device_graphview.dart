@@ -18,36 +18,14 @@ class DeviceGraphView extends StatefulWidget {
 
 class _DeviceGraphViewState extends State<DeviceGraphView> {
   List<charts.Series<DeviceData, int>> _seriesList;
-  charts.LineChart _lineChart;
   var myRandom = new Random(1);
+  List<DeviceData> data;
 
   @override
   void initState() {
+    data = [];
     super.initState();
-
-    var data = [
-      new DeviceData(0, 1, 3),
-      new DeviceData(1, 1, 6),
-      new DeviceData(2, 1, 7),
-      new DeviceData(3, 1, 3),
-    ];
-
-    _seriesList = [
-      new charts.Series<DeviceData, int>(
-        id: 'Force',
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (DeviceData deviceData, _) {
-          return (deviceData.time).toInt();
-        },
-        measureFn: (DeviceData deviceData, _) {
-          return deviceData.value;
-        },
-        data: data,
-      )
-    ];
-
-    _lineChart = new charts.LineChart(_seriesList, animate: false);
-    //widget.device.addListener(onNewData);
+    widget.device.addListener(onNewData);
   }
 
   @override
@@ -58,21 +36,73 @@ class _DeviceGraphViewState extends State<DeviceGraphView> {
 
   double index = 4;
   addRandomData() {
-    index += 1;
-    double raw = myRandom.nextDouble();
-    double value = myRandom.nextDouble();
-    var dd = DeviceData(index, raw, value);
-    _seriesList[0].data.add(dd);
+    setState(() {
+      index += 1;
+      double raw = myRandom.nextDouble();
+      double value = myRandom.nextDouble();
+      var dd = DeviceData(index, raw, value);
+      data.add(dd);
+    });
   }
 
   onNewData(newData) {
     setState(() {
-      //_seriesList[0].data.addAll(newData);
+      data.addAll(newData);
+      if (data.length > 500) {
+        data.removeAt(0);
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    var seriesList = [
+      new charts.Series<DeviceData, double>(
+        id: 'Force',
+        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
+        domainFn: (DeviceData deviceData, _) {
+          return deviceData.time / 1000.0;
+        },
+        measureFn: (DeviceData deviceData, _) {
+          return deviceData.value;
+        },
+        data: data,
+      )
+    ];
+
+    // if (data.length > 0) {
+    //   xMin = data[0].time / 1000.0;
+    //   xMax = data.last.time / 1000.0;
+    // }
+    // print(xMin);
+    // print(xMax);
+    var chart = new charts.LineChart(
+      seriesList,
+      animate: false,
+      defaultInteractions: false,
+      behaviors: [
+        new charts.SeriesLegend(),
+        new charts.SlidingViewport(),
+        new charts.PanAndZoomBehavior(),
+      ],
+      // domainAxis: charts.NumericAxisSpec(
+      //     renderSpec: new charts.SmallTickRendererSpec(),
+      //     viewport: charts.NumericExtents(xMin, xMax))
+      // // behaviors: [new charts.SelectNearest(), new charts.DomainHighlighter()],
+      // domainAxis:
+      //     charts.NumericAxisSpec(viewport: charts.NumericExtents(xMin, xMax)),
+      // primaryMeasureAxis:
+      //     charts.NumericAxisSpec(viewport: charts.NumericExtents(0, xMax)),
+    );
+
+    var chartWidget = new Padding(
+      padding: new EdgeInsets.all(32.0),
+      child: new SizedBox(
+        height: 200.0,
+        child: chart,
+      ),
+    );
+
     return Container(
       height: 400,
       padding: EdgeInsets.all(20),
@@ -85,15 +115,36 @@ class _DeviceGraphViewState extends State<DeviceGraphView> {
                   child: Text('Random Data'), onPressed: addRandomData),
               Text(
                 "Device: ${widget.device.name}",
-                style: Theme.of(context).textTheme.body2,
               ),
               Expanded(
-                child: _lineChart,
+                child: chartWidget,
               )
             ],
           ),
         ),
       ),
     );
+  }
+}
+
+class NumericAxisSpecWorkaround extends charts.NumericAxisSpec {
+  const NumericAxisSpecWorkaround(
+      {charts.RenderSpec<num> renderSpec,
+      charts.NumericTickProviderSpec tickProviderSpec,
+      charts.NumericTickFormatterSpec tickFormatterSpec,
+      bool showAxisLine,
+      viewport})
+      : super(
+            renderSpec: renderSpec,
+            tickProviderSpec: tickProviderSpec,
+            tickFormatterSpec: tickFormatterSpec,
+            showAxisLine: showAxisLine,
+            viewport: viewport);
+
+  @override
+  configure(charts.Axis<num> axis, charts.ChartContext context,
+      charts.GraphicsFactory graphicsFactory) {
+    super.configure(axis, context, graphicsFactory);
+    axis.autoViewport = false;
   }
 }
