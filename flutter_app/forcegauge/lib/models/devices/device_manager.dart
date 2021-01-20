@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'device.dart';
 
@@ -17,6 +18,7 @@ class DeviceManager {
     if (getDeviceByName(name) == null) {
       var newDevice = new Device(name, url);
       _devices.add(newDevice);
+      _notifyListeners(_devices.length);
       return newDevice;
     }
     return null;
@@ -24,6 +26,7 @@ class DeviceManager {
 
   removeDevice(int index) {
     if (index >= 0 && index < _devices.length) {
+      _notifyListeners(_devices.length);
       _devices.removeAt(index);
     }
   }
@@ -58,11 +61,29 @@ class DeviceManager {
       var newDevice = new Device.fromJson(devJson);
       _devices.add(newDevice);
     }
+    _notifyListeners(_devices.length);
   }
 
   saveSettings() {
     String json =
         jsonEncode(_devices.map((i) => i.toJson()).toList()).toString();
     _prefs.setString('devices', json);
+  }
+
+  // On data has changed listener
+  ObserverList<Function> _listeners = new ObserverList<Function>();
+
+  addListener(Function callback) {
+    _listeners.add(callback);
+  }
+
+  removeListener(Function callback) {
+    _listeners.remove(callback);
+  }
+
+  _notifyListeners(var data) {
+    _listeners.forEach((Function callback) {
+      callback(data);
+    });
   }
 }

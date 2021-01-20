@@ -6,8 +6,8 @@ import 'package:forcegauge/models/socket_manager.dart';
 import 'device_data.dart';
 
 class Device {
-  List<DeviceData> _historicalData = [];
-  int _historicalDataMaxLength = 3000;
+  //List<DeviceData> _historicalData = [];
+  //int _historicalDataMaxLength = 3000;
   final String name;
   String _url;
   double offset = 0;
@@ -27,9 +27,9 @@ class Device {
     return this._socket;
   }
 
-  getHistoricalData() {
-    return this._historicalData;
-  }
+  // getHistoricalData() {
+  //   return this._historicalData;
+  // }
 
   setUrl(String url) {
     _url = url;
@@ -89,11 +89,11 @@ class Device {
       }
 
       // Add new and remove old data
-      _historicalData.addAll(newDataList);
-      int difference = _historicalData.length - _historicalDataMaxLength;
-      if (difference > 0) {
-        _historicalData.removeRange(0, difference);
-      }
+      // _historicalData.addAll(newDataList);
+      // int difference = _historicalData.length - _historicalDataMaxLength;
+      // if (difference > 0) {
+      //   _historicalData.removeRange(0, difference);
+      // }
     }
     _notifyListeners(newDataList);
   }

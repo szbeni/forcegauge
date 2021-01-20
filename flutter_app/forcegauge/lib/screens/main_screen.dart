@@ -16,15 +16,29 @@ class _MainScreenState extends State<MainScreen> {
   List<Widget> deviceGraphViewList = [];
   @override
   void initState() {
-    for (var d in deviceManager.getDevices()) {
-      var deviceGraphView = DeviceGraphView(d);
-      deviceGraphViewList.add(deviceGraphView);
-    }
+    deviceManager.addListener(onDevicesChanged);
+
     super.initState();
   }
 
   @override
+  dispose() {
+    deviceManager.addListener(onDevicesChanged);
+    super.dispose();
+  }
+
+  onDevicesChanged(deviceNum) {
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
+    deviceGraphViewList.clear();
+    for (var d in deviceManager.getDevices()) {
+      var deviceGraphView = DeviceGraphView(d);
+      deviceGraphViewList.add(deviceGraphView);
+    }
+
     return Scaffold(
       drawer: NavDrawer(),
       appBar: new AppBar(title: new Text('Force Gauge'), actions: <Widget>[
@@ -43,8 +57,10 @@ class _MainScreenState extends State<MainScreen> {
           tooltip: 'Settings',
         )
       ]),
-      body: Column(
-        children: deviceGraphViewList,
+      body: SingleChildScrollView(
+        child: Column(
+          children: deviceGraphViewList,
+        ),
       ),
       // body: Column(
       //   children: deviceGraphViewList,

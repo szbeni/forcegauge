@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:forcegauge/models/settings.dart';
+import 'package:numberpicker/numberpicker.dart';
 
 /// Names of colours in Colors.primaries
 var colorNames = {
@@ -79,6 +80,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {});
   }
 
+  Future _showInfIntDialog() async {
+    await showDialog<int>(
+      context: context,
+      builder: (BuildContext context) {
+        return new NumberPickerDialog.integer(
+          minValue: 50,
+          maxValue: 250,
+          step: 5,
+          initialIntegerValue: settings.fontSize.toInt(),
+          infiniteLoop: true,
+        );
+      },
+    ).then((num value) {
+      if (value != null) {
+        setState(() {
+          settings.fontSize = value.toDouble();
+          settings.onSettingsChanged();
+        });
+      }
+    });
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -123,7 +146,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           ListTile(
-            title: Text('Light theme'),
+            title: Text('Theme Color'),
             subtitle: Text(colorNames[settings.primarySwatch]),
             onTap: () {
               showDialog(
@@ -145,6 +168,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
             },
           ),
+          ListTile(
+            title: Text('Font Size'),
+            subtitle: Text('${settings.fontSize}'),
+            onTap: () {
+              _showInfIntDialog();
+            },
+          ),
+
           Divider(height: 10),
           ListTile(
             title: Text(

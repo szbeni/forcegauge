@@ -39,6 +39,7 @@ class Settings {
   bool nightMode;
   bool silentMode;
   Color primarySwatch;
+  double fontSize;
   String countdownPip;
   String startRep;
   String startRest;
@@ -49,6 +50,7 @@ class Settings {
   load() {
     Map<String, dynamic> json =
         jsonDecode(_prefs.getString('settings') ?? '{}');
+    fontSize = json['fontSize'] ?? 150;
     nightMode = json['nightMode'] ?? false;
     silentMode = json['silentMode'] ?? false;
     primarySwatch = Colors.primaries[
@@ -66,6 +68,7 @@ class Settings {
   }
 
   Map<String, dynamic> toJson() => {
+        'fontSize': fontSize,
         'nightMode': nightMode,
         'silentMode': silentMode,
         'primarySwatch': Colors.primaries.indexOf(primarySwatch),

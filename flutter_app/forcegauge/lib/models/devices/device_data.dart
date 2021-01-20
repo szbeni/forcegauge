@@ -6,10 +6,27 @@ class DeviceData {
   final double value;
   DeviceData(this.time, this.raw, this.value);
 
+  static double _parseDouble(data, name) {
+    double retval = 0;
+    if (data[name].runtimeType == int) {
+      retval = int.parse(data[name]).toDouble();
+    } else if (data[name].runtimeType == double) {
+      retval = data[name];
+    } else {
+      try {
+        retval = double.parse(data[name]);
+      } catch (e) {
+        print("Cannot parse:");
+        print(data[name]);
+      }
+    }
+    return retval;
+  }
+
   factory DeviceData.parseJSON(data) {
-    var time = double.parse(data['time']);
-    var raw = double.parse(data['raw']);
-    var value = double.parse(data['value']);
+    double time = _parseDouble(data, 'time');
+    double raw = _parseDouble(data, 'raw');
+    double value = _parseDouble(data, 'value');
     return new DeviceData(time, raw, value);
   }
   @override
