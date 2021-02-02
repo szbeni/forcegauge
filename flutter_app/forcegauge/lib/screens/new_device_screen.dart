@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
 
 class AddNewDeviceScreen extends StatefulWidget {
-  final callback;
-  AddNewDeviceScreen(this.callback);
+  AddNewDeviceScreen();
   @override
   _AddNewDeviceScreenState createState() => _AddNewDeviceScreenState();
 }
@@ -17,7 +18,8 @@ class _AddNewDeviceScreenState extends State<AddNewDeviceScreen> {
         floatingActionButton: new FloatingActionButton(
             onPressed: () {
               if (deviceName.length > 0 && deviceUrl.length > 0) {
-                widget.callback(deviceName, deviceUrl);
+                BlocProvider.of<DevicemanagerCubit>(context)
+                    .addDevice(deviceName, deviceUrl);
               }
               Navigator.of(context).pop();
             },

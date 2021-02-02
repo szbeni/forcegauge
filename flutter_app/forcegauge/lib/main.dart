@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
 import 'package:forcegauge/screens/main_screen.dart';
 import 'package:forcegauge/models/settings.dart';
-import 'package:forcegauge/models/devices/device_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
@@ -14,7 +15,6 @@ void main() async {
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   settings = new Settings(prefs);
-  deviceManager = new DeviceManager(prefs);
 
   runApp(MainApp());
 }
@@ -45,6 +45,21 @@ class _MainAppState extends State<MainApp> {
 
   @override
   Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<DevicemanagerCubit>(
+          create: (_) => DevicemanagerCubit(),
+        ),
+      ],
+      child: MaterialApp(
+          title: 'Force Gauge',
+          theme: ThemeData(
+            primarySwatch: settings.primarySwatch,
+            brightness: settings.nightMode ? Brightness.dark : Brightness.light,
+          ),
+          home: MainScreen()),
+    );
+
     return MaterialApp(
         title: 'Force Gauge',
         theme: ThemeData(

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:forcegauge/models/devices/device_manager.dart';
 import 'package:forcegauge/screens/settings_screen.dart';
 import 'package:forcegauge/screens/navigation_drawer.dart';
 import 'package:forcegauge/screens/navigation_bottom.dart';
@@ -14,30 +13,15 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   List<Widget> deviceGraphViewList = [];
-  @override
-  void initState() {
-    deviceManager.addListener(onDevicesChanged);
-
-    super.initState();
-  }
-
-  @override
-  dispose() {
-    deviceManager.addListener(onDevicesChanged);
-    super.dispose();
-  }
-
-  onDevicesChanged(deviceNum) {
-    setState(() {});
-  }
 
   @override
   Widget build(BuildContext context) {
     deviceGraphViewList.clear();
-    for (var d in deviceManager.getDevices()) {
-      var deviceGraphView = DeviceGraphView(d);
-      deviceGraphViewList.add(deviceGraphView);
-    }
+    //TODOL
+    // for (var d in deviceManager.getDevices()) {
+    //   var deviceGraphView = DeviceGraphView(d);
+    //   deviceGraphViewList.add(deviceGraphView);
+    // }
 
     return Scaffold(
       drawer: NavDrawer(),

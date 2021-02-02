@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
 import 'package:forcegauge/models/devices/device.dart';
-import 'package:forcegauge/models/devices/device_manager.dart';
 import 'package:forcegauge/screens/new_device_screen.dart';
+
+import 'device_list.dart';
 
 class DevicesScreen extends StatefulWidget {
   @override
@@ -9,41 +12,6 @@ class DevicesScreen extends StatefulWidget {
 }
 
 class DevicesScreenState extends State<DevicesScreen> {
-  @override
-  void initState() {
-    for (var d in deviceManager.getDevices()) {
-      d.getSocket().addOnStatusChangedListener(onDeviceChanges);
-    }
-    super.initState();
-  }
-
-  @override
-  dispose() {
-    for (var d in deviceManager.getDevices()) {
-      d.getSocket().removeOnStatusChangedListener(onDeviceChanges);
-    }
-    super.dispose();
-  }
-
-  // When the status of a device has changed
-  onDeviceChanges(status) {
-    setState(() {});
-  }
-
-  void _addDevice(String name, String url) {
-    setState(() {
-      deviceManager.addDevice(name, url);
-      deviceManager.saveSettings();
-    });
-  }
-
-  void _removeDevice(int index) {
-    setState(() {
-      deviceManager.removeDevice(index);
-      deviceManager.saveSettings();
-    });
-  }
-
   // Device remove popup
   void _promptRemoveDevice(int index) {
     showDialog(
@@ -51,7 +19,8 @@ class DevicesScreenState extends State<DevicesScreen> {
         builder: (BuildContext context) {
           return new AlertDialog(
               title: new Text(
-                  'Remove Device: "${deviceManager.getDevice(index).name}".'),
+                  //TODO:
+                  'Remove Device: "${BlocProvider.of<DevicemanagerCubit>(context).state.devices[index].name}".'),
               actions: <Widget>[
                 new FlatButton(
                     child: new Text('Cancel'),
@@ -61,24 +30,12 @@ class DevicesScreenState extends State<DevicesScreen> {
                 new FlatButton(
                     child: new Text('Remove'),
                     onPressed: () {
-                      _removeDevice(index);
+                      BlocProvider.of<DevicemanagerCubit>(context)
+                          .removeDeviceAt(index);
                       Navigator.of(context).pop();
                     })
               ]);
         });
-  }
-
-  // Build the whole list of Devices
-  Widget _buildDevicesScreen() {
-    return new ListView.builder(
-      itemBuilder: (context, index) {
-        if (index < deviceManager.getDeviceNum()) {
-          return _buildDeviceItem(deviceManager.getDevice(index), index);
-        } else {
-          return new ListTile();
-        }
-      },
-    );
   }
 
   // Build a single Device Item
@@ -116,14 +73,14 @@ class DevicesScreenState extends State<DevicesScreen> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(title: new Text('Devices')),
-      body: _buildDevicesScreen(),
+      body: DeviceList(),
       floatingActionButton: new FloatingActionButton(
           onPressed: () {
             //Navigator.of(context).pop();
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => AddNewDeviceScreen(_addDevice),
+                builder: (context) => AddNewDeviceScreen(),
               ),
             );
           },
