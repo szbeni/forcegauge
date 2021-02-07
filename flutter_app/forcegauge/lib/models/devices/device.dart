@@ -1,13 +1,19 @@
 import 'dart:convert';
 
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:forcegauge/models/socket_manager.dart';
 
 import 'device_data.dart';
 
-class Device {
-  //List<DeviceData> _historicalData = [];
-  //int _historicalDataMaxLength = 3000;
+enum DeviceNotificationType {
+  newMessage,
+  newStatus,
+}
+
+class Device extends Equatable {
+  List<DeviceData> _historicalData = [];
+  int _historicalDataMaxLength = 500;
   final String name;
   String _url;
   double offset = 0;
@@ -16,6 +22,10 @@ class Device {
   double lastRawValue = 0;
   double maxValue = 0;
   double minValue = 0;
+  DeviceData lastData = new DeviceData(0, 0, 0);
+
+  @override
+  List<Object> get props => [name];
 
   WebSocketsNotifications _socket = new WebSocketsNotifications();
   Device(this.name, url) {
@@ -27,9 +37,13 @@ class Device {
     return this._socket;
   }
 
-  // getHistoricalData() {
-  //   return this._historicalData;
-  // }
+  getHistoricalData() {
+    return this._historicalData;
+  }
+
+  clearHistoricalData() {
+    this._historicalData.clear();
+  }
 
   setUrl(String url) {
     _url = url;
@@ -54,6 +68,7 @@ class Device {
   connect() {
     _socket.connect(this._url);
     _socket.addOnMessageListener(onMessage);
+    _socket.addOnStatusChangedListener(onStatusChanged);
   }
 
   resetOffset() {
@@ -76,6 +91,7 @@ class Device {
         newDataList.add(dd);
 
         // Store last values
+        this.lastData = dd;
         this.lastRawValue = dd.raw;
         this.lastValue = dd.value;
 
@@ -89,13 +105,17 @@ class Device {
       }
 
       // Add new and remove old data
-      // _historicalData.addAll(newDataList);
-      // int difference = _historicalData.length - _historicalDataMaxLength;
-      // if (difference > 0) {
-      //   _historicalData.removeRange(0, difference);
-      // }
+      _historicalData.addAll(newDataList);
+      int difference = _historicalData.length - _historicalDataMaxLength;
+      if (difference > 0) {
+        _historicalData.removeRange(0, difference);
+      }
     }
-    _notifyListeners(newDataList);
+    _notifyListeners(DeviceNotificationType.newMessage, newDataList);
+  }
+
+  onStatusChanged(status) {
+    _notifyListeners(DeviceNotificationType.newStatus, status);
   }
 
   // On data has changed listener
@@ -109,9 +129,9 @@ class Device {
     _listeners.remove(callback);
   }
 
-  _notifyListeners(var data) {
+  _notifyListeners(DeviceNotificationType type, data) {
     _listeners.forEach((Function callback) {
-      callback(data);
+      callback(type, data);
     });
   }
 

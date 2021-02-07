@@ -27,7 +27,6 @@ class WebSocketsNotifications extends WebsocketGetter {
 
   _newStatus(statusMsg) {
     // For debugging
-    //print(statusMsg);
     _lastStatusMsg = statusMsg;
     _listenersOnStatusChanged.forEach((Function callback) {
       callback(statusMsg);

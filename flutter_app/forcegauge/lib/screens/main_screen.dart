@@ -1,28 +1,17 @@
-import 'dart:convert';
+import 'package:charts_flutter/flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:forcegauge/bloc/cubit/device_cubit.dart';
+import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
 import 'package:forcegauge/screens/settings_screen.dart';
 import 'package:forcegauge/screens/navigation_drawer.dart';
 import 'package:forcegauge/screens/navigation_bottom.dart';
 
 import 'device_graphview.dart';
 
-class MainScreen extends StatefulWidget {
-  @override
-  _MainScreenState createState() => _MainScreenState();
-}
-
-class _MainScreenState extends State<MainScreen> {
-  List<Widget> deviceGraphViewList = [];
-
+class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    deviceGraphViewList.clear();
-    //TODOL
-    // for (var d in deviceManager.getDevices()) {
-    //   var deviceGraphView = DeviceGraphView(d);
-    //   deviceGraphViewList.add(deviceGraphView);
-    // }
-
     return Scaffold(
       drawer: NavDrawer(),
       appBar: new AppBar(title: new Text('Force Gauge'), actions: <Widget>[
@@ -41,38 +30,31 @@ class _MainScreenState extends State<MainScreen> {
           tooltip: 'Settings',
         )
       ]),
-      body: SingleChildScrollView(
+      body: DeviceGraphLists(),
+      bottomNavigationBar: NavBottom(),
+    );
+  }
+}
+
+class DeviceGraphLists extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<DevicemanagerCubit, DevicemanagerState>(
+        builder: (context, state) {
+      List<Widget> deviceGraphViewList = [];
+      for (var i = 0; i < state.devices.length; i++) {
+        var deviceGraphView = BlocProvider<DeviceCubit>(
+          create: (_) => DeviceCubit(state.devices[i]),
+          child: new DeviceGraphView(),
+        );
+
+        deviceGraphViewList.add(deviceGraphView);
+      }
+      return SingleChildScrollView(
         child: Column(
           children: deviceGraphViewList,
         ),
-      ),
-      // body: Column(
-      //   children: deviceGraphViewList,
-
-      //   //   TimeSeriesRangeAnnotationMarginChart.withSampleData(),
-      //   //   // new RaisedButton(
-      //   //   //   onPressed: () => {resetOffset()},
-      //   //   //   child: new Text("Reset Offset"),
-      //   //   // ),
-      //   //   // new RaisedButton(
-      //   //   //   onPressed: () => {clearMaxMin()},
-      //   //   //   child: new Text("Clear Max/Min"),
-      //   //   // ),
-      //   //   new Text(
-      //   //     "0",
-      //   //     style: TextStyle(fontSize: 50),
-      //   //   ),
-      //   //   new Text(
-      //   //     "Max Value: 0",
-      //   //     style: TextStyle(fontSize: 20),
-      //   //   ),
-      //   //   new Text(
-      //   //     "Min Value: 0",
-      //   //     style: TextStyle(fontSize: 20),
-      //   //   )
-      //   // ],
-      // ),
-      bottomNavigationBar: NavBottom(),
-    );
+      );
+    });
   }
 }

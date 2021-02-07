@@ -59,13 +59,5 @@ class _MainAppState extends State<MainApp> {
           ),
           home: MainScreen()),
     );
-
-    return MaterialApp(
-        title: 'Force Gauge',
-        theme: ThemeData(
-          primarySwatch: settings.primarySwatch,
-          brightness: settings.nightMode ? Brightness.dark : Brightness.light,
-        ),
-        home: MainScreen());
   }
 }

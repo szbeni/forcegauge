@@ -1,11 +1,8 @@
 part of 'devicemanager_cubit.dart';
 
-abstract class DevicemanagerState extends Equatable {
+abstract class DevicemanagerState {
   final List<Device> devices;
   DevicemanagerState(this.devices);
-
-  @override
-  List<Object> get props => [devices];
 
   Device getDeviceByName(String name) {
     for (var d in this.devices) {
