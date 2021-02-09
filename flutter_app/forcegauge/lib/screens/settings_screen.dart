@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
 import 'package:forcegauge/models/settings.dart';
 import 'package:numberpicker/numberpicker.dart';
 
@@ -64,22 +66,6 @@ class AudioSelectListItem extends StatelessWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  @override
-  void initState() {
-    settings.addListener(onSettingsChanged);
-    super.initState();
-  }
-
-  @override
-  dispose() {
-    settings.removeListener(onSettingsChanged);
-    super.dispose();
-  }
-
-  onSettingsChanged() {
-    setState(() {});
-  }
-
   Future _showInfIntDialog() async {
     await showDialog<int>(
       context: context,
@@ -88,15 +74,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
           minValue: 50,
           maxValue: 250,
           step: 5,
-          initialIntegerValue: settings.fontSize.toInt(),
+          initialIntegerValue:
+              BlocProvider.of<SettingsCubit>(context).settings.fontSize.toInt(),
           infiniteLoop: true,
         );
       },
     ).then((num value) {
       if (value != null) {
         setState(() {
-          settings.fontSize = value.toDouble();
-          settings.onSettingsChanged();
+          BlocProvider.of<SettingsCubit>(context).settings.fontSize =
+              value.toDouble();
+          BlocProvider.of<SettingsCubit>(context).saveSettings();
         });
       }
     });
@@ -125,18 +113,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           SwitchListTile(
             title: Text('Night mode'),
-            value: settings.nightMode,
+            value: BlocProvider.of<SettingsCubit>(context).settings.nightMode,
             onChanged: (nightMode) {
-              settings.nightMode = nightMode;
-              settings.onSettingsChanged();
+              BlocProvider.of<SettingsCubit>(context).settings.nightMode =
+                  nightMode;
+              BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           SwitchListTile(
             title: Text('Silent mode'),
-            value: settings.silentMode,
+            value: BlocProvider.of<SettingsCubit>(context).settings.silentMode,
             onChanged: (silentMode) {
-              settings.silentMode = silentMode;
-              settings.onSettingsChanged();
+              BlocProvider.of<SettingsCubit>(context).settings.silentMode =
+                  silentMode;
+              BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           ListTile(
@@ -147,7 +137,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             title: Text('Theme Color'),
-            subtitle: Text(colorNames[settings.primarySwatch]),
+            subtitle: Text(colorNames[BlocProvider.of<SettingsCubit>(context)
+                .settings
+                .primarySwatch]),
             onTap: () {
               showDialog(
                 context: context,
@@ -156,10 +148,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     content: SingleChildScrollView(
                       child: BlockPicker(
                         availableColors: Colors.primaries,
-                        pickerColor: settings.primarySwatch,
+                        pickerColor: BlocProvider.of<SettingsCubit>(context)
+                            .settings
+                            .primarySwatch,
                         onColorChanged: (Color color) {
-                          settings.primarySwatch = color;
-                          settings.onSettingsChanged();
+                          BlocProvider.of<SettingsCubit>(context)
+                              .settings
+                              .primarySwatch = color;
+                          BlocProvider.of<SettingsCubit>(context)
+                              .saveSettings();
                         },
                       ),
                     ),
@@ -170,7 +167,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             title: Text('Font Size'),
-            subtitle: Text('${settings.fontSize}'),
+            subtitle: Text(
+                '${BlocProvider.of<SettingsCubit>(context).settings.fontSize}'),
             onTap: () {
               _showInfIntDialog();
             },
@@ -184,51 +182,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           AudioSelectListItem(
-            value: settings.countdownPip,
+            value:
+                BlocProvider.of<SettingsCubit>(context).settings.countdownPip,
             title: 'Countdown pips',
             onChanged: (String value) {
-              settings.countdownPip = value;
-              settings.onSettingsChanged();
+              BlocProvider.of<SettingsCubit>(context).settings.countdownPip =
+                  value;
+              BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: settings.startRep,
+            value: BlocProvider.of<SettingsCubit>(context).settings.startRep,
             title: 'Start next rep',
             onChanged: (String value) {
-              settings.startRep = value;
-              settings.onSettingsChanged();
+              BlocProvider.of<SettingsCubit>(context).settings.startRep = value;
+              BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: settings.startRest,
+            value: BlocProvider.of<SettingsCubit>(context).settings.startRest,
             title: 'Rest',
             onChanged: (String value) {
-              settings.startRest = value;
-              settings.onSettingsChanged();
+              BlocProvider.of<SettingsCubit>(context).settings.startRest =
+                  value;
+              BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: settings.startBreak,
+            value: BlocProvider.of<SettingsCubit>(context).settings.startBreak,
             title: 'Break',
             onChanged: (String value) {
-              settings.startBreak = value;
-              settings.onSettingsChanged();
+              BlocProvider.of<SettingsCubit>(context).settings.startBreak =
+                  value;
+              BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: settings.startSet,
+            value: BlocProvider.of<SettingsCubit>(context).settings.startSet,
             title: 'Start next set',
             onChanged: (String value) {
-              settings.startSet = value;
-              settings.onSettingsChanged();
+              BlocProvider.of<SettingsCubit>(context).settings.startSet = value;
+              BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: settings.endWorkout,
+            value: BlocProvider.of<SettingsCubit>(context).settings.endWorkout,
             title: 'End workout (plays twice)',
             onChanged: (String value) {
-              settings.endWorkout = value;
-              settings.onSettingsChanged();
+              BlocProvider.of<SettingsCubit>(context).settings.endWorkout =
+                  value;
+              BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
         ],

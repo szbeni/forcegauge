@@ -6,6 +6,7 @@ import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forcegauge/bloc/cubit/device_cubit.dart';
+import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
 import 'package:forcegauge/models/devices/device_data.dart';
 import 'package:forcegauge/models/settings.dart';
 
@@ -75,7 +76,7 @@ class _DeviceGraphViewState extends State<DeviceGraphView> {
           state.device.clearMaxMin();
           state.device.clearHistoricalData();
         },
-        color: Colors.blue,
+        color: BlocProvider.of<SettingsCubit>(context).settings.primarySwatch,
         textColor: Colors.white,
         child: Icon(
           Icons.delete,
@@ -91,7 +92,7 @@ class _DeviceGraphViewState extends State<DeviceGraphView> {
             state.device.resetOffset();
           });
         },
-        color: Colors.blue,
+        color: BlocProvider.of<SettingsCubit>(context).settings.primarySwatch,
         textColor: Colors.white,
         child: Icon(
           Icons.vertical_align_center,
@@ -110,7 +111,7 @@ class _DeviceGraphViewState extends State<DeviceGraphView> {
           fontWeight: FontWeight.bold,
           fontStyle: FontStyle.normal,
           fontFamily: 'Open Sans',
-          fontSize: settings.fontSize);
+          fontSize: BlocProvider.of<SettingsCubit>(context).settings.fontSize);
 
       var textStyleLarge = new TextStyle(
           color: Colors.grey[800],

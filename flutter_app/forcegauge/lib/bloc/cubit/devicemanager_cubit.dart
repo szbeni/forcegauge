@@ -5,8 +5,15 @@ import 'package:forcegauge/models/devices/device.dart';
 part 'devicemanager_state.dart';
 
 class DevicemanagerCubit extends Cubit<DevicemanagerState> {
-  DevicemanagerCubit() : super(DevicemanagerInitial([])) {
-    addDevice("Test", "ws://localhost:9998");
+  DevicemanagerCubit() : super(DevicemanagerInitial([])) {}
+
+  void loadDevicesFromJson(List<dynamic> devicesJson) {
+    List<Device> deviceList = [];
+    for (var devJson in devicesJson) {
+      var newDevice = new Device.fromJson(devJson);
+      deviceList.add(newDevice);
+    }
+    emit(DevicemanagerPopulated(deviceList));
   }
 
   void addDevice(String name, String url) {
@@ -20,13 +27,16 @@ class DevicemanagerCubit extends Cubit<DevicemanagerState> {
   void removeDevice(String name) {
     Device dev = state.getDeviceByName(name);
     if (dev != null) {
+      dev.close();
       state.devices.remove(dev);
+
       emit(DevicemanagerPopulated(state.devices));
     }
   }
 
   void removeDeviceAt(int index) {
     if (index >= 0 && index < state.devices.length) {
+      state.devices[index].close();
       state.devices.removeAt(index);
       emit(DevicemanagerPopulated(state.devices));
     }

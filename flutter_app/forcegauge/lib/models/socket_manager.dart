@@ -41,13 +41,25 @@ class WebSocketsNotifications extends WebsocketGetter {
     this._url = url;
     reset();
     _newStatus("Connecting to " + this._url.toString());
-    _channel = WebsocketGetter.newWebsocket(this._url);
-    _isConnecting = true;
-    _channel.stream.listen(
-      _onReceptionOfMessageFromServer,
-      onDone: _onDisconnected,
-      onError: _onError,
-    );
+    try {
+      _channel = WebsocketGetter.newWebsocket(this._url);
+      _isConnecting = true;
+      _channel.stream.listen(
+        _onReceptionOfMessageFromServer,
+        onDone: _onDisconnected,
+        onError: _onError,
+      );
+    } catch (e) {
+      print("Websocket Error: ${e}");
+    }
+  }
+
+  close() {
+    if (_timer != null) {
+      _timer.cancel();
+      _timer = null;
+      reset();
+    }
   }
 
   reset() {

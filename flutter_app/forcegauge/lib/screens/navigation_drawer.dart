@@ -1,9 +1,9 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:forcegauge/screens/settings_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
 import 'package:forcegauge/screens/devices_screen.dart';
-import 'package:forcegauge/models/settings.dart';
+import 'package:forcegauge/screens/settings_screen.dart';
 
 class NavDrawer extends StatelessWidget {
   @override
@@ -18,7 +18,9 @@ class NavDrawer extends StatelessWidget {
               style: TextStyle(color: Colors.white, fontSize: 25),
             ),
             decoration: BoxDecoration(
-              color: settings.primarySwatch,
+              color: BlocProvider.of<SettingsCubit>(context)
+                  .settings
+                  .primarySwatch,
               image: DecorationImage(
                 fit: BoxFit.scaleDown,
                 image: AssetImage('assets/images/fist.png'),

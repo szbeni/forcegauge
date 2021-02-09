@@ -37,6 +37,10 @@ class Device extends Equatable {
     return this._socket;
   }
 
+  close() {
+    _socket.close();
+  }
+
   getHistoricalData() {
     return this._historicalData;
   }

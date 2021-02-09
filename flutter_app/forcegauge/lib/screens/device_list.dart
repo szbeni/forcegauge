@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forcegauge/bloc/cubit/device_cubit.dart';
 import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
+import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
 import 'package:forcegauge/models/devices/device.dart';
 
 class DeviceList extends StatelessWidget {
