@@ -14,8 +14,7 @@ class DeviceCubit extends Cubit<DeviceState> {
     if (type == DeviceNotificationType.newMessage) {
       emit(DeviceStateNewMessage(state.device));
     } else if (type == DeviceNotificationType.newStatus) {
-      print(data);
-      emit(DeviceStateNewStatus(state.device));
+      emit(DeviceStateNewStatus(state.device, data));
     }
   }
 

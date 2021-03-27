@@ -17,5 +17,6 @@ class DeviceStateNewMessage extends DeviceState {
 }
 
 class DeviceStateNewStatus extends DeviceState {
-  DeviceStateNewStatus(Device device) : super(device);
+  final status;
+  DeviceStateNewStatus(Device device, this.status) : super(device);
 }
