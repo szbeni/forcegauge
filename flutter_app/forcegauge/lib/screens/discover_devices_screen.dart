@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
+import 'package:forcegauge/models/network_analyzer.dart';
 import 'package:http/http.dart' as http;
-import 'package:ping_discover_network/ping_discover_network.dart';
+
 import 'package:wifi/wifi.dart';
 
 class Device {
@@ -56,9 +57,8 @@ class _DiscoverDevicesScreenState extends State<DiscoverDevicesScreen> {
     final String subnet = ip.substring(0, ip.lastIndexOf('.'));
     final int port = 80;
 
-    final stream = NetworkAnalyzer.discover2(subnet, port);
     http.Client client = http.Client();
-
+    final stream = NetworkAnalyzer.discover2(subnet, port);
     stream.listen((NetworkAddress addr) {
       if (addr.exists) {
         print('Found online IP: ${addr.ip}');
