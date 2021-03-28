@@ -64,6 +64,8 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght
 bool handleFileRead(String path) { // send the right file to the client (if it exists)
   Serial.println("handleFileRead: " + path);
   if (path.endsWith("/")) path += "index.html";          // If a folder is requested, send the index file
+  if (server.uri().endsWith(configFilename)) saveConfig(&config); //save config before display it to user
+
   String contentType = getContentType(path);             // Get the MIME type
   String pathWithGz = path + ".gz";
   if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)) { // If the file exists, either as a compressed archive, or normal
@@ -76,6 +78,7 @@ bool handleFileRead(String path) { // send the right file to the client (if it e
     return true;
   }
   Serial.println(String("\tFile Not Found: ") + path);   // If the file doesn't exist, return false
+  
   return false;
 }
 
@@ -130,4 +133,12 @@ void handleGetData() {
   jsonObj += "]}";
   server.send(200, "text/plane", jsonObj);
   yield();
+}
+
+void handleAbout()
+{
+  String response = "type:forcegauge\n";
+  response += "name:" + String(config.name) + "\n";
+  response += "version:" + String(version)  + "\n";
+  server.send(200, "text/plane", response);
 }
