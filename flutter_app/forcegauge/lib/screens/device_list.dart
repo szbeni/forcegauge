@@ -72,11 +72,11 @@ class DeviceListTile extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 new Text("Name: " + state.device.name.toString()),
-                new Text("Address: " + state.device.getUrl().toString()),
                 connectedIcon
               ],
             ),
           ),
+          subtitle: new Text("Address: " + state.device.getUrl().toString()),
           onTap: () => _removedDeviceDialog(context, state),
         );
       },

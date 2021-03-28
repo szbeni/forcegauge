@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:forcegauge/screens/discover_devices_screen.dart';
 import 'package:forcegauge/screens/new_device_screen.dart';
-
-import 'device_list.dart';
+import 'package:forcegauge/screens/device_list.dart';
 
 class DevicesScreen extends StatefulWidget {
   @override
@@ -13,7 +13,25 @@ class DevicesScreenState extends State<DevicesScreen> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(title: new Text('Devices')),
+      // appBar: new AppBar(title: new Text('Devices')),
+      appBar: AppBar(
+        title: Text('Added Devices'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.refresh),
+            tooltip: 'Refresh',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DiscoverDevicesScreen(),
+                ),
+              );
+              //_scanDevices();
+            },
+          ),
+        ],
+      ),
       body: DeviceList(),
       floatingActionButton: new FloatingActionButton(
           onPressed: () {

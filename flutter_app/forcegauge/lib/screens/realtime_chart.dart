@@ -81,12 +81,12 @@ class EvenMoreRealtimeState extends State<EvenMoreRealtime>
                       _clearChart();
                     }
                   } else if (state is DeviceStateNewMessage) {
-                    print(state.device.lastData);
+                    //print(state.device.lastData);
                     _addData(state.device.lastData.time,
                         state.device.lastData.value);
                   }
                 },
-                child: Text("Test"))),
+                child: Text("Chart"))),
         //title:  ,
         body: getBody());
   }
@@ -110,12 +110,12 @@ class EvenMoreRealtimeState extends State<EvenMoreRealtime>
   // @override
   getBuilder() {
     return (BuildContext context) => <PopupMenuItem<String>>[
-          item('View on GitHub', 'A'),
-          item('Add Entry', 'B'),
+          //item('View on GitHub', 'A'),
+          //item('Add Entry', 'B'),
           item('Clear Chart', 'C'),
-          item('Add Multiple', 'D'),
-          item('Save to Gallery', 'E'),
-          item('Update Random Single Entry', 'F'),
+          //item('Add Multiple', 'D'),
+          //item('Save to Gallery', 'E'),
+          //item('Update Random Single Entry', 'F'),
         ];
   }
 
@@ -175,7 +175,7 @@ class EvenMoreRealtimeState extends State<EvenMoreRealtime>
         axisLeftSettingFunction: (axisLeft, controller) {
           axisLeft
             //..typeface = Util.LIGHT
-            ..textColor = ColorUtils.WHITE
+            ..textColor = ColorUtils.GRAY
             ..axisMaximum = 100.0
             ..axisMinimum = 0.0
             ..drawGridLines = true;
@@ -188,7 +188,7 @@ class EvenMoreRealtimeState extends State<EvenMoreRealtime>
         dragYEnabled: true,
         scaleXEnabled: true,
         scaleYEnabled: true,
-        backgroundColor: ColorUtils.LTGRAY,
+        backgroundColor: ColorUtils.WHITE,
         selectionListener: this,
         pinchZoomEnabled: true,
         description: desc);
