@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
-import 'package:forcegauge/screens/devices_screen.dart';
+import 'package:forcegauge/screens/device_management/devices_screen.dart';
 import 'package:forcegauge/screens/settings_screen.dart';
 
 class NavDrawer extends StatelessWidget {

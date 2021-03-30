@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forcegauge/bloc/cubit/device_cubit.dart';
 import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
-import 'package:forcegauge/screens/realtime_chart.dart';
+import 'package:forcegauge/screens/min_max_tab/realtime_chart.dart';
 
 class DeviceGraphView extends StatefulWidget {
   DeviceGraphView();

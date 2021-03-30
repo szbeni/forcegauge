@@ -1,9 +1,8 @@
 import 'dart:convert';
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:forcegauge/models/devices/device.dart';
 import 'package:forcegauge/models/settings.dart';
+import 'package:forcegauge/models/tabata/tabata.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'settings_state.dart';
@@ -17,7 +16,24 @@ class SettingsCubit extends Cubit<SettingsState> {
       this._prefs = prefs;
       loadSettings();
       loadDevices();
+      loadTabata();
     });
+  }
+
+  loadTabata() {
+    //if (this._prefs == null) return;
+    var tabataString =
+        _prefs.getString('tabata') ?? jsonEncode(defaultTabata.toJson());
+    var tabataJson = jsonDecode(tabataString);
+    var tabata = Tabata.fromJson(tabataJson);
+    emit(SettingsStateTabataLoaded(tabata));
+  }
+
+  saveTabata(Tabata tabata) {
+    //if (this._prefs == null) return;
+    String json = jsonEncode(tabata).toString();
+    _prefs.setString('tabata', json);
+    emit(SettingsStateTabataLoaded(tabata));
   }
 
   loadDevices() {

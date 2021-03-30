@@ -20,3 +20,13 @@ class SettingsStateSettingsChanged extends SettingsState {
   final Settings settings;
   SettingsStateSettingsChanged(this.settings) : super();
 }
+
+class SettingsStateTabataLoaded extends SettingsState {
+  final Tabata tabata;
+  SettingsStateTabataLoaded(this.tabata) : super();
+}
+
+class SettingsStateTabataSaved extends SettingsState {
+  final Tabata tabata;
+  SettingsStateTabataSaved(this.tabata) : super();
+}

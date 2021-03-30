@@ -1,32 +1,26 @@
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:forcegauge/models/tabata/tabata.dart';
 
 class Settings {
   bool nightMode;
   bool silentMode;
   Color primarySwatch;
   double fontSize;
-  String countdownPip;
-  String startRep;
-  String startRest;
-  String startBreak;
-  String startSet;
-  String endWorkout;
+  Tabata savedTabata;
+  TabataSounds tabataSounds = new TabataSounds();
 
   fromJson(Map<String, dynamic> json) {
     fontSize = json['fontSize'] ?? 150;
     nightMode = json['nightMode'] ?? false;
     silentMode = json['silentMode'] ?? false;
     primarySwatch = Colors.primaries[
-        json['primarySwatch'] ?? Colors.primaries.indexOf(Colors.deepPurple)];
-    countdownPip = json['countdownPip'] ?? 'pip.mp3';
-    startRep = json['startRep'] ?? 'boop.mp3';
-    startRest = json['startRest'] ?? 'dingdingding.mp3';
-    startBreak = json['startBreak'] ?? 'dingdingding.mp3';
-    startSet = json['startSet'] ?? 'boop.mp3';
-    endWorkout = json['endWorkout'] ?? 'dingdingding.mp3';
+        json['primarySwatch'] ?? Colors.primaries.indexOf(Colors.blue)];
+    tabataSounds.countdownPip = json['countdownPip'] ?? 'pip.mp3';
+    tabataSounds.startRep = json['startRep'] ?? 'boop.mp3';
+    tabataSounds.startRest = json['startRest'] ?? 'dingdingding.mp3';
+    tabataSounds.startBreak = json['startBreak'] ?? 'dingdingding.mp3';
+    tabataSounds.startSet = json['startSet'] ?? 'boop.mp3';
+    tabataSounds.endWorkout = json['endWorkout'] ?? 'dingdingding.mp3';
   }
 
   Map<String, dynamic> toJson() => {
@@ -34,11 +28,12 @@ class Settings {
         'nightMode': nightMode,
         'silentMode': silentMode,
         'primarySwatch': Colors.primaries.indexOf(primarySwatch),
-        'countdownPip': countdownPip,
-        'startRep': startRep,
-        'startRest': startRest,
-        'startBreak': startBreak,
-        'startSet': startSet,
-        'endWorkout': endWorkout,
+        'countdownPip': tabataSounds.countdownPip,
+        'startRep': tabataSounds.startRep,
+        'startRest': tabataSounds.startRest,
+        'startBreak': tabataSounds.startBreak,
+        'startSet': tabataSounds.startSet,
+        'endWorkout': tabataSounds.endWorkout,
+        'tabata': savedTabata
       };
 }

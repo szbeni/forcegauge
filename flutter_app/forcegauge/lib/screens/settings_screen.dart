@@ -182,55 +182,86 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           AudioSelectListItem(
-            value:
-                BlocProvider.of<SettingsCubit>(context).settings.countdownPip,
+            value: BlocProvider.of<SettingsCubit>(context)
+                .settings
+                .tabataSounds
+                .countdownPip,
             title: 'Countdown pips',
             onChanged: (String value) {
-              BlocProvider.of<SettingsCubit>(context).settings.countdownPip =
-                  value;
+              BlocProvider.of<SettingsCubit>(context)
+                  .settings
+                  .tabataSounds
+                  .countdownPip = value;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: BlocProvider.of<SettingsCubit>(context).settings.startRep,
+            value: BlocProvider.of<SettingsCubit>(context)
+                .settings
+                .tabataSounds
+                .startRep,
             title: 'Start next rep',
             onChanged: (String value) {
-              BlocProvider.of<SettingsCubit>(context).settings.startRep = value;
+              BlocProvider.of<SettingsCubit>(context)
+                  .settings
+                  .tabataSounds
+                  .startRep = value;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: BlocProvider.of<SettingsCubit>(context).settings.startRest,
+            value: BlocProvider.of<SettingsCubit>(context)
+                .settings
+                .tabataSounds
+                .startRest,
             title: 'Rest',
             onChanged: (String value) {
-              BlocProvider.of<SettingsCubit>(context).settings.startRest =
-                  value;
+              BlocProvider.of<SettingsCubit>(context)
+                  .settings
+                  .tabataSounds
+                  .startRest = value;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: BlocProvider.of<SettingsCubit>(context).settings.startBreak,
+            value: BlocProvider.of<SettingsCubit>(context)
+                .settings
+                .tabataSounds
+                .startBreak,
             title: 'Break',
             onChanged: (String value) {
-              BlocProvider.of<SettingsCubit>(context).settings.startBreak =
-                  value;
+              BlocProvider.of<SettingsCubit>(context)
+                  .settings
+                  .tabataSounds
+                  .startBreak = value;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: BlocProvider.of<SettingsCubit>(context).settings.startSet,
+            value: BlocProvider.of<SettingsCubit>(context)
+                .settings
+                .tabataSounds
+                .startSet,
             title: 'Start next set',
             onChanged: (String value) {
-              BlocProvider.of<SettingsCubit>(context).settings.startSet = value;
+              BlocProvider.of<SettingsCubit>(context)
+                  .settings
+                  .tabataSounds
+                  .startSet = value;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: BlocProvider.of<SettingsCubit>(context).settings.endWorkout,
+            value: BlocProvider.of<SettingsCubit>(context)
+                .settings
+                .tabataSounds
+                .endWorkout,
             title: 'End workout (plays twice)',
             onChanged: (String value) {
-              BlocProvider.of<SettingsCubit>(context).settings.endWorkout =
-                  value;
+              BlocProvider.of<SettingsCubit>(context)
+                  .settings
+                  .tabataSounds
+                  .endWorkout = value;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),

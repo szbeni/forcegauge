@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:forcegauge/bloc/cubit/device_cubit.dart';
 import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
 import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
 import 'package:forcegauge/screens/main_screen.dart';
-import 'package:forcegauge/models/settings.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

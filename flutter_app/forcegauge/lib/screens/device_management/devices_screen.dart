@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:forcegauge/screens/discover_devices_screen.dart';
-import 'package:forcegauge/screens/new_device_screen.dart';
-import 'package:forcegauge/screens/device_list.dart';
+import 'package:forcegauge/screens/device_management/discover_devices_screen.dart';
+import 'package:forcegauge/screens/device_management/add_new_device_screen.dart';
+import 'package:forcegauge/screens/device_management/device_list.dart';
 
 class DevicesScreen extends StatefulWidget {
   @override

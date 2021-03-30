@@ -4,11 +4,25 @@ import 'package:forcegauge/bloc/cubit/device_cubit.dart';
 import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
 import 'package:forcegauge/screens/settings_screen.dart';
 import 'package:forcegauge/screens/navigation_drawer.dart';
-import 'package:forcegauge/screens/navigation_bottom.dart';
+import 'package:forcegauge/screens/tabata_tab/tabata_screen.dart';
 
-import 'device_graphview.dart';
+import 'min_max_tab/device_graphview.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
+  @override
+  _MainScreenState createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _currentIndex = 0;
+  final List<Widget> _children = [
+    DeviceGraphLists(),
+    TabataScreen(
+      onSettingsChanged: () {},
+    ),
+    Container()
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,9 +43,32 @@ class MainScreen extends StatelessWidget {
           tooltip: 'Settings',
         )
       ]),
-      body: DeviceGraphLists(),
-      bottomNavigationBar: NavBottom(),
+      body: _children[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+          onTap: onTabTapped,
+          currentIndex: _currentIndex,
+          selectedItemColor: Colors.amber[800],
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.bar_chart),
+              label: 'MinMax',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.timer),
+              label: 'Tabata',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.assessment),
+              label: 'Taget',
+            ),
+          ]),
     );
+  }
+
+  void onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
   }
 }
 
