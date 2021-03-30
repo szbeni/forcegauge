@@ -12,6 +12,7 @@ class TabataSounds {
   String startBreak;
   String startSet;
   String endWorkout;
+  String warningBeforeBreakEnds;
 }
 
 class Tabata {
@@ -33,6 +34,9 @@ class Tabata {
   /// Initial countdown before starting workout
   Duration startDelay;
 
+  /// Warning time before end of break
+  Duration warningBeforeBreakEndsTime;
+
   Tabata({
     this.sets,
     this.reps,
@@ -40,6 +44,7 @@ class Tabata {
     this.exerciseTime,
     this.restTime,
     this.breakTime,
+    this.warningBeforeBreakEndsTime,
   });
 
   Duration getTotalTime() {
@@ -54,7 +59,9 @@ class Tabata {
         exerciseTime = Duration(seconds: json['exerciseTime']),
         restTime = Duration(seconds: json['restTime']),
         breakTime = Duration(seconds: json['breakTime']),
-        startDelay = Duration(seconds: json['startDelay']);
+        startDelay = Duration(seconds: json['startDelay']),
+        warningBeforeBreakEndsTime =
+            Duration(seconds: json['warningBeforeBreakEndsTime']);
 
   Map<String, dynamic> toJson() => {
         'sets': sets,
@@ -73,6 +80,7 @@ Tabata get defaultTabata => Tabata(
       exerciseTime: Duration(seconds: 20),
       restTime: Duration(seconds: 10),
       breakTime: Duration(seconds: 60),
+      warningBeforeBreakEndsTime: Duration(seconds: 20),
     );
 
 enum WorkoutState { initial, starting, exercising, resting, breaking, finished }
@@ -137,6 +145,10 @@ class Workout {
       _timeLeft -= Duration(seconds: 1);
       if (_timeLeft.inSeconds <= 3 && _timeLeft.inSeconds >= 1) {
         _playSound(_sounds.countdownPip);
+      }
+      if (_timeLeft.inSeconds == _config.warningBeforeBreakEndsTime &&
+          config.warningBeforeBreakEndsTime > 0) {
+        _playSound(_sounds.warningBeforeBreakEnds);
       }
     }
 

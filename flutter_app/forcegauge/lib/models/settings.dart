@@ -21,6 +21,8 @@ class Settings {
     tabataSounds.startBreak = json['startBreak'] ?? 'dingdingding.mp3';
     tabataSounds.startSet = json['startSet'] ?? 'boop.mp3';
     tabataSounds.endWorkout = json['endWorkout'] ?? 'dingdingding.mp3';
+    tabataSounds.warningBeforeBreakEnds =
+        json['warningBeforeBreakEnds'] ?? 'woopwoop.mp3';
   }
 
   Map<String, dynamic> toJson() => {
@@ -34,6 +36,7 @@ class Settings {
         'startBreak': tabataSounds.startBreak,
         'startSet': tabataSounds.startSet,
         'endWorkout': tabataSounds.endWorkout,
+        'warningBeforeBreakEnds': tabataSounds.warningBeforeBreakEnds,
         'tabata': savedTabata
       };
 }
