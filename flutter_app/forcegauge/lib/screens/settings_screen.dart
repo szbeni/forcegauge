@@ -57,6 +57,7 @@ class AudioSelectListItem extends StatelessWidget {
           DropdownMenuItem(child: Text('High Beep'), value: 'boop.mp3'),
           DropdownMenuItem(
               child: Text('Ding Ding Ding!'), value: 'dingdingding.mp3'),
+          DropdownMenuItem(child: Text('Woop Woop!'), value: 'woopwoop.mp3'),
         ],
         isExpanded: true,
         onChanged: onChanged,
@@ -248,6 +249,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   .settings
                   .tabataSounds
                   .startSet = value;
+              BlocProvider.of<SettingsCubit>(context).saveSettings();
+            },
+          ),
+          AudioSelectListItem(
+            value: BlocProvider.of<SettingsCubit>(context)
+                .settings
+                .tabataSounds
+                .warningBeforeBreakEnds,
+            title: 'Warning Before break',
+            onChanged: (String value) {
+              BlocProvider.of<SettingsCubit>(context)
+                  .settings
+                  .tabataSounds
+                  .warningBeforeBreakEnds = value;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),

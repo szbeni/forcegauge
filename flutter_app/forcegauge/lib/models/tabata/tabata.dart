@@ -70,6 +70,7 @@ class Tabata {
         'restTime': restTime.inSeconds,
         'breakTime': breakTime.inSeconds,
         'startDelay': startDelay.inSeconds,
+        'warningBeforeBreakEndsTime': warningBeforeBreakEndsTime.inSeconds,
       };
 }
 

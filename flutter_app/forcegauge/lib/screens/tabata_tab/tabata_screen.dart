@@ -217,6 +217,28 @@ class _TabataScreenState extends State<TabataScreen> {
                     });
                   },
                 ),
+                ListTile(
+                  title: Text('Warning before break ends time'),
+                  subtitle:
+                      Text(formatTime(_tabata.warningBeforeBreakEndsTime)),
+                  leading: Icon(Icons.timer),
+                  onTap: () {
+                    showDialog<Duration>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return DurationPickerDialog(
+                          initialDuration: _tabata.warningBeforeBreakEndsTime,
+                          title: Text('Warning before break ends'),
+                        );
+                      },
+                    ).then((warningBeforeBreakEndsTime) {
+                      if (warningBeforeBreakEndsTime == null) return;
+                      _tabata.warningBeforeBreakEndsTime =
+                          warningBeforeBreakEndsTime;
+                      _onTabataChanged();
+                    });
+                  },
+                ),
                 Divider(height: 10),
                 ListTile(
                   title: Text(
