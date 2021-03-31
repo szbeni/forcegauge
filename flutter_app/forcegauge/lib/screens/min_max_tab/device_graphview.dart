@@ -26,8 +26,7 @@ class _DeviceGraphViewState extends State<DeviceGraphView> {
             ),
             child: Column(
               children: [
-                BlocBuilder<DeviceCubit, DeviceState>(
-                    builder: (context, state) {
+                BlocBuilder<DeviceCubit, DeviceState>(builder: (context, state) {
                   // if (data.length > 0) {
                   //   xMin = data[0].time / 1000.0;
                   //   xMax = data.last.time / 1000.0;
@@ -44,9 +43,7 @@ class _DeviceGraphViewState extends State<DeviceGraphView> {
                       state.device.clearMaxMin();
                       state.device.clearHistoricalData();
                     },
-                    color: BlocProvider.of<SettingsCubit>(context)
-                        .settings
-                        .primarySwatch,
+                    color: BlocProvider.of<SettingsCubit>(context).settings.primarySwatch,
                     textColor: Colors.white,
                     child: Icon(
                       Icons.delete,
@@ -62,9 +59,7 @@ class _DeviceGraphViewState extends State<DeviceGraphView> {
                         state.device.resetOffset();
                       });
                     },
-                    color: BlocProvider.of<SettingsCubit>(context)
-                        .settings
-                        .primarySwatch,
+                    color: BlocProvider.of<SettingsCubit>(context).settings.primarySwatch,
                     textColor: Colors.white,
                     child: Icon(
                       Icons.vertical_align_center,
@@ -74,20 +69,15 @@ class _DeviceGraphViewState extends State<DeviceGraphView> {
                     shape: CircleBorder(),
                   );
 
-                  var statusIcon =
-                      Icon(Icons.radio_button_checked, color: Colors.red);
-                  if (state.device.isConnected())
-                    statusIcon =
-                        Icon(Icons.radio_button_checked, color: Colors.green);
+                  var statusIcon = Icon(Icons.radio_button_checked, color: Colors.red);
+                  if (state.device.isConnected()) statusIcon = Icon(Icons.radio_button_checked, color: Colors.green);
 
                   var textStyleForce = new TextStyle(
                       color: Colors.grey[800],
                       fontWeight: FontWeight.bold,
                       fontStyle: FontStyle.normal,
                       fontFamily: 'Open Sans',
-                      fontSize: BlocProvider.of<SettingsCubit>(context)
-                          .settings
-                          .fontSize);
+                      fontSize: BlocProvider.of<SettingsCubit>(context).settings.fontSize);
 
                   var textStyleLarge = new TextStyle(
                       color: Colors.grey[800],

@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'package:audioplayers/audio_cache.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'dart:math';
 
-var audioPlayer = AudioPlayer();
-var audioCache = AudioCache();
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+
+import '../../main.dart';
 
 class TabataSounds {
   String countdownPip;
@@ -48,9 +49,7 @@ class Tabata {
   });
 
   Duration getTotalTime() {
-    return (exerciseTime * sets * reps) +
-        (restTime * sets * (reps - 1)) +
-        (breakTime * (sets - 1));
+    return (exerciseTime * sets * reps) + (restTime * sets * (reps - 1)) + (breakTime * (sets - 1));
   }
 
   Tabata.fromJson(Map<String, dynamic> json)
@@ -60,8 +59,7 @@ class Tabata {
         restTime = Duration(seconds: json['restTime']),
         breakTime = Duration(seconds: json['breakTime']),
         startDelay = Duration(seconds: json['startDelay']),
-        warningBeforeBreakEndsTime =
-            Duration(seconds: json['warningBeforeBreakEndsTime']);
+        warningBeforeBreakEndsTime = Duration(seconds: json['warningBeforeBreakEndsTime']);
 
   Map<String, dynamic> toJson() => {
         'sets': sets,
@@ -86,9 +84,63 @@ Tabata get defaultTabata => Tabata(
 
 enum WorkoutState { initial, starting, exercising, resting, breaking, finished }
 
+class WorkoutReport {
+  List<double> _values = [];
+  double _min = 0;
+  double _max = 0;
+  double _average = 0;
+
+  addValue(double value) {
+    _values.add(value);
+    _min = _values.fold(_values[0], min);
+    _max = _values.fold(_values[0], max);
+    _average = _values.reduce((a, b) => a + b) / _values.length;
+  }
+
+  getMin() {
+    return _min;
+  }
+
+  getMax() {
+    return _max;
+  }
+
+  getAverage() {
+    return _average;
+  }
+
+  clear() {
+    _min = 0;
+    _max = 0;
+    _average = 0;
+  }
+
+  @override
+  String toString() {
+    var min = _min.toStringAsFixed(1);
+    var max = _max.toStringAsFixed(1);
+    var avg = _average.toStringAsFixed(1);
+
+    return "min: $min, max: $max, avg: $avg";
+  }
+}
+
+class SetRep {
+  final int set;
+  final int rep;
+  SetRep(this.set, this.rep);
+
+  @override
+  String toString() {
+    return "Set: $set, Rep: $rep";
+  }
+}
+
 class Workout {
   Tabata _config;
   TabataSounds _sounds;
+
+  Map<String, WorkoutReport> _workoutReports = {};
 
   /// Callback for when the workout's state has changed.
   Function _onStateChange;
@@ -109,6 +161,29 @@ class Workout {
   int _rep = 0;
 
   Workout(this._config, this._sounds, this._onStateChange);
+
+  void newForceValue(double force) {
+    //record
+    if (_step == WorkoutState.exercising) {
+      var current = SetRep(_set, _rep).toString();
+      if (!_workoutReports.containsKey(current)) _workoutReports[current] = WorkoutReport();
+      _workoutReports[current].addValue(force);
+    }
+  }
+
+  WorkoutReport getLastReport() {
+    return getWorkoutReport(_set, _rep);
+  }
+
+  WorkoutReport getWorkoutReport(int set, int rep) {
+    var current = SetRep(set, rep).toString();
+    if (_workoutReports.containsKey(current)) return _workoutReports[current];
+    return null;
+  }
+
+  Map<String, WorkoutReport> getWorkoutReports() {
+    return _workoutReports;
+  }
 
   /// Starts or resumes the workout
   start() {
@@ -147,12 +222,11 @@ class Workout {
       if (_timeLeft.inSeconds <= 3 && _timeLeft.inSeconds >= 1) {
         _playSound(_sounds.countdownPip);
       }
-      if (_timeLeft.inSeconds == _config.warningBeforeBreakEndsTime &&
-          config.warningBeforeBreakEndsTime > 0) {
+      if (_timeLeft.inSeconds == _config.warningBeforeBreakEndsTime.inSeconds &&
+          config.warningBeforeBreakEndsTime.inSeconds > 0) {
         _playSound(_sounds.warningBeforeBreakEnds);
       }
     }
-
     _onStateChange();
   }
 
@@ -170,8 +244,7 @@ class Workout {
       }
     } else if (_step == WorkoutState.resting) {
       _startRep();
-    } else if (_step == WorkoutState.starting ||
-        _step == WorkoutState.breaking) {
+    } else if (_step == WorkoutState.starting || _step == WorkoutState.breaking) {
       _startSet();
     }
   }

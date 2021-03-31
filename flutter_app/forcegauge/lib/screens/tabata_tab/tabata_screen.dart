@@ -9,13 +9,9 @@ import 'package:forcegauge/widgets/durationpicker.dart';
 import 'package:numberpicker/numberpicker.dart';
 
 class TabataScreen extends StatefulWidget {
-  //final Settings settings;
-  //final SharedPreferences prefs;
   final Function onSettingsChanged;
 
   TabataScreen({
-    //@required this.settings,
-    //@required this.prefs,
     @required this.onSettingsChanged,
   });
 
@@ -25,6 +21,7 @@ class TabataScreen extends StatefulWidget {
 
 class _TabataScreenState extends State<TabataScreen> {
   Tabata _tabata;
+  TabataSounds _tabataSounds;
 
   @override
   initState() {
@@ -46,6 +43,7 @@ class _TabataScreenState extends State<TabataScreen> {
       builder: (context, state) {
         if (state is SettingsStateTabataLoaded) {
           _tabata = state.tabata;
+          _tabataSounds = BlocProvider.of<SettingsCubit>(context).settings.tabataSounds;
         }
         if (_tabata == null) {
           return Container();
@@ -54,39 +52,6 @@ class _TabataScreenState extends State<TabataScreen> {
             appBar: AppBar(
               title: Text('Tabata Timer'),
               leading: Icon(Icons.timer),
-              // actions: <Widget>[
-              //   Builder(
-              //     builder: (context) => IconButton(
-              //       icon: Icon(Icons.volume_off),
-              //       //icon: Icon(widget.settings.silentMode? Icons.volume_off: Icons.volume_up),
-              //       onPressed: () {
-              //         //widget.settings.silentMode = !widget.settings.silentMode;
-              //         // widget.onSettingsChanged();
-              //         // var snackBar = SnackBar(
-              //         //     duration: Duration(seconds: 1),
-              //         //     content: Text('Silent mode ${!widget.settings.silentMode ? 'de' : ''}activated'));
-              //         // Scaffold.of(context).showSnackBar(snackBar);
-              //       },
-              //       tooltip: 'Toggle silent mode',
-              //     ),
-              //   ),
-              //   IconButton(
-              //     icon: Icon(
-              //       Icons.settings,
-              //     ),
-              //     onPressed: () {
-              //       // Navigator.push(
-              //       //   context,
-              //       //   MaterialPageRoute(
-              //       //     builder: (context) => SettingsScreen(
-              //       //         settings: widget.settings,
-              //       //         onSettingsChanged: widget.onSettingsChanged),
-              //       //   ),
-              //       // );
-              //     },
-              //     tooltip: 'Settings',
-              //   ),
-              // ],
             ),
             body: ListView(
               children: <Widget>[
@@ -219,8 +184,7 @@ class _TabataScreenState extends State<TabataScreen> {
                 ),
                 ListTile(
                   title: Text('Warning before break ends time'),
-                  subtitle:
-                      Text(formatTime(_tabata.warningBeforeBreakEndsTime)),
+                  subtitle: Text(formatTime(_tabata.warningBeforeBreakEndsTime)),
                   leading: Icon(Icons.timer),
                   onTap: () {
                     showDialog<Duration>(
@@ -233,8 +197,7 @@ class _TabataScreenState extends State<TabataScreen> {
                       },
                     ).then((warningBeforeBreakEndsTime) {
                       if (warningBeforeBreakEndsTime == null) return;
-                      _tabata.warningBeforeBreakEndsTime =
-                          warningBeforeBreakEndsTime;
+                      _tabata.warningBeforeBreakEndsTime = warningBeforeBreakEndsTime;
                       _onTabataChanged();
                     });
                   },
@@ -252,10 +215,8 @@ class _TabataScreenState extends State<TabataScreen> {
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => WorkoutScreen(tabata: _tabata)));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => WorkoutScreen(tabata: _tabata, tabataSounds: _tabataSounds)));
               },
               backgroundColor: Theme.of(context).primaryColor,
               foregroundColor: Theme.of(context).primaryTextTheme.button.color,

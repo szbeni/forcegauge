@@ -5,6 +5,8 @@ import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
 import 'package:forcegauge/models/settings.dart';
 import 'package:numberpicker/numberpicker.dart';
 
+import '../main.dart';
+
 /// Names of colours in Colors.primaries
 var colorNames = {
   Colors.red: 'Red',
@@ -37,28 +39,30 @@ class AudioSelectListItem extends StatelessWidget {
   final String value;
   final Function(String) onChanged;
 
-  AudioSelectListItem(
-      {@required this.title, @required this.onChanged, this.value});
+  AudioSelectListItem({@required this.title, @required this.onChanged, this.value});
+
+  generateSoundDropdownMenu() {
+    List<DropdownMenuItem<String>> menu = [];
+    for (var k in Settings.soundFiles.keys) {
+      var menuItem = DropdownMenuItem(child: Text(k), value: Settings.soundFiles[k]);
+      menu.add(menuItem);
+    }
+    return menu;
+  }
 
   Widget build(BuildContext context) {
     return ListTile(
       trailing: IconButton(
         icon: Icon(Icons.play_circle_outline),
         onPressed: () {
-          //player.play(value);
+          audioCache.play("sounds/" + value);
         },
       ),
       title: Text(title, style: Theme.of(context).textTheme.subtitle2),
       subtitle: DropdownButton<String>(
         isDense: true,
         value: value,
-        items: [
-          DropdownMenuItem(child: Text('Low Beep'), value: 'pip.mp3'),
-          DropdownMenuItem(child: Text('High Beep'), value: 'boop.mp3'),
-          DropdownMenuItem(
-              child: Text('Ding Ding Ding!'), value: 'dingdingding.mp3'),
-          DropdownMenuItem(child: Text('Woop Woop!'), value: 'woopwoop.mp3'),
-        ],
+        items: generateSoundDropdownMenu(),
         isExpanded: true,
         onChanged: onChanged,
       ),
@@ -75,16 +79,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           minValue: 50,
           maxValue: 250,
           step: 5,
-          initialIntegerValue:
-              BlocProvider.of<SettingsCubit>(context).settings.fontSize.toInt(),
+          initialIntegerValue: BlocProvider.of<SettingsCubit>(context).settings.fontSize.toInt(),
           infiniteLoop: true,
         );
       },
     ).then((num value) {
       if (value != null) {
         setState(() {
-          BlocProvider.of<SettingsCubit>(context).settings.fontSize =
-              value.toDouble();
+          BlocProvider.of<SettingsCubit>(context).settings.fontSize = value.toDouble();
           BlocProvider.of<SettingsCubit>(context).saveSettings();
         });
       }
@@ -116,8 +118,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: Text('Night mode'),
             value: BlocProvider.of<SettingsCubit>(context).settings.nightMode,
             onChanged: (nightMode) {
-              BlocProvider.of<SettingsCubit>(context).settings.nightMode =
-                  nightMode;
+              BlocProvider.of<SettingsCubit>(context).settings.nightMode = nightMode;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
@@ -125,8 +126,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: Text('Silent mode'),
             value: BlocProvider.of<SettingsCubit>(context).settings.silentMode,
             onChanged: (silentMode) {
-              BlocProvider.of<SettingsCubit>(context).settings.silentMode =
-                  silentMode;
+              BlocProvider.of<SettingsCubit>(context).settings.silentMode = silentMode;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
@@ -138,9 +138,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             title: Text('Theme Color'),
-            subtitle: Text(colorNames[BlocProvider.of<SettingsCubit>(context)
-                .settings
-                .primarySwatch]),
+            subtitle: Text(colorNames[BlocProvider.of<SettingsCubit>(context).settings.primarySwatch]),
             onTap: () {
               showDialog(
                 context: context,
@@ -149,15 +147,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     content: SingleChildScrollView(
                       child: BlockPicker(
                         availableColors: Colors.primaries,
-                        pickerColor: BlocProvider.of<SettingsCubit>(context)
-                            .settings
-                            .primarySwatch,
+                        pickerColor: BlocProvider.of<SettingsCubit>(context).settings.primarySwatch,
                         onColorChanged: (Color color) {
-                          BlocProvider.of<SettingsCubit>(context)
-                              .settings
-                              .primarySwatch = color;
-                          BlocProvider.of<SettingsCubit>(context)
-                              .saveSettings();
+                          BlocProvider.of<SettingsCubit>(context).settings.primarySwatch = color;
+                          BlocProvider.of<SettingsCubit>(context).saveSettings();
                         },
                       ),
                     ),
@@ -168,8 +161,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             title: Text('Font Size'),
-            subtitle: Text(
-                '${BlocProvider.of<SettingsCubit>(context).settings.fontSize}'),
+            subtitle: Text('${BlocProvider.of<SettingsCubit>(context).settings.fontSize}'),
             onTap: () {
               _showInfIntDialog();
             },
@@ -183,100 +175,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           AudioSelectListItem(
-            value: BlocProvider.of<SettingsCubit>(context)
-                .settings
-                .tabataSounds
-                .countdownPip,
+            value: BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.countdownPip,
             title: 'Countdown pips',
             onChanged: (String value) {
-              BlocProvider.of<SettingsCubit>(context)
-                  .settings
-                  .tabataSounds
-                  .countdownPip = value;
+              BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.countdownPip = value;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: BlocProvider.of<SettingsCubit>(context)
-                .settings
-                .tabataSounds
-                .startRep,
+            value: BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.startRep,
             title: 'Start next rep',
             onChanged: (String value) {
-              BlocProvider.of<SettingsCubit>(context)
-                  .settings
-                  .tabataSounds
-                  .startRep = value;
+              BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.startRep = value;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: BlocProvider.of<SettingsCubit>(context)
-                .settings
-                .tabataSounds
-                .startRest,
+            value: BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.startRest,
             title: 'Rest',
             onChanged: (String value) {
-              BlocProvider.of<SettingsCubit>(context)
-                  .settings
-                  .tabataSounds
-                  .startRest = value;
+              BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.startRest = value;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: BlocProvider.of<SettingsCubit>(context)
-                .settings
-                .tabataSounds
-                .startBreak,
+            value: BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.startBreak,
             title: 'Break',
             onChanged: (String value) {
-              BlocProvider.of<SettingsCubit>(context)
-                  .settings
-                  .tabataSounds
-                  .startBreak = value;
+              BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.startBreak = value;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: BlocProvider.of<SettingsCubit>(context)
-                .settings
-                .tabataSounds
-                .startSet,
+            value: BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.startSet,
             title: 'Start next set',
             onChanged: (String value) {
-              BlocProvider.of<SettingsCubit>(context)
-                  .settings
-                  .tabataSounds
-                  .startSet = value;
+              BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.startSet = value;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: BlocProvider.of<SettingsCubit>(context)
-                .settings
-                .tabataSounds
-                .warningBeforeBreakEnds,
+            value: BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.warningBeforeBreakEnds,
             title: 'Warning Before break',
             onChanged: (String value) {
-              BlocProvider.of<SettingsCubit>(context)
-                  .settings
-                  .tabataSounds
-                  .warningBeforeBreakEnds = value;
+              BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.warningBeforeBreakEnds = value;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
           AudioSelectListItem(
-            value: BlocProvider.of<SettingsCubit>(context)
-                .settings
-                .tabataSounds
-                .endWorkout,
+            value: BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.endWorkout,
             title: 'End workout (plays twice)',
             onChanged: (String value) {
-              BlocProvider.of<SettingsCubit>(context)
-                  .settings
-                  .tabataSounds
-                  .endWorkout = value;
+              BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.endWorkout = value;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),
