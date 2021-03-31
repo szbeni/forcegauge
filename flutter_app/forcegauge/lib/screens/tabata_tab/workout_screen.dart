@@ -123,7 +123,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         return BlocProvider<DeviceCubit>(
           create: (_) => DeviceCubit(state.devices[0]),
           child: BlocBuilder<DeviceCubit, DeviceState>(builder: (context, state) {
-            _workout.newForceValue(state.device.lastValue);
+            _workout.newForceValue(state.device.lastValue.abs());
             if (_workout.step == WorkoutState.exercising) {
               return Text(state.device.lastValue.toStringAsFixed(1), style: TextStyle(fontSize: 60.0));
             } else {
@@ -159,7 +159,11 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         scrollDirection: Axis.vertical,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [tabataScreen],
+          children: [
+            Text("", style: TextStyle(fontSize: 20.0)),
+            Text("Report", style: TextStyle(fontSize: 60.0)),
+            tabataScreen,
+          ],
         ),
       );
     } else {
