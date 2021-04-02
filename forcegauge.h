@@ -7,14 +7,16 @@
 #include <WebSocketsServer.h>
 #include <RingBuf.h>
 #include <FS.h>
-#include <HX711.h>
+#include "hx711_custom.h"
 #include <ArduinoOTA.h>
 #include <ArduinoJson.h>
+
+
 
 #define DOUT  D5
 #define CLK  D6
 
-#define CONFIG_BUFFER_SIZE 1024
+#define CONFIG_BUFFER_SIZE 512
 
 typedef struct
 {
@@ -30,6 +32,7 @@ typedef struct
   long offset;
   float scale;
   long time;
+  float lastValue;
 
 } configStruct;
 

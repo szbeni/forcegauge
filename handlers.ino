@@ -7,10 +7,10 @@ void webSocketBroadcastScaleOffset()
 void webSocketBroadcastData(dataStruct* data)
 {
   String jsonObj = "{\"data\": [";
-  float valueFloat = (data->v - config.offset) * config.scale;
+  config.lastValue = (data->v - config.offset) * config.scale;
   jsonObj += "{\"time\":\"" + String(data->t) + "\", ";
     jsonObj += "\"raw\":\"" + String(data->v) + "\", ";
-  jsonObj += "\"value\":\"" + String(valueFloat) + "\"}";
+  jsonObj += "\"value\":\"" + String(config.lastValue) + "\"}";
   jsonObj += "]}";
   webSocket.broadcastTXT(jsonObj);
 }

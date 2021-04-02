@@ -4,7 +4,7 @@ const char configFilename[] = "/config.json";
 const char version[] = "1.0.0"; 
 
 configStruct config;
-HX711 scale(DOUT, CLK);
+HX711 scale;
 RingBuf<dataStruct, 64> dataBuffer;
 
 IPAddress apIP(192, 168, 4, 1);
@@ -19,6 +19,7 @@ void setup() {
   Serial.begin(115200); // Start Serial
   startSPIFFS();
   startConfig();
+  startScreen();
   startWiFi();
   startOTA();
   startDNSServer();
@@ -28,13 +29,20 @@ void setup() {
   startHX711();
 }
 
+static unsigned long lastRefresh = millis();
+
 void loop() {
   ArduinoOTA.handle();
   webSocket.loop();                           // constantly check for websocket events
   server.handleClient();
   //MDNS.update();
   dnsServer.processNextRequest();
-  
+  if(millis() - lastRefresh >= 50)
+  {
+    lastRefresh = millis();
+    displayForce(config.lastValue);
+  } 
+    
   if (scale.is_ready())
   {
     dataStruct data;

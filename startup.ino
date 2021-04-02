@@ -123,6 +123,7 @@ void startOTA()
 
 void startHX711()
 {
+  scale.begin(DOUT, CLK);
   Serial.print("Scale: ");
   config.offset = scale.read_average();
   Serial.print("Zero Offset: ");
@@ -131,5 +132,4 @@ void startHX711()
   Serial.print("Scale: ");
   Serial.print(config.scale, 8);
   Serial.println("");
-
 }
