@@ -98,6 +98,10 @@ class WorkoutReport {
     _average = _values.reduce((a, b) => a + b) / _values.length;
   }
 
+  getValues() {
+    return _values;
+  }
+
   getMin() {
     return _min;
   }
@@ -155,17 +159,27 @@ class Workout {
 
   Duration _totalTime = Duration(seconds: 0);
 
+  double _targetForce = 0;
+
+  double _lastForceValue = 0;
+
+  bool _recordReportStarted = false;
+
   /// Current set
   int _set = 0;
 
   /// Current rep
   int _rep = 0;
 
-  Workout(this._config, this._sounds, this._onStateChange);
+  Workout(this._config, this._sounds, this._targetForce, this._onStateChange);
 
   void newForceValue(double force) {
-    //record
-    if (_step == WorkoutState.exercising) {
+    this._lastForceValue = force;
+    if (force > this._targetForce) {
+      this._recordReportStarted = true;
+    }
+    //record only in workout
+    if (_step == WorkoutState.exercising && this._recordReportStarted) {
       var current = SetRep(_set, _rep).toString();
       if (!_workoutReports.containsKey(current)) _workoutReports[current] = WorkoutReport();
       _workoutReports[current].addValue(force);
@@ -200,6 +214,11 @@ class Workout {
     _onStateChange();
   }
 
+  finished() {
+    this.pause();
+    this._step = WorkoutState.finished;
+  }
+
   /// Pauses the workout
   pause() {
     _timer.cancel();
@@ -216,16 +235,26 @@ class Workout {
       _totalTime += Duration(seconds: 1);
     }
 
-    if (_timeLeft.inSeconds == 1) {
-      _nextStep();
-    } else {
-      _timeLeft -= Duration(seconds: 1);
-      if (_timeLeft.inSeconds <= 3 && _timeLeft.inSeconds >= 1) {
-        _playSound(_sounds.countdownPip);
+    bool targetForceReached = true;
+    if (this.step == WorkoutState.exercising) {
+      if (this._recordReportStarted == false) {
+        targetForceReached = false;
       }
-      if (_timeLeft.inSeconds == _config.warningBeforeBreakEndsTime.inSeconds &&
-          config.warningBeforeBreakEndsTime.inSeconds > 0) {
-        _playSound(_sounds.warningBeforeBreakEnds);
+    }
+    if (targetForceReached) {
+      if (_timeLeft.inSeconds == 1) {
+        _nextStep();
+      } else {
+        _timeLeft -= Duration(seconds: 1);
+
+        if (_timeLeft.inSeconds <= 3 && _timeLeft.inSeconds >= 1) {
+          _playSound(_sounds.countdownPip);
+        }
+        if (_timeLeft.inSeconds == _config.warningBeforeBreakEndsTime.inSeconds &&
+            config.warningBeforeBreakEndsTime.inSeconds > 0 &&
+            _step != WorkoutState.exercising) {
+          _playSound(_sounds.warningBeforeBreakEnds);
+        }
       }
     }
     _onStateChange();
@@ -233,6 +262,10 @@ class Workout {
 
   /// Moves the workout to the next step and sets up state for it.
   _nextStep() {
+    if (this._targetForce == 0)
+      _recordReportStarted = true;
+    else
+      _recordReportStarted = false;
     if (_step == WorkoutState.exercising) {
       if (rep == _config.reps) {
         if (set == _config.sets) {

@@ -19,13 +19,15 @@ class Settings {
   bool silentMode;
   Color primarySwatch;
   double fontSize;
+  double targetForce;
   Tabata savedTabata;
   TabataSounds tabataSounds = new TabataSounds();
 
   fromJson(Map<String, dynamic> json) {
-    fontSize = json['fontSize'] ?? 150;
+    fontSize = json['fontSize'] ?? 120;
     nightMode = json['nightMode'] ?? false;
     silentMode = json['silentMode'] ?? false;
+    targetForce = json['targetForce'] ?? 30;
     primarySwatch = Colors.primaries[json['primarySwatch'] ?? Colors.primaries.indexOf(Colors.blue)];
     tabataSounds.countdownPip = json['countdownPip'] ?? 'pip.mp3';
     tabataSounds.startRep = json['startRep'] ?? 'whistle.mp3';
@@ -38,6 +40,7 @@ class Settings {
 
   Map<String, dynamic> toJson() => {
         'fontSize': fontSize,
+        'targetForce': targetForce,
         'nightMode': nightMode,
         'silentMode': silentMode,
         'primarySwatch': Colors.primaries.indexOf(primarySwatch),

@@ -17,10 +17,8 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   final List<Widget> _children = [
     DeviceGraphLists(),
-    TabataScreen(
-      onSettingsChanged: () {},
-    ),
-    Container()
+    TabataScreen(targetForceEnabled: false),
+    TabataScreen(targetForceEnabled: true),
   ];
 
   @override
@@ -75,8 +73,7 @@ class _MainScreenState extends State<MainScreen> {
 class DeviceGraphLists extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DevicemanagerCubit, DevicemanagerState>(
-        builder: (context, state) {
+    return BlocBuilder<DevicemanagerCubit, DevicemanagerState>(builder: (context, state) {
       List<Widget> deviceGraphViewList = [];
       for (var i = 0; i < state.devices.length; i++) {
         var deviceGraphView = BlocProvider<DeviceCubit>(

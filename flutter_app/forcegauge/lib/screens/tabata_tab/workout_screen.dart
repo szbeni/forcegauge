@@ -4,6 +4,7 @@ import 'package:forcegauge/bloc/cubit/device_cubit.dart';
 import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
 import 'package:forcegauge/misc/format_time.dart';
 import 'package:forcegauge/models/tabata/tabata.dart';
+import 'package:forcegauge/screens/tabata_tab/report_graph.dart';
 
 String stepName(WorkoutState step) {
   switch (step) {
@@ -23,10 +24,11 @@ String stepName(WorkoutState step) {
 }
 
 class WorkoutScreen extends StatefulWidget {
+  final double targetForce;
   final Tabata tabata;
   final TabataSounds tabataSounds;
 
-  WorkoutScreen({this.tabata, this.tabataSounds});
+  WorkoutScreen({this.tabata, this.tabataSounds, this.targetForce = 0});
 
   @override
   State<StatefulWidget> createState() => _WorkoutScreenState();
@@ -38,7 +40,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   @override
   initState() {
     super.initState();
-    _workout = Workout(widget.tabata, widget.tabataSounds, this._onWorkoutChanged);
+    _workout = Workout(widget.tabata, widget.tabataSounds, widget.targetForce, this._onWorkoutChanged);
     _start();
   }
 
@@ -98,6 +100,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             Text('Min', style: TextStyle(fontWeight: FontWeight.bold)),
             Text('Max', style: TextStyle(fontWeight: FontWeight.bold)),
             Text('Average', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text('Graph', style: TextStyle(fontWeight: FontWeight.bold)),
+            //TextButton(onPressed: onPressed, child: Text("+"));
           ]),
         ]);
     for (var report in reports.keys) {
@@ -106,6 +110,16 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         Text(reports[report].getMin().toStringAsFixed(1)),
         Text(reports[report].getMax().toStringAsFixed(1)),
         Text(reports[report].getAverage().toStringAsFixed(1)),
+        IconButton(
+            icon: Icon(Icons.show_chart),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ReportGraph(reports[report]),
+                ),
+              );
+            })
       ]);
       table.children.add(reportWidget);
     }
@@ -146,13 +160,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
     var tabataScreen;
     if (_workout.step == WorkoutState.finished) {
-      tabataScreen = makeReportView(_workout.getWorkoutReports());
-      // List<Widget> reportWidgets = [];
-      // var reports = _workout.getWorkoutReports();
-      // for (var reportTitle in reports.keys) {
-      //   var reportWidget = getReportView(reportTitle, reports[reportTitle]);
-      //   reportWidgets.add(reportWidget);
-      // }
+      var reportScreen = makeReportView(_workout.getWorkoutReports());
 
       tabataScreen = SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -161,7 +169,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           children: [
             Text("", style: TextStyle(fontSize: 20.0)),
             Text("Report", style: TextStyle(fontSize: 60.0)),
-            tabataScreen,
+            reportScreen,
           ],
         ),
       );
@@ -235,8 +243,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             icon: Icon(Icons.stop),
             iconSize: 64.0,
             onPressed: () {
-              _workout.pause();
-              Navigator.of(context).pop();
+              _workout.finished();
+
+              //Navigator.of(context).pop();
             }),
       ],
     );

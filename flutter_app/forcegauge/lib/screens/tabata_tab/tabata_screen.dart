@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
 import 'package:forcegauge/misc/format_time.dart';
 import 'package:forcegauge/models/tabata/tabata.dart';
 import 'package:forcegauge/screens/tabata_tab/workout_screen.dart';
+import 'package:forcegauge/widgets/decimalpicker.dart';
 import 'package:forcegauge/widgets/durationpicker.dart';
 import 'package:forcegauge/widgets/numberpickerdialog.dart';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:flutter_spinbox/flutter_spinbox.dart';
 
 class TabataScreen extends StatefulWidget {
-  final Function onSettingsChanged;
+  final bool targetForceEnabled;
 
   TabataScreen({
-    @required this.onSettingsChanged,
+    @required this.targetForceEnabled,
   });
 
   @override
@@ -41,6 +44,32 @@ class _TabataScreenState extends State<TabataScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<SettingsCubit, SettingsState>(
       builder: (context, state) {
+        var targetForceListView = ListTile(
+          title: Text('Target Force'),
+          subtitle: Text(BlocProvider.of<SettingsCubit>(context).settings.targetForce.toString()),
+          leading: Icon(Icons.thumb_up),
+          onTap: () {
+            showDialog<double>(
+              context: context,
+              builder: (BuildContext context) {
+                return DecimalPickerDialog(
+                  min: 0.0,
+                  max: 500.0,
+                  initialValue: BlocProvider.of<SettingsCubit>(context).settings.targetForce,
+                  decimals: 1,
+                  acceleration: 0.1,
+                  step: 0.1,
+                  title: Text('Sets in the workout'),
+                );
+              },
+            ).then((force) {
+              if (force == null) return;
+              BlocProvider.of<SettingsCubit>(context).settings.targetForce = force;
+              BlocProvider.of<SettingsCubit>(context).saveSettings();
+            });
+          },
+        );
+
         if (state is SettingsStateTabataLoaded) {
           _tabata = state.tabata;
           _tabataSounds = BlocProvider.of<SettingsCubit>(context).settings.tabataSounds;
@@ -55,6 +84,7 @@ class _TabataScreenState extends State<TabataScreen> {
             ),
             body: ListView(
               children: <Widget>[
+                widget.targetForceEnabled == false ? Container() : targetForceListView,
                 ListTile(
                   title: Text('Sets'),
                   subtitle: Text('${_tabata.sets}'),
@@ -217,8 +247,16 @@ class _TabataScreenState extends State<TabataScreen> {
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => WorkoutScreen(tabata: _tabata, tabataSounds: _tabataSounds)));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => WorkoutScreen(
+                              tabata: _tabata,
+                              tabataSounds: _tabataSounds,
+                              targetForce: widget.targetForceEnabled == false
+                                  ? 0
+                                  : BlocProvider.of<SettingsCubit>(context).settings.targetForce,
+                            )));
               },
               backgroundColor: Theme.of(context).primaryColor,
               foregroundColor: Theme.of(context).primaryTextTheme.button.color,

@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:numberpicker/numberpicker.dart';
+import 'package:flutter_spinbox/flutter_spinbox.dart';
 
-class NumberPickerDialog extends StatefulWidget {
+class DecimalPickerDialog extends StatefulWidget {
   final num initialValue;
   final num min;
   final num max;
-  final num step;
+  num step = 1;
+  num decimals = 1;
+  num acceleration = 0.1;
   final EdgeInsets titlePadding;
   final Widget title;
   final Widget confirmWidget;
   final Widget cancelWidget;
 
-  NumberPickerDialog({
+  DecimalPickerDialog({
     @required this.initialValue,
     @required this.min,
     @required this.max,
-    @required this.step,
+    this.step,
+    this.decimals,
+    this.acceleration,
     this.title,
     this.titlePadding,
     Widget confirmWidget,
@@ -24,13 +28,13 @@ class NumberPickerDialog extends StatefulWidget {
         cancelWidget = cancelWidget ?? new Text('CANCEL');
 
   @override
-  State<StatefulWidget> createState() => new _NumberPickerDialogState(initialValue);
+  State<StatefulWidget> createState() => new _DecimalPickerDialogState(initialValue);
 }
 
-class _NumberPickerDialogState extends State<NumberPickerDialog> {
+class _DecimalPickerDialogState extends State<DecimalPickerDialog> {
   num value;
 
-  _NumberPickerDialogState(num initialValue) {
+  _DecimalPickerDialogState(num initialValue) {
     value = initialValue;
   }
 
@@ -40,19 +44,20 @@ class _NumberPickerDialogState extends State<NumberPickerDialog> {
       title: widget.title,
       titlePadding: widget.titlePadding,
       content: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        NumberPicker(
-          //listViewWidth: 65,
-          //initialValue: minutes,
-          minValue: widget.min,
-          maxValue: widget.max,
-          step: widget.step,
-          value: value,
-          zeroPad: true,
-          onChanged: (value) {
-            this.setState(() {
-              this.value = value;
-            });
-          },
+        Container(
+          width: 200,
+          child: SpinBox(
+              min: widget.min,
+              max: widget.max,
+              value: value == null ? 0 : value,
+              decimals: widget.decimals,
+              step: widget.step,
+              acceleration: widget.acceleration,
+              onChanged: (value) {
+                this.setState(() {
+                  this.value = value;
+                });
+              }),
         ),
       ]),
       actions: [
