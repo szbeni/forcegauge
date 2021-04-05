@@ -18,8 +18,7 @@ class DurationPickerDialog extends StatefulWidget {
         cancelWidget = cancelWidget ?? new Text('CANCEL');
 
   @override
-  State<StatefulWidget> createState() =>
-      new _DurationPickerDialogState(initialDuration);
+  State<StatefulWidget> createState() => new _DurationPickerDialogState(initialDuration);
 }
 
 class _DurationPickerDialogState extends State<DurationPickerDialog> {
@@ -37,15 +36,16 @@ class _DurationPickerDialogState extends State<DurationPickerDialog> {
       title: widget.title,
       titlePadding: widget.titlePadding,
       content: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        new NumberPicker.integer(
-          listViewWidth: 65,
-          initialValue: minutes,
+        NumberPicker(
+          //listViewWidth: 65,
+          //initialValue: minutes,
           minValue: 0,
-          maxValue: 10,
+          maxValue: 30,
+          value: minutes,
           zeroPad: true,
           onChanged: (value) {
             this.setState(() {
-              minutes = value;
+              this.minutes = value;
             });
           },
         ),
@@ -53,18 +53,18 @@ class _DurationPickerDialogState extends State<DurationPickerDialog> {
           ':',
           style: TextStyle(fontSize: 30),
         ),
-        new NumberPicker.integer(
-          listViewWidth: 65,
-          initialValue: seconds,
-          minValue: 0,
-          maxValue: 59,
-          zeroPad: true,
-          onChanged: (value) {
-            this.setState(() {
-              seconds = value;
-            });
-          },
-        ),
+        new NumberPicker(
+            //listViewWidth: 65,
+            //initialValue: seconds,
+            value: seconds,
+            minValue: 0,
+            maxValue: 59,
+            zeroPad: true,
+            onChanged: (value) {
+              this.setState(() {
+                this.seconds = value;
+              });
+            }),
       ]),
       actions: [
         new TextButton(
@@ -72,8 +72,7 @@ class _DurationPickerDialogState extends State<DurationPickerDialog> {
           child: widget.cancelWidget,
         ),
         new TextButton(
-          onPressed: () => Navigator.of(context)
-              .pop(new Duration(minutes: minutes, seconds: seconds)),
+          onPressed: () => Navigator.of(context).pop(new Duration(minutes: minutes, seconds: seconds)),
           child: widget.confirmWidget,
         ),
       ],

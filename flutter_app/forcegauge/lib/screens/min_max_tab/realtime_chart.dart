@@ -1,3 +1,17 @@
+// import 'package:flutter/material.dart';
+
+// class EvenMoreRealtime extends StatefulWidget {
+//   @override
+//   _EvenMoreRealtimeState createState() => _EvenMoreRealtimeState();
+// }
+
+// class _EvenMoreRealtimeState extends State<EvenMoreRealtime> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container();
+//   }
+// }
+
 import 'dart:async';
 import 'dart:math';
 
@@ -28,10 +42,7 @@ PopupMenuItem item(String text, String id) {
             text,
             textDirection: TextDirection.ltr,
             textAlign: TextAlign.center,
-            style: TextStyle(
-                color: ColorUtils.BLACK,
-                fontSize: 18,
-                fontWeight: FontWeight.bold),
+            style: TextStyle(color: ColorUtils.BLACK, fontSize: 18, fontWeight: FontWeight.bold),
           ))));
 }
 
@@ -42,8 +53,7 @@ class EvenMoreRealtime extends StatefulWidget {
   }
 }
 
-class EvenMoreRealtimeState extends State<EvenMoreRealtime>
-    implements OnChartValueSelectedListener {
+class EvenMoreRealtimeState extends State<EvenMoreRealtime> implements OnChartValueSelectedListener {
   LineChartController controller;
   var random = Random(1);
   var isMultipleRun = false;
@@ -82,8 +92,7 @@ class EvenMoreRealtimeState extends State<EvenMoreRealtime>
                     }
                   } else if (state is DeviceStateNewMessage) {
                     //print(state.device.lastData);
-                    _addData(state.device.lastData.time,
-                        state.device.lastData.value);
+                    _addData(state.device.lastData.time, state.device.lastData.value);
                   }
                 },
                 child: Text("Chart"))),
@@ -285,8 +294,7 @@ class EvenMoreRealtimeState extends State<EvenMoreRealtime>
       //for test ChartData's updateEntryByIndex
       var index = (random.nextDouble() * set.getEntryCount()).toInt();
       var x = set.getEntryForIndex(index).x;
-      data.updateEntryByIndex(
-          index, Entry(x: x, y: (random.nextDouble() * 40) + 30.0), 0);
+      data.updateEntryByIndex(index, Entry(x: x, y: (random.nextDouble() * 40) + 30.0), 0);
 
       data.notifyDataChanged();
 

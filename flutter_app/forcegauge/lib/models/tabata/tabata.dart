@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:assets_audio_player/assets_audio_player.dart';
 
 import '../../main.dart';
 
@@ -254,9 +255,14 @@ class Workout {
     if (_sounds == null) {
       return Future.value();
     }
-    try {
-      return audioCache.play("sounds/" + sound);
-    } catch (e) {}
+    //audioCache.duckAudio = true;
+    //return audioCache.play("sounds/" + sound);
+    AssetsAudioPlayer.newPlayer().open(
+      Audio("assets/sounds/" + sound),
+      showNotification: false,
+      autoStart: true,
+    );
+
     return Future.value();
   }
 

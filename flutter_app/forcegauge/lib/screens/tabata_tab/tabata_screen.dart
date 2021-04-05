@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
@@ -6,6 +5,7 @@ import 'package:forcegauge/misc/format_time.dart';
 import 'package:forcegauge/models/tabata/tabata.dart';
 import 'package:forcegauge/screens/tabata_tab/workout_screen.dart';
 import 'package:forcegauge/widgets/durationpicker.dart';
+import 'package:forcegauge/widgets/numberpickerdialog.dart';
 import 'package:numberpicker/numberpicker.dart';
 
 class TabataScreen extends StatefulWidget {
@@ -63,10 +63,11 @@ class _TabataScreenState extends State<TabataScreen> {
                     showDialog<int>(
                       context: context,
                       builder: (BuildContext context) {
-                        return NumberPickerDialog.integer(
-                          minValue: 1,
-                          maxValue: 10,
-                          initialIntegerValue: _tabata.sets,
+                        return NumberPickerDialog(
+                          min: 1,
+                          max: 30,
+                          initialValue: _tabata.sets,
+                          step: 1,
                           title: Text('Sets in the workout'),
                         );
                       },
@@ -85,10 +86,11 @@ class _TabataScreenState extends State<TabataScreen> {
                     showDialog<int>(
                       context: context,
                       builder: (BuildContext context) {
-                        return NumberPickerDialog.integer(
-                          minValue: 1,
-                          maxValue: 10,
-                          initialIntegerValue: _tabata.reps,
+                        return NumberPickerDialog(
+                          min: 1,
+                          max: 30,
+                          initialValue: _tabata.reps,
+                          step: 1,
                           title: Text('Repetitions in each set'),
                         );
                       },

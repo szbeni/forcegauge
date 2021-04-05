@@ -1,8 +1,10 @@
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
 import 'package:forcegauge/models/settings.dart';
+import 'package:forcegauge/widgets/numberpickerdialog.dart';
 import 'package:numberpicker/numberpicker.dart';
 
 import '../main.dart';
@@ -55,7 +57,12 @@ class AudioSelectListItem extends StatelessWidget {
       trailing: IconButton(
         icon: Icon(Icons.play_circle_outline),
         onPressed: () {
-          audioCache.play("sounds/" + value);
+          //audioCache.play("sounds/" + value);
+          AssetsAudioPlayer.newPlayer().open(
+            Audio("assets/sounds/" + value),
+            showNotification: false,
+            autoStart: true,
+          );
         },
       ),
       title: Text(title, style: Theme.of(context).textTheme.subtitle2),
@@ -75,12 +82,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await showDialog<int>(
       context: context,
       builder: (BuildContext context) {
-        return new NumberPickerDialog.integer(
-          minValue: 50,
-          maxValue: 250,
+        return new NumberPickerDialog(
+          initialValue: BlocProvider.of<SettingsCubit>(context).settings.fontSize.toInt(),
+          min: 50,
+          max: 250,
           step: 5,
-          initialIntegerValue: BlocProvider.of<SettingsCubit>(context).settings.fontSize.toInt(),
-          infiniteLoop: true,
+          title: Text("Select Font size"),
         );
       },
     ).then((num value) {

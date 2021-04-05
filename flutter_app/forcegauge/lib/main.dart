@@ -5,12 +5,6 @@ import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
 import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
 import 'package:forcegauge/screens/main_screen.dart';
 
-import 'package:audioplayers/audio_cache.dart';
-import 'package:audioplayers/audioplayers.dart';
-
-var audioPlayer = AudioPlayer();
-var audioCache = AudioCache();
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
