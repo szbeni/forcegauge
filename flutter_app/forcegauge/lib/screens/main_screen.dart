@@ -5,6 +5,7 @@ import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
 import 'package:forcegauge/screens/settings_screen.dart';
 import 'package:forcegauge/screens/navigation_drawer.dart';
 import 'package:forcegauge/screens/tabata_tab/tabata_screen.dart';
+import 'package:forcegauge/screens/tabata_tab/tabatalist_screen.dart';
 
 import 'min_max_tab/device_graphview.dart';
 
@@ -17,7 +18,8 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   final List<Widget> _children = [
     DeviceGraphLists(),
-    TabataScreen(targetForceEnabled: false),
+    TabataListScreen(),
+    //TabataScreen(targetForceEnabled: false),
     TabataScreen(targetForceEnabled: true),
   ];
 

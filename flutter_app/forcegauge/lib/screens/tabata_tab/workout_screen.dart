@@ -3,25 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forcegauge/bloc/cubit/device_cubit.dart';
 import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
 import 'package:forcegauge/misc/format_time.dart';
+import 'package:forcegauge/models/tabata/report.dart';
 import 'package:forcegauge/models/tabata/tabata.dart';
+import 'package:forcegauge/models/tabata/workout.dart';
 import 'package:forcegauge/screens/tabata_tab/report_graph.dart';
-
-String stepName(WorkoutState step) {
-  switch (step) {
-    case WorkoutState.exercising:
-      return 'Exercise';
-    case WorkoutState.resting:
-      return 'Rest';
-    case WorkoutState.breaking:
-      return 'Break';
-    case WorkoutState.finished:
-      return 'Finished';
-    case WorkoutState.starting:
-      return 'Starting';
-    default:
-      return '';
-  }
-}
 
 class WorkoutScreen extends StatefulWidget {
   final double targetForce;
@@ -92,7 +77,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     } catch (e) {}
   }
 
-  Widget makeReportView(Map<String, WorkoutReport> reports) {
+  Widget makeReportView(Map<String, ReportValues> reports) {
     var table = Table(border: TableBorder.all(), // Allows to add a border decoration around your table
         children: [
           TableRow(children: [
@@ -132,7 +117,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     var lightTextColor = theme.textTheme.bodyText2.color.withOpacity(0.8);
 
     var forceTextBox = BlocBuilder<DevicemanagerCubit, DevicemanagerState>(builder: (context, state) {
-      if (state is DevicemanagerPopulated && state.devices.length > 0) {
+      if (!(state is DevicemanagerInitial) && state.devices.length > 0) {
         return BlocProvider<DeviceCubit>(
           create: (_) => DeviceCubit(state.devices[0]),
           child: BlocBuilder<DeviceCubit, DeviceState>(builder: (context, state) {
@@ -140,7 +125,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             if (_workout.step == WorkoutState.exercising) {
               return Text(state.device.lastValue.toStringAsFixed(1), style: TextStyle(fontSize: 60.0));
             } else {
-              var lastReport = _workout.getLastReport();
+              var lastReport = _workout.workoutReport.getSetRepReport(_workout.set, _workout.rep);
 
               if (lastReport != null)
                 return Column(children: [
@@ -160,7 +145,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
     var tabataScreen;
     if (_workout.step == WorkoutState.finished) {
-      var reportScreen = makeReportView(_workout.getWorkoutReports());
+      var reportScreen = makeReportView(_workout.workoutReport.getAllReports());
 
       tabataScreen = SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -183,7 +168,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [Text(stepName(_workout.step), style: TextStyle(fontSize: 60.0))],
+            children: [Text(Workout.stepName(_workout.step), style: TextStyle(fontSize: 60.0))],
           ),
           Divider(height: 32, color: lightTextColor),
           Container(width: MediaQuery.of(context).size.width, child: FittedBox(child: Text(formatTime(_workout.timeLeft)))),

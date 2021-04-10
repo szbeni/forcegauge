@@ -21,12 +21,12 @@ class SettingsStateSettingsChanged extends SettingsState {
   SettingsStateSettingsChanged(this.settings) : super();
 }
 
-class SettingsStateTabataLoaded extends SettingsState {
-  final Tabata tabata;
-  SettingsStateTabataLoaded(this.tabata) : super();
+class SettingsStateTabatasLoaded extends SettingsState {
+  final List<dynamic> tabatas;
+  SettingsStateTabatasLoaded(this.tabatas) : super();
 }
 
-class SettingsStateTabataSaved extends SettingsState {
-  final Tabata tabata;
-  SettingsStateTabataSaved(this.tabata) : super();
+class SettingsStateTabatasSaved extends SettingsState {
+  final List<Tabata> tabatas;
+  SettingsStateTabatasSaved(this.tabatas) : super();
 }

@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:forcegauge/models/tabata/tabata.dart';
+import 'package:forcegauge/models/tabata/report.dart';
 import 'package:mp_chart/mp/chart/line_chart.dart';
 import 'package:mp_chart/mp/controller/line_chart_controller.dart';
 import 'package:mp_chart/mp/core/data/line_data.dart';
@@ -12,7 +12,7 @@ import 'package:mp_chart/mp/core/enums/mode.dart';
 import 'package:mp_chart/mp/core/utils/color_utils.dart';
 
 class ReportGraph extends StatefulWidget {
-  final WorkoutReport report;
+  final ReportValues report;
   const ReportGraph(this.report);
   @override
   _ReportGraphState createState() => _ReportGraphState();
@@ -113,13 +113,14 @@ class _ReportGraphState extends State<ReportGraph> {
 
   void _initLineDataFromReport() {
     List<Entry> values = List();
-    double counter = 0;
-    //for (var report in widget.reports.keys) {
+
+    values.add(new Entry(x: 0, y: 0));
+    double counter = 1;
     for (var value in widget.report.getValues()) {
       values.add(new Entry(x: counter, y: value));
       counter += 1;
     }
-    //}
+    values.add(new Entry(x: counter, y: 0));
 
     // create a dataset and give it a type
     LineDataSet set1 = new LineDataSet(values, "DataSet 1");

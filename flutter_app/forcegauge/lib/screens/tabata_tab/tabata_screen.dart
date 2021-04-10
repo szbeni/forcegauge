@@ -28,18 +28,18 @@ class _TabataScreenState extends State<TabataScreen> {
 
   @override
   initState() {
-    BlocProvider.of<SettingsCubit>(context).loadTabata();
+    BlocProvider.of<SettingsCubit>(context).loadTabatas();
     super.initState();
   }
 
   _onTabataChanged() {
     setState(() {});
-    _saveTabata();
+    //_saveTabata();
   }
 
-  _saveTabata() {
-    BlocProvider.of<SettingsCubit>(context).saveTabata(_tabata);
-  }
+  // _saveTabata() {
+  //   BlocProvider.of<SettingsCubit>(context).saveTabatas(state.tabatas);
+  // }
 
   Widget build(BuildContext context) {
     return BlocBuilder<SettingsCubit, SettingsState>(
@@ -70,8 +70,8 @@ class _TabataScreenState extends State<TabataScreen> {
           },
         );
 
-        if (state is SettingsStateTabataLoaded) {
-          _tabata = state.tabata;
+        if (state is SettingsStateTabatasLoaded) {
+          _tabata = state.tabatas[0];
           _tabataSounds = BlocProvider.of<SettingsCubit>(context).settings.tabataSounds;
         }
         if (_tabata == null) {

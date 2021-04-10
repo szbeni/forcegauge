@@ -13,14 +13,14 @@ class DevicemanagerCubit extends Cubit<DevicemanagerState> {
       var newDevice = new Device.fromJson(devJson);
       deviceList.add(newDevice);
     }
-    emit(DevicemanagerPopulated(deviceList));
+    emit(DevicemanagerUpdated(deviceList));
   }
 
   void addDevice(String name, String url) {
     if (state.getDeviceByName(name) == null) {
       var newDevice = new Device(name, url);
       state.devices.add(newDevice);
-      emit(DevicemanagerPopulated(state.devices));
+      emit(DevicemanagerUpdated(state.devices));
     }
   }
 
@@ -30,7 +30,7 @@ class DevicemanagerCubit extends Cubit<DevicemanagerState> {
       dev.close();
       state.devices.remove(dev);
 
-      emit(DevicemanagerPopulated(state.devices));
+      emit(DevicemanagerUpdated(state.devices));
     }
   }
 
@@ -38,7 +38,7 @@ class DevicemanagerCubit extends Cubit<DevicemanagerState> {
     if (index >= 0 && index < state.devices.length) {
       state.devices[index].close();
       state.devices.removeAt(index);
-      emit(DevicemanagerPopulated(state.devices));
+      emit(DevicemanagerSaved(state.devices));
     }
   }
 

@@ -26,6 +26,10 @@ class DevicemanagerInitial extends DevicemanagerState {
   DevicemanagerInitial(List<Device> devices) : super(devices);
 }
 
-class DevicemanagerPopulated extends DevicemanagerState {
-  DevicemanagerPopulated(List<Device> devices) : super(devices);
+class DevicemanagerSaved extends DevicemanagerState {
+  DevicemanagerSaved(List<Device> devices) : super(devices);
+}
+
+class DevicemanagerUpdated extends DevicemanagerState {
+  DevicemanagerUpdated(List<Device> devices) : super(devices);
 }

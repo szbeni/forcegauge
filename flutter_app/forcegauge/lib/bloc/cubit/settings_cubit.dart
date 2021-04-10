@@ -16,24 +16,21 @@ class SettingsCubit extends Cubit<SettingsState> {
       this._prefs = prefs;
       loadSettings();
       loadDevices();
-      loadTabata();
+      loadTabatas();
     });
   }
 
-  loadTabata() {
-    //if (this._prefs == null) return;
-    var tabataString =
-        _prefs.getString('tabata') ?? jsonEncode(defaultTabata.toJson());
-    var tabataJson = jsonDecode(tabataString);
-    var tabata = Tabata.fromJson(tabataJson);
-    emit(SettingsStateTabataLoaded(tabata));
+  loadTabatas() {
+    var tabatasString = _prefs.getString('tabatas') ?? '[]';
+    var tabatasJson = jsonDecode(tabatasString) as List;
+    emit(SettingsStateTabatasLoaded(tabatasJson));
   }
 
-  saveTabata(Tabata tabata) {
-    //if (this._prefs == null) return;
-    String json = jsonEncode(tabata).toString();
-    _prefs.setString('tabata', json);
-    emit(SettingsStateTabataLoaded(tabata));
+  saveTabatas(List<Tabata> tabataList) {
+    if (this._prefs == null) return;
+    String json = jsonEncode(tabataList.map((i) => i.toJson()).toList()).toString();
+    _prefs.setString('tabatas', json);
+    emit(SettingsStateTabatasSaved(tabataList));
   }
 
   loadDevices() {
@@ -45,8 +42,7 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   saveDevices(List<Device> deviceList) {
     if (this._prefs == null) return;
-    String json =
-        jsonEncode(deviceList.map((i) => i.toJson()).toList()).toString();
+    String json = jsonEncode(deviceList.map((i) => i.toJson()).toList()).toString();
     _prefs.setString('devices', json);
     emit(SettingsStateDevicesSaved(deviceList));
   }
@@ -59,8 +55,7 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   loadSettings() {
     if (this._prefs == null) return;
-    Map<String, dynamic> json =
-        jsonDecode(_prefs.getString('settings') ?? '{}');
+    Map<String, dynamic> json = jsonDecode(_prefs.getString('settings') ?? '{}');
     settings.fromJson(json);
     emit(SettingsStateSettingsChanged(settings));
   }

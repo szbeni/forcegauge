@@ -15,8 +15,7 @@ class DeviceList extends StatelessWidget {
         if (state is DevicemanagerInitial) {
           //return const CircularProgressIndicator();
           return const Text('Add a new device');
-        }
-        if (state is DevicemanagerPopulated) {
+        } else {
           return ListView.builder(
               itemCount: state.devices.length,
               itemBuilder: (context, index) {
@@ -37,22 +36,19 @@ class DeviceListTile extends StatelessWidget {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          return new AlertDialog(
-              title: new Text('Remove Device: "${state.device.name}".'),
-              actions: <Widget>[
-                new FlatButton(
-                    child: new Text('Cancel'),
-                    // The alert is actually part of the navigation stack, so to close it, we
-                    // need to pop it.
-                    onPressed: () => Navigator.of(context).pop()),
-                new FlatButton(
-                    child: new Text('Remove'),
-                    onPressed: () {
-                      BlocProvider.of<DevicemanagerCubit>(context)
-                          .removeDevice(state.device.name);
-                      Navigator.of(context).pop();
-                    })
-              ]);
+          return new AlertDialog(title: new Text('Remove Device: "${state.device.name}".'), actions: <Widget>[
+            new FlatButton(
+                child: new Text('Cancel'),
+                // The alert is actually part of the navigation stack, so to close it, we
+                // need to pop it.
+                onPressed: () => Navigator.of(context).pop()),
+            new FlatButton(
+                child: new Text('Remove'),
+                onPressed: () {
+                  BlocProvider.of<DevicemanagerCubit>(context).removeDevice(state.device.name);
+                  Navigator.of(context).pop();
+                })
+          ]);
         });
   }
 
@@ -70,10 +66,7 @@ class DeviceListTile extends StatelessWidget {
             message: state.device.connectionStatusMsg(),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                new Text("Name: " + state.device.name.toString()),
-                connectedIcon
-              ],
+              children: [new Text("Name: " + state.device.name.toString()), connectedIcon],
             ),
           ),
           subtitle: new Text("Address: " + state.device.getUrl().toString()),
