@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forcegauge/bloc/cubit/device_cubit.dart';
 import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
+import 'package:forcegauge/bloc/cubit/reportmanager_cubit.dart';
 import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
 import 'package:forcegauge/misc/format_time.dart';
 import 'package:forcegauge/models/tabata/report.dart';
 import 'package:forcegauge/models/tabata/tabata.dart';
 import 'package:forcegauge/models/tabata/workout.dart';
+import 'package:forcegauge/screens/history_tab/report_screen.dart';
 import 'package:forcegauge/screens/min_max_tab/realtime_chart.dart';
 import 'package:forcegauge/screens/tabata_tab/report_graph.dart';
 
@@ -45,6 +47,15 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
   _onWorkoutChanged() {
     if (_workout.step == WorkoutState.finished) {
+      Navigator.of(context).pop();
+      BlocProvider.of<ReportmanagerCubit>(context).addWorkoutReport(_workout.workoutReport);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ReportScreen(_workout.workoutReport),
+        ),
+      );
+
       try {
         //Screen.keepOn(false);
       } catch (e) {}
@@ -57,6 +68,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       case WorkoutState.exercising:
         return Colors.red;
       case WorkoutState.starting:
+      case WorkoutState.finished:
         return Colors.green;
       case WorkoutState.resting:
         return Colors.lightBlue;
@@ -159,19 +171,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
     var tabataScreen;
     if (_workout.step == WorkoutState.finished) {
-      var reportScreen = makeReportView(_workout.workoutReport.getAllReports());
-
-      tabataScreen = SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("", style: TextStyle(fontSize: 20.0)),
-            Text("Report", style: TextStyle(fontSize: 60.0)),
-            reportScreen,
-          ],
-        ),
-      );
+      return Container();
     } else {
       tabataScreen = Column(
         mainAxisAlignment: MainAxisAlignment.center,

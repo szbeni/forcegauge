@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
+import 'package:forcegauge/bloc/cubit/reportmanager_cubit.dart';
 import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
 import 'package:forcegauge/bloc/cubit/tabatamanager_cubit.dart';
 import 'package:forcegauge/screens/main_screen.dart';
@@ -34,6 +35,9 @@ class _MainAppState extends State<MainApp> {
         BlocProvider<DevicemanagerCubit>(
           create: (_) => DevicemanagerCubit(),
         ),
+        BlocProvider<ReportmanagerCubit>(
+          create: (_) => ReportmanagerCubit(),
+        ),
         BlocProvider<SettingsCubit>(
           create: (_) => SettingsCubit(),
         )
@@ -55,6 +59,14 @@ class _MainAppState extends State<MainApp> {
                 BlocProvider.of<SettingsCubit>(context).saveTabatas(state.tabatas);
               }
             },
+          ),
+          BlocListener<ReportmanagerCubit, ReportmanagerState>(
+            listener: (context, state) {
+              if (state is ReportmanagerUpdated) {
+                print("Reports updated, saving...");
+                BlocProvider.of<SettingsCubit>(context).saveReports(state.reports);
+              }
+            },
           )
         ],
         child: BlocConsumer<SettingsCubit, SettingsState>(
@@ -65,6 +77,9 @@ class _MainAppState extends State<MainApp> {
             } else if (state is SettingsStateTabatasLoaded) {
               print("Settings Loaded: Tabatas");
               BlocProvider.of<TabatamanagerCubit>(context).loadTabatasFromJson(state.tabatas);
+            } else if (state is SettingsStateReportsLoaded) {
+              print("Settings Loaded: Reports");
+              BlocProvider.of<ReportmanagerCubit>(context).loadWorkoutReportsFromJson(state.reports);
             }
           },
           builder: (context, state) {

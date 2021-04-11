@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forcegauge/bloc/cubit/device_cubit.dart';
 import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
+import 'package:forcegauge/screens/history_tab/historylist_screen.dart';
 import 'package:forcegauge/screens/settings_screen.dart';
 import 'package:forcegauge/screens/navigation_drawer.dart';
 import 'package:forcegauge/screens/tabata_tab/tabatalist_screen.dart';
@@ -19,8 +20,7 @@ class _MainScreenState extends State<MainScreen> {
     DeviceGraphLists(),
     TabataListScreen(false),
     TabataListScreen(true),
-    //TabataScreen(targetForceEnabled: false),
-    //TabataScreen(targetForceEnabled: true),
+    HistoryListScreen(),
   ];
 
   @override

@@ -30,3 +30,13 @@ class SettingsStateTabatasSaved extends SettingsState {
   final List<Tabata> tabatas;
   SettingsStateTabatasSaved(this.tabatas) : super();
 }
+
+class SettingsStateReportsLoaded extends SettingsState {
+  final List<dynamic> reports;
+  SettingsStateReportsLoaded(this.reports) : super();
+}
+
+class SettingsStateReportsSaved extends SettingsState {
+  final List<WorkoutReport> reports;
+  SettingsStateReportsSaved(this.reports) : super();
+}

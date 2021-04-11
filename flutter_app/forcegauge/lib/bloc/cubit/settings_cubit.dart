@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:forcegauge/models/devices/device.dart';
 import 'package:forcegauge/models/settings.dart';
+import 'package:forcegauge/models/tabata/report.dart';
 import 'package:forcegauge/models/tabata/tabata.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,7 +18,22 @@ class SettingsCubit extends Cubit<SettingsState> {
       loadSettings();
       loadDevices();
       loadTabatas();
+      loadReports();
     });
+  }
+
+  loadReports() {
+    var reportsString = _prefs.getString('reports') ?? '[{"name":"Malc","date":1000000}]';
+    var reportsJson = jsonDecode(reportsString) as List;
+    print(reportsJson);
+    emit(SettingsStateReportsLoaded(reportsJson));
+  }
+
+  saveReports(List<WorkoutReport> reportList) {
+    if (this._prefs == null) return;
+    String json = jsonEncode(reportList.map((i) => i.toJson()).toList()).toString();
+    _prefs.setString('reports', json);
+    emit(SettingsStateReportsSaved(reportList));
   }
 
   loadTabatas() {

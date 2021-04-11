@@ -28,7 +28,7 @@ class Workout {
   TabataSounds _sounds;
 
   //
-  WorkoutReport workoutReport = new WorkoutReport();
+  WorkoutReport _workoutReport;
 
   /// Callback for when the workout's state has changed.
   Function _onStateChange;
@@ -57,7 +57,9 @@ class Workout {
   //Wait a bit after user action
   Duration _waitAfterUserAction = Duration(seconds: 0);
 
-  Workout(this._config, this._sounds, this._targetForce, this._onStateChange);
+  Workout(this._config, this._sounds, this._targetForce, this._onStateChange) {
+    this._workoutReport = new WorkoutReport(_config.name, DateTime.now(), _targetForce);
+  }
 
   void newForceValue(double force) {
     this._lastForceValue = force;
@@ -68,7 +70,7 @@ class Workout {
     }
     //record only in workout
     if (_step == WorkoutState.exercising && this._recordReportStarted) {
-      workoutReport.addValue(_set, _rep, force);
+      _workoutReport.addValue(_set, _rep, force);
       if (playSound) _playSound(_sounds.targetReached);
     }
   }
@@ -100,6 +102,7 @@ class Workout {
   finished() {
     this.pause();
     this._step = WorkoutState.finished;
+    _onStateChange();
   }
 
   /// Pauses the workout
@@ -151,7 +154,7 @@ class Workout {
   }
 
   _prevStep() {
-    workoutReport.clearValues(_set, _rep);
+    _workoutReport.clearValues(_set, _rep);
     if (rep == 0 && set == 0) {
       _step = WorkoutState.starting;
       _timeLeft = _config.startDelay;
@@ -176,12 +179,12 @@ class Workout {
     } else if (_step == WorkoutState.resting) {
       _rep--;
       _startRep();
-      workoutReport.clearValues(_set, _rep);
+      _workoutReport.clearValues(_set, _rep);
     } else if (_step == WorkoutState.starting || _step == WorkoutState.breaking) {
       _set--;
       _startSet();
       _rep = config.reps;
-      workoutReport.clearValues(_set, _rep);
+      _workoutReport.clearValues(_set, _rep);
     }
   }
 
@@ -291,6 +294,8 @@ class Workout {
   get targetForce => targetForce;
 
   get timeLeft => _timeLeft;
+
+  get workoutReport => _workoutReport;
 
   get totalTime => _totalTime;
 
