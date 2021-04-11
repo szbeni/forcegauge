@@ -18,9 +18,10 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   final List<Widget> _children = [
     DeviceGraphLists(),
-    TabataListScreen(),
+    TabataListScreen(false),
+    TabataListScreen(true),
     //TabataScreen(targetForceEnabled: false),
-    TabataScreen(targetForceEnabled: true),
+    //TabataScreen(targetForceEnabled: true),
   ];
 
   @override

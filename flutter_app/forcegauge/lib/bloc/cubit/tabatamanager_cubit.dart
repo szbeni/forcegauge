@@ -13,16 +13,29 @@ class TabatamanagerCubit extends Cubit<TabatamanagerState> {
       var newTabata = new Tabata.fromJson(tabataJson);
       TabataList.add(newTabata);
     }
-    emit(TabatamanagerUpdated(TabataList));
+    emit(TabatamanagerLoaded(TabataList));
   }
 
-  void addTabata(String name) {
-    if (state.getTabataByName(name) == null) {
+  bool addTabata(String name) {
+    if (name != null && name.length > 0 && state.getTabataByName(name) == null) {
       var newTabata = defaultTabata;
       newTabata.name = name;
       state.tabatas.add(newTabata);
       emit(TabatamanagerUpdated(state.tabatas));
+      return true;
     }
+    return false;
+  }
+
+  bool updateTabata(Tabata t) {
+    for (int i = 0; i < state.tabatas.length; i++) {
+      if (state.tabatas[i].name == t.name) {
+        state.tabatas[i] = t;
+        emit(TabatamanagerUpdated(state.tabatas));
+        return true;
+      }
+    }
+    return false;
   }
 
   void removeTabata(String name) {

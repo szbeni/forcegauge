@@ -8,6 +8,7 @@ class TabataSounds {
   String startSet;
   String endWorkout;
   String warningBeforeBreakEnds;
+  String targetReached;
 }
 
 class Tabata {

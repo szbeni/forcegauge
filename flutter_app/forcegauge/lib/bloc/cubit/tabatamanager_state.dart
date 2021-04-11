@@ -26,10 +26,14 @@ class TabatamanagerInitial extends TabatamanagerState {
   TabatamanagerInitial(List<Tabata> tabatas) : super(tabatas);
 }
 
-class TabatamanagerUpdated extends TabatamanagerState {
-  TabatamanagerUpdated(List<Tabata> tabatas) : super(tabatas);
-}
-
 class TabatamanagerSaved extends TabatamanagerState {
   TabatamanagerSaved(List<Tabata> tabatas) : super(tabatas);
+}
+
+class TabatamanagerLoaded extends TabatamanagerState {
+  TabatamanagerLoaded(List<Tabata> tabatas) : super(tabatas);
+}
+
+class TabatamanagerUpdated extends TabatamanagerState {
+  TabatamanagerUpdated(List<Tabata> tabatas) : super(tabatas);
 }

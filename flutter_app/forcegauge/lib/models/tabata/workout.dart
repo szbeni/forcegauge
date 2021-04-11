@@ -54,16 +54,22 @@ class Workout {
   /// Current rep
   int _rep = 0;
 
+  //Wait a bit after user action
+  Duration _waitAfterUserAction = Duration(seconds: 0);
+
   Workout(this._config, this._sounds, this._targetForce, this._onStateChange);
 
   void newForceValue(double force) {
     this._lastForceValue = force;
-    if (force > this._targetForce) {
+    bool playSound = false;
+    if (force > this._targetForce && this._recordReportStarted == false) {
       this._recordReportStarted = true;
+      playSound = true;
     }
     //record only in workout
     if (_step == WorkoutState.exercising && this._recordReportStarted) {
       workoutReport.addValue(_set, _rep, force);
+      if (playSound) _playSound(_sounds.targetReached);
     }
   }
 
@@ -79,6 +85,16 @@ class Workout {
     }
     _timer = Timer.periodic(Duration(seconds: 1), _tick);
     _onStateChange();
+  }
+
+  next() {
+    _waitAfterUserAction = Duration(seconds: 0);
+    _nextStep();
+  }
+
+  previous() {
+    _waitAfterUserAction = Duration(seconds: 0);
+    _prevStep();
   }
 
   finished() {
@@ -98,6 +114,11 @@ class Workout {
   }
 
   _tick(Timer timer) {
+    if (_waitAfterUserAction.inSeconds > 0) {
+      _waitAfterUserAction -= Duration(seconds: 1);
+      return;
+    }
+
     if (_step != WorkoutState.starting) {
       _totalTime += Duration(seconds: 1);
     }
@@ -127,12 +148,49 @@ class Workout {
     _onStateChange();
   }
 
+  _prevStep() {
+    workoutReport.clearValues(_set, _rep);
+    if (rep == 0 && set == 0) {
+      _step = WorkoutState.starting;
+      _timeLeft = _config.startDelay;
+      return;
+    }
+    if (_step == WorkoutState.exercising) {
+      if (rep == 1) {
+        if (set == 1) {
+          _set = 0;
+          _rep = 0;
+          _step = WorkoutState.starting;
+          _timeLeft = _config.startDelay;
+        } else {
+          _set--;
+          _rep = config.reps;
+          _startBreak();
+        }
+      } else {
+        _rep--;
+        _startRest();
+      }
+    } else if (_step == WorkoutState.resting) {
+      _rep--;
+      _startRep();
+      workoutReport.clearValues(_set, _rep);
+    } else if (_step == WorkoutState.starting || _step == WorkoutState.breaking) {
+      _set--;
+      _startSet();
+      _rep = config.reps;
+      workoutReport.clearValues(_set, _rep);
+    }
+  }
+
   /// Moves the workout to the next step and sets up state for it.
   _nextStep() {
-    if (this._targetForce == 0)
+    print("Rep: $rep, Set: $set");
+    if (this._targetForce < 0.001)
       _recordReportStarted = true;
     else
       _recordReportStarted = false;
+
     if (_step == WorkoutState.exercising) {
       if (rep == _config.reps) {
         if (set == _config.sets) {
@@ -152,7 +210,7 @@ class Workout {
 
   Future _playSound(String sound) {
     //silent mode
-    if (_sounds == null) {
+    if (sound == null || sound.length == 0) {
       return Future.value();
     }
     //audioCache.duckAudio = true;
@@ -180,7 +238,10 @@ class Workout {
     _rep++;
     _step = WorkoutState.exercising;
     _timeLeft = _config.exerciseTime;
-    _playSound(_sounds.startRep);
+    print("Start rep: $_targetForce");
+    if (_targetForce < 0.001 && _sounds.targetReached != '') {
+      _playSound(_sounds.startRep);
+    }
   }
 
   _startBreak() {
@@ -198,7 +259,9 @@ class Workout {
     _rep = 1;
     _step = WorkoutState.exercising;
     _timeLeft = _config.exerciseTime;
-    _playSound(_sounds.startSet);
+    if (_targetForce < 0.001 && _sounds.targetReached != '') {
+      _playSound(_sounds.startSet);
+    }
   }
 
   _finish() {

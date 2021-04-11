@@ -42,16 +42,16 @@ class _MainAppState extends State<MainApp> {
         listeners: [
           BlocListener<DevicemanagerCubit, DevicemanagerState>(
             listener: (context, state) {
-              print("Save new devices");
               if (state is DevicemanagerUpdated) {
+                print("Devices updated, saving..");
                 BlocProvider.of<SettingsCubit>(context).saveDevices(state.devices);
               }
             },
           ),
           BlocListener<TabatamanagerCubit, TabatamanagerState>(
             listener: (context, state) {
-              print("Save tabatas");
               if (state is TabatamanagerUpdated) {
+                print("Tabatas updated, saving...");
                 BlocProvider.of<SettingsCubit>(context).saveTabatas(state.tabatas);
               }
             },

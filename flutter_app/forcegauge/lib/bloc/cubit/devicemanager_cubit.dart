@@ -13,7 +13,7 @@ class DevicemanagerCubit extends Cubit<DevicemanagerState> {
       var newDevice = new Device.fromJson(devJson);
       deviceList.add(newDevice);
     }
-    emit(DevicemanagerUpdated(deviceList));
+    emit(DevicemanagerLoaded(deviceList));
   }
 
   void addDevice(String name, String url) {

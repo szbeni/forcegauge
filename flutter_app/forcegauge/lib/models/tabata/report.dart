@@ -20,6 +20,13 @@ class WorkoutReport {
     _valuesMap[current].addValue(value);
   }
 
+  clearValues(int set, int rep) {
+    var current = SetRep(set, rep).toString();
+    if (_valuesMap.containsKey(current)) {
+      _valuesMap.remove(current);
+    }
+  }
+
   ReportValues getSetRepReport(int set, int rep) {
     var current = SetRep(set, rep).toString();
     if (_valuesMap.containsKey(current)) {

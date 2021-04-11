@@ -3,6 +3,7 @@ import 'package:forcegauge/models/tabata/tabata.dart';
 
 class Settings {
   static var soundFiles = {
+    'None': '',
     'Low Beep': 'pip.mp3',
     'High Beep': 'boop.mp3',
     'Ding Ding Ding!': 'dingdingding.mp3',
@@ -20,7 +21,6 @@ class Settings {
   Color primarySwatch;
   double fontSize;
   double targetForce;
-  Tabata savedTabata;
   TabataSounds tabataSounds = new TabataSounds();
 
   fromJson(Map<String, dynamic> json) {
@@ -36,6 +36,7 @@ class Settings {
     tabataSounds.startSet = json['startSet'] ?? 'whistle.mp3';
     tabataSounds.endWorkout = json['endWorkout'] ?? 'dingdingding.mp3';
     tabataSounds.warningBeforeBreakEnds = json['warningBeforeBreakEnds'] ?? 'woopwoop.mp3';
+    tabataSounds.targetReached = json['targetReached'] ?? 'doublewhistle.mp3';
   }
 
   Map<String, dynamic> toJson() => {
@@ -51,6 +52,6 @@ class Settings {
         'startSet': tabataSounds.startSet,
         'endWorkout': tabataSounds.endWorkout,
         'warningBeforeBreakEnds': tabataSounds.warningBeforeBreakEnds,
-        'tabata': savedTabata
+        'targetReached': tabataSounds.targetReached,
       };
 }

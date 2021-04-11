@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forcegauge/bloc/cubit/device_cubit.dart';
 import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
+import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
 import 'package:forcegauge/misc/format_time.dart';
 import 'package:forcegauge/models/tabata/report.dart';
 import 'package:forcegauge/models/tabata/tabata.dart';
@@ -11,9 +12,8 @@ import 'package:forcegauge/screens/tabata_tab/report_graph.dart';
 class WorkoutScreen extends StatefulWidget {
   final double targetForce;
   final Tabata tabata;
-  final TabataSounds tabataSounds;
 
-  WorkoutScreen({this.tabata, this.tabataSounds, this.targetForce = 0});
+  WorkoutScreen({this.tabata, this.targetForce = 0});
 
   @override
   State<StatefulWidget> createState() => _WorkoutScreenState();
@@ -25,7 +25,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   @override
   initState() {
     super.initState();
-    _workout = Workout(widget.tabata, widget.tabataSounds, widget.targetForce, this._onWorkoutChanged);
+    var tabataSounds = BlocProvider.of<SettingsCubit>(context).settings.tabataSounds;
+    _workout = Workout(widget.tabata, tabataSounds, widget.targetForce, this._onWorkoutChanged);
     _start();
   }
 
@@ -115,7 +116,6 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
     var lightTextColor = theme.textTheme.bodyText2.color.withOpacity(0.8);
-
     var forceTextBox = BlocBuilder<DevicemanagerCubit, DevicemanagerState>(builder: (context, state) {
       if (!(state is DevicemanagerInitial) && state.devices.length > 0) {
         return BlocProvider<DeviceCubit>(
@@ -127,14 +127,16 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             } else {
               var lastReport = _workout.workoutReport.getSetRepReport(_workout.set, _workout.rep);
 
-              if (lastReport != null)
+              if (lastReport != null) {
                 return Column(children: [
-                  Text("Min: " + lastReport.getMin().toStringAsFixed(1), style: TextStyle(fontSize: 40.0)),
-                  Text("Max: " + lastReport.getMax().toStringAsFixed(1), style: TextStyle(fontSize: 40.0)),
-                  Text("Avg: " + lastReport.getAverage().toStringAsFixed(1), style: TextStyle(fontSize: 40.0)),
+                  Text(state.device.lastValue.toStringAsFixed(1), style: TextStyle(fontSize: 20.0)),
+                  Text("Min: " + lastReport.getMin().toStringAsFixed(1), style: TextStyle(fontSize: 20.0)),
+                  Text("Max: " + lastReport.getMax().toStringAsFixed(1), style: TextStyle(fontSize: 20.0)),
+                  Text("Avg: " + lastReport.getAverage().toStringAsFixed(1), style: TextStyle(fontSize: 20.0)),
                 ]);
-              else
-                return Text("No report");
+              } else {
+                return Text(state.device.lastValue.toStringAsFixed(1), style: TextStyle(fontSize: 40.0));
+              }
             }
           }),
         );
@@ -220,6 +222,14 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
+          icon: Icon(Icons.skip_previous),
+          onPressed: () {
+            _workout.previous();
+            _onWorkoutChanged();
+          },
+          iconSize: 64.0,
+        ),
+        IconButton(
           icon: Icon(_workout.isActive ? Icons.pause : Icons.play_arrow),
           onPressed: _workout.isActive ? _pause : _start,
           iconSize: 64.0,
@@ -229,9 +239,15 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             iconSize: 64.0,
             onPressed: () {
               _workout.finished();
-
-              //Navigator.of(context).pop();
             }),
+        IconButton(
+          icon: Icon(Icons.skip_next),
+          onPressed: () {
+            _workout.next();
+            _onWorkoutChanged();
+          },
+          iconSize: 64.0,
+        ),
       ],
     );
   }

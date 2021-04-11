@@ -57,7 +57,7 @@ class AudioSelectListItem extends StatelessWidget {
       trailing: IconButton(
         icon: Icon(Icons.play_circle_outline),
         onPressed: () {
-          //audioCache.play("sounds/" + value);
+          if (value == null || value.length == 0) return;
           AssetsAudioPlayer.newPlayer().open(
             Audio("assets/sounds/" + value),
             showNotification: false,
@@ -234,6 +234,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'End workout (plays twice)',
             onChanged: (String value) {
               BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.endWorkout = value;
+              BlocProvider.of<SettingsCubit>(context).saveSettings();
+            },
+          ),
+          AudioSelectListItem(
+            value: BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.targetReached,
+            title: 'Taget Force Reached',
+            onChanged: (String value) {
+              BlocProvider.of<SettingsCubit>(context).settings.tabataSounds.targetReached = value;
               BlocProvider.of<SettingsCubit>(context).saveSettings();
             },
           ),

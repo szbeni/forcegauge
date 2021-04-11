@@ -30,6 +30,10 @@ class DevicemanagerSaved extends DevicemanagerState {
   DevicemanagerSaved(List<Device> devices) : super(devices);
 }
 
+class DevicemanagerLoaded extends DevicemanagerState {
+  DevicemanagerLoaded(List<Device> devices) : super(devices);
+}
+
 class DevicemanagerUpdated extends DevicemanagerState {
   DevicemanagerUpdated(List<Device> devices) : super(devices);
 }
