@@ -144,7 +144,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               if (lastReport != null) {
                 return Container(width: 200, child: ReportGraph(lastReport));
               } else {
-                return Text(state.device.lastValue.toStringAsFixed(1), style: TextStyle(fontSize: 40.0));
+                return Container();
+                //return Text(state.device.lastValue.toStringAsFixed(1), style: TextStyle(fontSize: 40.0));
               }
             }
           }),

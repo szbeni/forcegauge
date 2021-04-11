@@ -27,13 +27,6 @@ class _DeviceGraphViewState extends State<DeviceGraphView> {
             child: Column(
               children: [
                 BlocBuilder<DeviceCubit, DeviceState>(builder: (context, state) {
-                  // if (data.length > 0) {
-                  //   xMin = data[0].time / 1000.0;
-                  //   xMax = data.last.time / 1000.0;
-                  // }
-                  // print(xMin);
-                  // print(xMax);
-
                   var minStr = state.device.minValue.toStringAsFixed(1);
                   var maxStr = state.device.maxValue.toStringAsFixed(1);
                   var lastStr = state.device.lastValue.toStringAsFixed(1);

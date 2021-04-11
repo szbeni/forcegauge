@@ -69,8 +69,6 @@ class WorkoutReport {
     jsonMap['targetForce'] = targetForce;
     String reportValuesListString = jsonEncode(_reportValuesList.map((i) => i.toJson()).toList()).toString();
     jsonMap['reportValuesList'] = reportValuesListString;
-    print(jsonMap);
-
     return jsonMap;
   }
 }

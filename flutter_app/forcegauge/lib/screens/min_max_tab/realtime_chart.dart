@@ -191,6 +191,9 @@ class EvenMoreRealtimeState extends State<EvenMoreRealtime> implements OnChartVa
 
       if (yMin > 0) yMin = 0;
       if (yMax < 0) yMax = 0;
+
+      if (yMax < 5) yMax = 5;
+      if (yMin > -5) yMin = -5;
       controller.axisLeft.setAxisMinimum(yMin);
       controller.axisLeft.setAxisMaximum(yMax);
       data.notifyDataChanged();

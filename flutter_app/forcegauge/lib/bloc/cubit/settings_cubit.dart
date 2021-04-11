@@ -25,7 +25,6 @@ class SettingsCubit extends Cubit<SettingsState> {
   loadReports() {
     var reportsString = _prefs.getString('reports') ?? '[{"name":"Malc","date":1000000}]';
     var reportsJson = jsonDecode(reportsString) as List;
-    print(reportsJson);
     emit(SettingsStateReportsLoaded(reportsJson));
   }
 
