@@ -32,21 +32,12 @@ import 'package:mp_chart/mp/core/enums/legend_form.dart';
 import 'package:mp_chart/mp/core/highlight/highlight.dart';
 import 'package:mp_chart/mp/core/utils/color_utils.dart';
 
-PopupMenuItem item(String text, String id) {
-  return PopupMenuItem<String>(
-      value: id,
-      child: Container(
-          padding: EdgeInsets.only(top: 15.0),
-          child: Center(
-              child: Text(
-            text,
-            textDirection: TextDirection.ltr,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: ColorUtils.BLACK, fontSize: 18, fontWeight: FontWeight.bold),
-          ))));
-}
-
 class EvenMoreRealtime extends StatefulWidget {
+  @required
+  final bool showOnlyAbsolute;
+  final double targetForce;
+  const EvenMoreRealtime(this.showOnlyAbsolute, this.targetForce);
+
   @override
   State<StatefulWidget> createState() {
     return EvenMoreRealtimeState();
@@ -69,63 +60,23 @@ class EvenMoreRealtimeState extends State<EvenMoreRealtime> implements OnChartVa
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-            actions: <Widget>[
-              PopupMenuButton<String>(
-                itemBuilder: getBuilder(),
-                onSelected: (String action) {
-                  itemClick(action);
-                },
-              ),
-            ],
-            // Here we take the value from the MyHomePage object that was created by
-            // the App.build method, and use it to set our appbar title.
-            // title: Text(getTitle())),
-            title: BlocListener<DeviceCubit, DeviceState>(
-                listener: (context, state) {
-                  if (state is DeviceStateNewStatus) {
-                    print("New status: ${state.status}");
-                    if (state.status == "Connected") {
-                      print("Clearchart");
-                      _clearChart();
-                    }
-                  } else if (state is DeviceStateNewMessage) {
-                    //print(state.device.lastData);
-                    _addData(state.device.lastData.time, state.device.lastData.value);
-                  }
-                },
-                child: Text("Chart"))),
-        //title:  ,
-        body: getBody());
+    return BlocListener<DeviceCubit, DeviceState>(
+        listener: (context, state) {
+          if (state is DeviceStateNewStatus) {
+            print("New status: ${state.status}");
+            if (state.status == "Connected") {
+              print("Clearchart");
+              _clearChart();
+            }
+          } else if (state is DeviceStateNewMessage) {
+            _addData(state.device.lastData.time, state.device.lastData.value, state.device.minValue, state.device.maxValue);
+          }
+        },
+        child: getBody());
   }
 
   Widget getBody() {
     return Container(child: LineChart(controller));
-
-    return Stack(
-      children: <Widget>[
-        Positioned(
-          right: 0,
-          left: 0,
-          top: 0,
-          bottom: 0,
-          child: LineChart(controller),
-        )
-      ],
-    );
-  }
-
-  // @override
-  getBuilder() {
-    return (BuildContext context) => <PopupMenuItem<String>>[
-          //item('View on GitHub', 'A'),
-          //item('Add Entry', 'B'),
-          item('Clear Chart', 'C'),
-          //item('Add Multiple', 'D'),
-          //item('Save to Gallery', 'E'),
-          //item('Update Random Single Entry', 'F'),
-        ];
   }
 
   String getTitle() {
@@ -185,21 +136,19 @@ class EvenMoreRealtimeState extends State<EvenMoreRealtime> implements OnChartVa
           axisLeft
             //..typeface = Util.LIGHT
             ..textColor = ColorUtils.GRAY
-            ..axisMaximum = 100.0
-            ..axisMinimum = 0.0
             ..drawGridLines = true;
         },
         axisRightSettingFunction: (axisRight, controller) {
           axisRight.enabled = false;
         },
         drawGridBackground: false,
-        dragXEnabled: true,
-        dragYEnabled: true,
-        scaleXEnabled: true,
-        scaleYEnabled: true,
+        dragXEnabled: false,
+        dragYEnabled: false,
+        scaleXEnabled: false,
+        scaleYEnabled: false,
         backgroundColor: ColorUtils.WHITE,
         selectionListener: this,
-        pinchZoomEnabled: true,
+        pinchZoomEnabled: false,
         description: desc);
 
     LineData data = controller?.data;
@@ -216,7 +165,7 @@ class EvenMoreRealtimeState extends State<EvenMoreRealtime> implements OnChartVa
   @override
   void onValueSelected(Entry e, Highlight h) {}
 
-  void _addData(double newX, double newY) {
+  void _addData(double newX, double newY, double yMin, double yMax) {
     LineData data = controller.data;
 
     if (data != null) {
@@ -227,12 +176,26 @@ class EvenMoreRealtimeState extends State<EvenMoreRealtime> implements OnChartVa
         set = _createSet();
         data.addDataSet(set);
       }
+      if (widget.showOnlyAbsolute) newY = newY.abs();
 
       data.addEntry(Entry(x: newX, y: newY), 0);
-      if (data.dataSets[0].getEntryCount() > 300) {
+      if (data.dataSets[0].getEntryCount() > 800) {
         data.dataSets[0].removeFirst();
       }
+
+      if (widget.showOnlyAbsolute) {
+        yMin = 0;
+        yMax = widget.targetForce * 1.2;
+        if (data.yMax > yMax) yMax = data.yMax;
+      }
+
+      if (yMin > 0) yMin = 0;
+      if (yMax < 0) yMax = 0;
+      controller.axisLeft.setAxisMinimum(yMin);
+      controller.axisLeft.setAxisMaximum(yMax);
       data.notifyDataChanged();
+      //controller.moveViewToY(0, AxisDependency.LEFT);
+      //controller.axisLeft.setStartAtZero(false);
 
       // limit the number of visible entries
       //controller.setVisibleXRangeMaximum(1000);

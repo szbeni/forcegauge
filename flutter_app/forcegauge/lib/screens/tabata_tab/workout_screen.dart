@@ -7,6 +7,7 @@ import 'package:forcegauge/misc/format_time.dart';
 import 'package:forcegauge/models/tabata/report.dart';
 import 'package:forcegauge/models/tabata/tabata.dart';
 import 'package:forcegauge/models/tabata/workout.dart';
+import 'package:forcegauge/screens/min_max_tab/realtime_chart.dart';
 import 'package:forcegauge/screens/tabata_tab/report_graph.dart';
 
 class WorkoutScreen extends StatefulWidget {
@@ -26,6 +27,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   initState() {
     super.initState();
     var tabataSounds = BlocProvider.of<SettingsCubit>(context).settings.tabataSounds;
+    var silent = BlocProvider.of<SettingsCubit>(context).settings.silentMode;
+    if (silent) tabataSounds = TabataSounds();
     _workout = Workout(widget.tabata, tabataSounds, widget.targetForce, this._onWorkoutChanged);
     _start();
   }
@@ -116,24 +119,18 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
     var lightTextColor = theme.textTheme.bodyText2.color.withOpacity(0.8);
-    var forceTextBox = BlocBuilder<DevicemanagerCubit, DevicemanagerState>(builder: (context, state) {
+
+    var graphWidget = BlocBuilder<DevicemanagerCubit, DevicemanagerState>(builder: (context, state) {
       if (!(state is DevicemanagerInitial) && state.devices.length > 0) {
         return BlocProvider<DeviceCubit>(
           create: (_) => DeviceCubit(state.devices[0]),
           child: BlocBuilder<DeviceCubit, DeviceState>(builder: (context, state) {
-            _workout.newForceValue(state.device.lastValue.abs());
             if (_workout.step == WorkoutState.exercising) {
-              return Text(state.device.lastValue.toStringAsFixed(1), style: TextStyle(fontSize: 60.0));
+              return Container(width: 200, child: EvenMoreRealtime(true, widget.targetForce));
             } else {
               var lastReport = _workout.workoutReport.getSetRepReport(_workout.set, _workout.rep);
-
               if (lastReport != null) {
-                return Column(children: [
-                  Text(state.device.lastValue.toStringAsFixed(1), style: TextStyle(fontSize: 20.0)),
-                  Text("Min: " + lastReport.getMin().toStringAsFixed(1), style: TextStyle(fontSize: 20.0)),
-                  Text("Max: " + lastReport.getMax().toStringAsFixed(1), style: TextStyle(fontSize: 20.0)),
-                  Text("Avg: " + lastReport.getAverage().toStringAsFixed(1), style: TextStyle(fontSize: 20.0)),
-                ]);
+                return Container(width: 200, child: ReportGraph(lastReport));
               } else {
                 return Text(state.device.lastValue.toStringAsFixed(1), style: TextStyle(fontSize: 40.0));
               }
@@ -142,6 +139,21 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         );
       } else {
         return Text("");
+      }
+    });
+
+    var forceTextStyle = TextStyle(fontSize: 80.0);
+    var forceTextBox = BlocBuilder<DevicemanagerCubit, DevicemanagerState>(builder: (context, state) {
+      if (!(state is DevicemanagerInitial) && state.devices.length > 0) {
+        return BlocProvider<DeviceCubit>(
+          create: (_) => DeviceCubit(state.devices[0]),
+          child: BlocBuilder<DeviceCubit, DeviceState>(builder: (context, state) {
+            _workout.newForceValue(state.device.lastValue.abs());
+            return Text(state.device.lastValue.toStringAsFixed(1), style: forceTextStyle);
+          }),
+        );
+      } else {
+        return Text("", style: forceTextStyle);
       }
     });
 
@@ -162,19 +174,26 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       );
     } else {
       tabataScreen = Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Expanded(child: Row()),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [forceTextBox],
+          Container(height: 20),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [graphWidget],
+            ),
           ),
+          Divider(height: 1, color: lightTextColor),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [Text(Workout.stepName(_workout.step), style: TextStyle(fontSize: 60.0))],
           ),
-          Divider(height: 32, color: lightTextColor),
+          Divider(height: 1, color: lightTextColor),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [forceTextBox]),
+          Divider(height: 1, color: lightTextColor),
           Container(width: MediaQuery.of(context).size.width, child: FittedBox(child: Text(formatTime(_workout.timeLeft)))),
-          Divider(height: 32, color: lightTextColor),
+          Divider(height: 1, color: lightTextColor),
           Table(columnWidths: {
             0: FlexColumnWidth(0.5),
             1: FlexColumnWidth(0.5),
@@ -200,7 +219,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               ))
             ]),
           ]),
-          Expanded(child: _buildButtonBar()),
+          Divider(height: 1, color: lightTextColor),
+          _buildButtonBar(),
         ],
       );
     }

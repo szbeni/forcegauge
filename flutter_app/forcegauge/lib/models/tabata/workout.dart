@@ -124,7 +124,7 @@ class Workout {
     }
 
     bool targetForceReached = true;
-    if (this.step == WorkoutState.exercising) {
+    if (this._step == WorkoutState.exercising) {
       if (this._recordReportStarted == false) {
         targetForceReached = false;
       }
@@ -137,6 +137,8 @@ class Workout {
 
         if (_timeLeft.inSeconds <= 3 && _timeLeft.inSeconds >= 1) {
           _playSound(_sounds.countdownPip);
+        } else if (_targetForce != null && this._step == WorkoutState.exercising) {
+          if (_targetForce > 0.001) _playSound(_sounds.countdownPip);
         }
         if (_timeLeft.inSeconds == _config.warningBeforeBreakEndsTime.inSeconds &&
             config.warningBeforeBreakEndsTime.inSeconds > 0 &&
@@ -285,6 +287,8 @@ class Workout {
   get rep => _rep;
 
   get step => _step;
+
+  get targetForce => targetForce;
 
   get timeLeft => _timeLeft;
 

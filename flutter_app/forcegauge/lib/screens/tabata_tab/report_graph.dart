@@ -103,8 +103,9 @@ class _ReportGraphState extends State<ReportGraph> {
             ..drawAxisLine = (false);
         },
         drawGridBackground: true,
-        dragXEnabled: true,
-        dragYEnabled: true,
+        backgroundColor: ColorUtils.WHITE,
+        dragXEnabled: false,
+        dragYEnabled: false,
         scaleXEnabled: false,
         scaleYEnabled: false,
         pinchZoomEnabled: false,

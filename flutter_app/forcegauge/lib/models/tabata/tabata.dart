@@ -1,14 +1,14 @@
 import 'dart:math';
 
 class TabataSounds {
-  String countdownPip;
-  String startRep;
-  String startRest;
-  String startBreak;
-  String startSet;
-  String endWorkout;
-  String warningBeforeBreakEnds;
-  String targetReached;
+  String countdownPip = "";
+  String startRep = "";
+  String startRest = "";
+  String startBreak = "";
+  String startSet = "";
+  String endWorkout = "";
+  String warningBeforeBreakEnds = "";
+  String targetReached = "";
 }
 
 class Tabata {

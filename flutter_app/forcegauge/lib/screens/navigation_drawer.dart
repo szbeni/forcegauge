@@ -18,9 +18,7 @@ class NavDrawer extends StatelessWidget {
               style: TextStyle(color: Colors.white, fontSize: 25),
             ),
             decoration: BoxDecoration(
-              color: BlocProvider.of<SettingsCubit>(context)
-                  .settings
-                  .primarySwatch,
+              //color: BlocProvider.of<SettingsCubit>(context).settings.primarySwatch,
               image: DecorationImage(
                 fit: BoxFit.scaleDown,
                 image: AssetImage('assets/images/fist.png'),

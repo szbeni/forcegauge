@@ -127,7 +127,7 @@ class _DeviceGraphViewState extends State<DeviceGraphView> {
                   height: 280,
                   //padding: EdgeInsets.all(0),
                   child: Card(
-                    child: EvenMoreRealtime(),
+                    child: EvenMoreRealtime(false, 0.0),
                   ),
                 ),
               ],
