@@ -28,8 +28,7 @@ class DeviceListItem extends StatelessWidget {
         var deviceName = _device.name;
         var deviceUrl = "ws://" + _device.ipAddress + ":81";
         if (deviceName.length > 0 && deviceUrl.length > 0) {
-          BlocProvider.of<DevicemanagerCubit>(context)
-              .addDevice(deviceName, deviceUrl);
+          BlocProvider.of<DevicemanagerCubit>(context).addDevice(deviceName, deviceUrl);
         }
         Navigator.of(context).pop();
       },
@@ -46,16 +45,24 @@ class DiscoverDevicesScreen extends StatefulWidget {
 class _DiscoverDevicesScreenState extends State<DiscoverDevicesScreen> {
   List<Device> devices = [];
 
+  bool scanInProgress = false;
   @override
   initState() {
+    this.scanInProgress = false;
     super.initState();
     this._scanDevices();
   }
 
   Future<Null> _scanDevices() async {
+    if (scanInProgress == true) {
+      print("Scan is already in progress");
+      return;
+    }
     final String ip = await Wifi.ip;
     final String subnet = ip.substring(0, ip.lastIndexOf('.'));
     final int port = 80;
+    print("Scan started");
+    scanInProgress = true;
 
     http.Client client = http.Client();
     final stream = NetworkAnalyzer.discover2(subnet, port);
@@ -64,6 +71,9 @@ class _DiscoverDevicesScreenState extends State<DiscoverDevicesScreen> {
         print('Found online IP: ${addr.ip}');
         _testConnection(client, addr.ip);
       }
+    }).onDone(() {
+      print("Scan finished");
+      scanInProgress = false;
     });
 
     return null;

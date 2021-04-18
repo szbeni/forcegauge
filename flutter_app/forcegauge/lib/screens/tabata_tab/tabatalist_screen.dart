@@ -59,7 +59,11 @@ class TabataListScreenState extends State<TabataListScreen> {
   Widget build(BuildContext context) {
     var targetForceListView = ListTile(
       title: Text('Target Force'),
-      subtitle: Text(BlocProvider.of<SettingsCubit>(context).settings.targetForce.toString()),
+      subtitle: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, state) {
+          return Text(BlocProvider.of<SettingsCubit>(context).settings.targetForce.toString());
+        },
+      ),
       leading: Icon(Icons.fitness_center),
       onTap: () {
         showDialog<double>(

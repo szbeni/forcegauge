@@ -22,8 +22,7 @@ class NetworkAnalyzer {
   /// Pings a given [subnet] (xxx.xxx.xxx) on a given [port].
   ///
   /// Pings IP:PORT one by one
-  static Stream<NetworkAddress> discover(
-      String subnet, int port, Duration timeout) async* {
+  static Stream<NetworkAddress> discover(String subnet, int port, Duration timeout) async* {
     if (port < 1 || port > 65535) {
       throw 'Incorrect port';
     }
@@ -59,7 +58,7 @@ class NetworkAnalyzer {
   static Stream<NetworkAddress> discover2(
     String subnet,
     int port, {
-    Duration timeout = const Duration(seconds: 5),
+    Duration timeout = const Duration(seconds: 20),
   }) {
     if (port < 1 || port > 65535) {
       throw 'Incorrect port';
@@ -90,9 +89,7 @@ class NetworkAnalyzer {
       });
     }
 
-    Future.wait<Socket>(futures)
-        .then<void>((sockets) => out.close())
-        .catchError((dynamic e) => out.close());
+    Future.wait<Socket>(futures).then<void>((sockets) => out.close()).catchError((dynamic e) => out.close());
 
     return out.stream;
   }
