@@ -17,6 +17,7 @@ DNSServer dnsServer;              //DNS server for captive portal
 
 void setup() {
   Serial.begin(115200); // Start Serial
+  startButtons();
   startSPIFFS();
   startConfig();
   startScreen();
@@ -32,15 +33,17 @@ void setup() {
 static unsigned long lastRefresh = millis();
 
 void loop() {
+  buttonsLoop();
   ArduinoOTA.handle();
   webSocket.loop();                           // constantly check for websocket events
   server.handleClient();
   //MDNS.update();
   dnsServer.processNextRequest();
+  
   if(millis() - lastRefresh >= 50)
   {
     lastRefresh = millis();
-    displayForce(config.lastValue);
+    screenUpdate();
   } 
     
   if (scale.is_ready())
