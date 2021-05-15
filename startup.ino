@@ -10,12 +10,31 @@ void startWiFi() { // Start a Wi-Fi access point, and try to connect to some giv
   wifiMulti.addAP(config.ssid2, config.passwd2);
   wifiMulti.addAP(config.ssid2, config.passwd3);
 
-  Serial.println("Connecting");
-  while (wifiMulti.run() != WL_CONNECTED && WiFi.softAPgetStationNum() < 1) {  // Wait for the Wi-Fi to connect
-    delay(250);
-    Serial.print('.');
-  } 
-  //delay(1000);
+//This is blocking dont need it
+//  Serial.println("Connecting");
+//  while (wifiMulti.run() != WL_CONNECTED && WiFi.softAPgetStationNum() < 1) {  // Wait for the Wi-Fi to connect
+//    delay(250);
+//    Serial.print('.');
+//  } 
+//  //delay(1000);
+//  Serial.println("\r\n");
+//  if (WiFi.softAPgetStationNum() == 0) {     // If the ESP is connected to an AP
+//    Serial.print("Connected to ");
+//    Serial.println(WiFi.SSID());             // Tell us what network we're connected to
+//    Serial.print("IP address:\t");
+//    Serial.print(WiFi.localIP());            // Send the IP address of the ESP8266 to the computer
+//  } else {                                   // If a station is connected to the ESP SoftAP
+//    Serial.print("Station connected to ESP8266 AP");
+//  }
+//  Serial.println("\r\n");
+}
+
+bool checkWifiConnected()
+{
+  if (wifiMulti.run() != WL_CONNECTED && WiFi.softAPgetStationNum() < 1)
+  {
+    return false;
+  }
   Serial.println("\r\n");
   if (WiFi.softAPgetStationNum() == 0) {     // If the ESP is connected to an AP
     Serial.print("Connected to ");
@@ -26,6 +45,8 @@ void startWiFi() { // Start a Wi-Fi access point, and try to connect to some giv
     Serial.print("Station connected to ESP8266 AP");
   }
   Serial.println("\r\n");
+
+  return true;
 }
 
 void startServer() { // Start a HTTP server with a file read handler and an upload handler

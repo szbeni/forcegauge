@@ -13,37 +13,57 @@ ESP8266WebServer server(80);      //Server on port 80
 WebSocketsServer webSocket(81);   // create a websocket server on port 81
 File fsUploadFile;                  // a File variable to temporarily store the received file
 DNSServer dnsServer;              //DNS server for captive portal
-
+ScreenHandler screenHandler;      //Screen hanlder
+float maxForce=0;
+float minForce=0;
 
 void setup() {
   Serial.begin(115200); // Start Serial
+  startBuzzer();
   startButtons();
   startSPIFFS();
   startConfig();
   startScreen();
-  startWiFi();
-  startOTA();
-  startDNSServer();
-  //startMDNS();
-  startWebSocket();
-  startServer();
   startHX711();
+  startWiFi();
+}
+
+bool wifiInitialized = false;
+void WiFiLoop()
+{
+  if(wifiInitialized == false)
+  {
+      if (checkWifiConnected())
+      {
+        startOTA();
+        startDNSServer();
+        //startMDNS();
+        startWebSocket();
+        startServer();
+        wifiInitialized = true;
+      }
+  }
+  else
+  {
+    ArduinoOTA.handle();
+    webSocket.loop();                           // constantly check for websocket events
+    server.handleClient();
+    //MDNS.update();
+    dnsServer.processNextRequest();
+  }
 }
 
 static unsigned long lastRefresh = millis();
 
 void loop() {
+  WiFiLoop();
+  buzzerLoop();
   buttonsLoop();
-  ArduinoOTA.handle();
-  webSocket.loop();                           // constantly check for websocket events
-  server.handleClient();
-  //MDNS.update();
-  dnsServer.processNextRequest();
   
   if(millis() - lastRefresh >= 50)
   {
     lastRefresh = millis();
-    screenUpdate();
+    screenLoop();
   } 
     
   if (scale.is_ready())
@@ -52,7 +72,15 @@ void loop() {
     data.v = scale.read();
     data.t = config.time + millis();
     dataBuffer.lockedPush(data);
-    webSocketBroadcastData(&data);
+    config.lastValue = (data.v - config.offset) * config.scale;
+    if (config.lastValue > maxForce)
+      maxForce = config.lastValue;
+    if (config.lastValue < minForce)
+      minForce = config.lastValue;
+
+
+    if(wifiInitialized)
+      webSocketBroadcastData(&data);
   }
   yield();
 }

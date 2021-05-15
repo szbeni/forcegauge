@@ -10,6 +10,7 @@
 #include "hx711_custom.h"
 #include <ArduinoOTA.h>
 #include <ArduinoJson.h>
+#include "screen_handler.h"
 
 #define BUTTON1_PIN D7
 #define BUTTON2_PIN D0
