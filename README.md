@@ -1,8 +1,7 @@
 # Force Gauge with ESP8266
 
-ESP8266 based Force Gauge aiming for helping climbing specific training
-Real time plotting via wifi Webapp/Android app
-
+- ESP8266 based Force Gauge - Aiming to help rock climbing specific training (finger excercises)
+- Real time plotting via wifi Webapp/Android app
 
 # Hardware main parts:
  - ESP8266 MCU
