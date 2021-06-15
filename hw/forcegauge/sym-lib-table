@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name Symbols)(type Legacy)(uri /home/beni/projects/forcegauge/hw/forcegauge/symbols.lib)(options "")(descr ""))
+)
