@@ -21,10 +21,12 @@
 - Built in tabata timer (Based on https://github.com/insin/tabata_timer)
 - Record history of traning 
 
+<p float="left">
 <img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/flutter_app_01.png" width="200">
 <img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/flutter_app_02.png" width="200">
 <img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/flutter_app_03.png" width="200">
 <img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/flutter_app_04.gif" width="200">
+</p>
 
 ## Webapp:
 - Simple webapp served from the ESP8266 HTTP server
