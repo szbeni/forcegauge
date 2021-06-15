@@ -1,4 +1,4 @@
-  #ifndef hx711_custom_h
+#ifndef hx711_custom_h
 #define hx711_custom_h
 
 #include "Arduino.h"
