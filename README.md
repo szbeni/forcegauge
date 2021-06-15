@@ -27,6 +27,6 @@
 <img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/flutter_app_04.gif" width="200">
 
 ## Webapp:
-- Simple webapp server from the ESP8266 HTTP server
+- Simple webapp served from the ESP8266 HTTP server
 <img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/webapp_01.jpg" width="600">
 
