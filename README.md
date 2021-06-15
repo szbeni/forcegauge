@@ -10,7 +10,7 @@ Real time plotting via WIFI
  - Battery with charger
  - USB UART connection
  - HX711 ADC - Load cell
-<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/prototype_01.jpg" height="300">
+<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/prototype_01.jpg" width="200">
 
 
 ## Firmware:
