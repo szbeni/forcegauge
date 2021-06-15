@@ -1,7 +1,8 @@
 # Force Gauge with ESP8266
 
-ESP8266 with loadcell connected via HX711 SPI.
-Real time plotting via WIFI
+ESP8266 based Force Gauge aiming for helping climbing specific training
+Real time plotting via wifi Webapp/Android app
+
 
 # Hardware main parts:
  - ESP8266 MCU
@@ -17,14 +18,16 @@ Real time plotting via WIFI
 - Arudino IDE
 
 ## Flutter based app (Tested on Android):
+- Real time plotting
+- Built in tabata timer (Based on https://github.com/insin/tabata_timer)
+- Record history of traning 
 
-<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/flutter_app_01.png" width="400">
-<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/flutter_app_02.png" width="400">
-<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/flutter_app_03.png" width="400">
-<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/flutter_app_04.gif" width="400">
-
+<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/flutter_app_01.png" width="200">
+<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/flutter_app_02.png" width="200">
+<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/flutter_app_03.png" width="200">
+<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/flutter_app_04.gif" width="200">
 
 ## Webapp:
 - Simple webapp server from the ESP8266 HTTP server
-<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/webapp_01.jpg" width="400">
+<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/webapp_01.jpg" width="600">
 
