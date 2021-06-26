@@ -682,6 +682,10 @@ K Dual DAC 1ch 12bit SPI
 F http://ww1.microchip.com/downloads/en/devicedoc/21897a.pdf
 $ENDCMP
 #
+$CMP MT3608
+F https://datasheet.lcsc.com/lcsc/XI-AN-Aerosemi-Tech-MT3608_C84817.pdf
+$ENDCMP
+#
 $CMP TLV5627CD
 D 4-Channel DAC, 8bit, w/ Power Down, SOIC-16
 K DAC 4CH 8bit

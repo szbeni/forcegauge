@@ -19,7 +19,7 @@ U 1 1 60A40AA9
 P 8450 1450
 F 0 "U?" H 8450 2215 50  0000 C CNN
 F 1 "ESP-12E" H 8450 2124 50  0000 C CNN
-F 2 "" H 8450 1450 50  0001 C CNN
+F 2 "ESP8266:ESP-12" H 8450 1450 50  0001 C CNN
 F 3 "http://l0l.org.uk/2014/12/esp8266-modules-hardware-guide-gotta-catch-em-all/" H 8450 1450 50  0001 C CNN
 	1    8450 1450
 	1    0    0    -1  
@@ -30,20 +30,10 @@ U 1 1 60A428C7
 P 1000 1150
 F 0 "J?" H 1057 1617 50  0000 C CNN
 F 1 "USB_B_Micro" H 1057 1526 50  0000 C CNN
-F 2 "" H 1150 1100 50  0001 C CNN
-F 3 "~" H 1150 1100 50  0001 C CNN
+F 2 "Connector_USB:USB_Micro-B_Wuerth_629105150521_CircularHoles" H 1150 1100 50  0001 C CNN
+F 3 "https://datasheet.lcsc.com/lcsc/2002271812_XKB-Enterprise-U254-051N-4BH806_C319170.pdf" H 1150 1100 50  0001 C CNN
+F 4 "https://lcsc.com/product-detail/USB-Connectors_XKB-Connectivity-U254-051N-4BH806_C319170.html" H 1000 1150 50  0001 C CNN "Order"
 	1    1000 1150
-	1    0    0    -1  
-$EndComp
-$Comp
-L MISC:MT3608 U?
-U 1 1 60A42CAB
-P 2150 3300
-F 0 "U?" H 2150 3715 50  0000 C CNN
-F 1 "MT3608" H 2150 3624 50  0000 C CNN
-F 2 "" H 2150 3300 50  0001 C CNN
-F 3 "" H 2150 3300 50  0001 C CNN
-	1    2150 3300
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -348,6 +338,7 @@ F 0 "SW2" H 7900 6735 50  0000 C CNN
 F 1 "SW_Push" H 7900 6644 50  0000 C CNN
 F 2 "Button_Switch_THT:SW_PUSH_6mm" H 7900 6650 50  0001 C CNN
 F 3 "~" H 7900 6650 50  0001 C CNN
+F 4 "https://www.aliexpress.com/item/32818921144.html?spm=a2g0s.9042311.0.0.7b9a4c4dTZZxJg" H 7900 6450 50  0001 C CNN "Order"
 	1    7900 6450
 	1    0    0    -1  
 $EndComp
@@ -359,6 +350,7 @@ F 0 "SW1" H 10300 5485 50  0000 C CNN
 F 1 "SW_Push" H 10300 5394 50  0000 C CNN
 F 2 "Button_Switch_THT:SW_PUSH_6mm" H 10300 5400 50  0001 C CNN
 F 3 "~" H 10300 5400 50  0001 C CNN
+F 4 "https://www.aliexpress.com/item/32818921144.html?spm=a2g0s.9042311.0.0.7b9a4c4dTZZxJg" H 10300 5200 50  0001 C CNN "Order"
 	1    10300 5200
 	1    0    0    -1  
 $EndComp
@@ -370,6 +362,7 @@ F 0 "SW3" H 10300 5935 50  0000 C CNN
 F 1 "SW_Push" H 10300 5844 50  0000 C CNN
 F 2 "Button_Switch_THT:SW_PUSH_6mm" H 10300 5850 50  0001 C CNN
 F 3 "~" H 10300 5850 50  0001 C CNN
+F 4 "https://www.aliexpress.com/item/32818921144.html?spm=a2g0s.9042311.0.0.7b9a4c4dTZZxJg" H 10300 5650 50  0001 C CNN "Order"
 	1    10300 5650
 	1    0    0    -1  
 $EndComp
@@ -416,8 +409,10 @@ U 1 1 60B88038
 P 2200 2650
 F 0 "L?" V 2390 2650 50  0000 C CNN
 F 1 "22uH" V 2299 2650 50  0000 C CNN
-F 2 "" H 2200 2650 50  0001 C CNN
-F 3 "~" H 2200 2650 50  0001 C CNN
+F 2 "Inductor_SMD:L_1008_2520Metric" H 2200 2650 50  0001 C CNN
+F 3 "https://datasheet.lcsc.com/lcsc/Sunlord-SPH252012H220MT_C98385.pdf" H 2200 2650 50  0001 C CNN
+F 4 "https://lcsc.com/product-detail/Power-Inductors_Sunlord-SPH252012H220MT_C98385.html" V 2200 2650 50  0001 C CNN "Order"
+F 5 "SPH252012H220MT" V 2100 2650 50  0000 C CNN "Name"
 	1    2200 2650
 	0    -1   -1   0   
 $EndComp
@@ -466,9 +461,9 @@ L Device:D_Schottky D?
 U 1 1 60B889ED
 P 2950 2650
 F 0 "D?" H 2950 2434 50  0000 C CNN
-F 1 "D_Schottky" H 2950 2525 50  0000 C CNN
+F 1 "SS34" H 2950 2525 50  0000 C CNN
 F 2 "Diode_SMD:D_SMA" H 2950 2650 50  0001 C CNN
-F 3 "~" H 2950 2650 50  0001 C CNN
+F 3 "https://lcsc.com/product-detail/Schottky-Barrier-Diodes-SBD_MDD_SS34_SS34_C8678.html" H 2950 2650 50  0001 C CNN
 	1    2950 2650
 	-1   0    0    1   
 $EndComp
@@ -921,7 +916,7 @@ U 1 1 60D9E268
 P 7950 3050
 F 0 "Q?" H 8141 3004 50  0000 L CNN
 F 1 "S8550" H 8141 3095 50  0000 L CNN
-F 2 "Package_TO_SOT_THT:TO-92_Inline" H 8150 2975 50  0001 L CIN
+F 2 "Package_TO_SOT_SMD:SOT-23" H 8150 2975 50  0001 L CIN
 F 3 "http://www.unisonic.com.tw/datasheet/S8550.pdf" H 7950 3050 50  0001 L CNN
 	1    7950 3050
 	-1   0    0    1   
@@ -1259,7 +1254,7 @@ U 1 1 610DA301
 P 5650 7250
 F 0 "J?" H 5730 7242 50  0000 L CNN
 F 1 "OLDED_Screen" H 5730 7151 50  0000 L CNN
-F 2 "" H 5650 7250 50  0001 C CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Vertical" H 5650 7250 50  0001 C CNN
 F 3 "~" H 5650 7250 50  0001 C CNN
 	1    5650 7250
 	1    0    0    -1  
@@ -1560,6 +1555,7 @@ F 0 "U?" H 4000 1700 50  0000 C CNN
 F 1 "CH330N" H 3950 1600 50  0000 C CNN
 F 2 "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm" H 3550 2100 50  0001 C CNN
 F 3 "http://www.wch.cn/downloads/file/240.html" H 3600 1550 50  0001 C CNN
+F 4 "https://lcsc.com/product-detail/USB-ICs_WCH-Jiangsu-Qin-Heng-CH330N_C108996.html" H 3700 1350 50  0001 C CNN "Order"
 	1    3700 1350
 	1    0    0    -1  
 $EndComp
@@ -1600,7 +1596,7 @@ U 1 1 6164AF77
 P 3050 5950
 F 0 "J?" H 3130 5942 50  0000 L CNN
 F 1 "Battery" H 3130 5851 50  0000 L CNN
-F 2 "" H 3050 5950 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" H 3050 5950 50  0001 C CNN
 F 3 "~" H 3050 5950 50  0001 C CNN
 	1    3050 5950
 	1    0    0    -1  
@@ -1672,8 +1668,9 @@ U 1 1 61A27AAA
 P 4550 2650
 F 0 "U?" H 4550 2892 50  0000 C CNN
 F 1 "LM1117-3.3" H 4550 2801 50  0000 C CNN
-F 2 "" H 4550 2650 50  0001 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-223" H 4550 2650 50  0001 C CNN
 F 3 "http://www.ti.com/lit/ds/symlink/lm1117.pdf" H 4550 2650 50  0001 C CNN
+F 4 "https://lcsc.com/product-detail/Dropout-Regulators-LDO_HTC-Korea-TAEJIN-Tech-LM1117S-3-3_C126027.html" H 4550 2650 50  0001 C CNN "Order"
 	1    4550 2650
 	1    0    0    -1  
 $EndComp
@@ -1794,6 +1791,7 @@ F 0 "BZ?" H 6302 5629 50  0000 L CNN
 F 1 "Buzzer" H 6302 5538 50  0000 L CNN
 F 2 "Buzzer_Beeper:Buzzer_12x9.5RM7.6" V 6125 5700 50  0001 C CNN
 F 3 "~" V 6125 5700 50  0001 C CNN
+F 4 "https://www.aliexpress.com/item/32914327679.html?spm=a2g0s.9042311.0.0.7b9a4c4dTZZxJg" H 6150 5600 50  0001 C CNN "Order"
 	1    6150 5600
 	1    0    0    -1  
 $EndComp
@@ -1865,7 +1863,7 @@ U 1 1 60E7DC22
 P 6450 3850
 F 0 "J?" H 6368 4267 50  0000 C CNN
 F 1 "Conn_01x05" H 6368 4176 50  0000 C CNN
-F 2 "" H 6450 3850 50  0001 C CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_1x05_P2.54mm_Vertical" H 6450 3850 50  0001 C CNN
 F 3 "~" H 6450 3850 50  0001 C CNN
 	1    6450 3850
 	-1   0    0    -1  
@@ -1906,6 +1904,17 @@ F 2 "Package_TO_SOT_SMD:SOT-23-6" H 1950 5250 50  0001 C CNN
 F 3 "https://datasheet.lcsc.com/lcsc/1811151452_Fortune-Semicon-FS312F-G_C82736.pdf" H 1700 5200 50  0001 C CNN
 F 4 "http://www.ti.com/lit/ds/symlink/bq2970.pdf" H 2000 4550 50  0001 C CNN "Alternative"
 	1    1950 4900
+	1    0    0    -1  
+$EndComp
+$Comp
+L ForceGaugeSymbols:MT3608 U?
+U 1 1 60DA101C
+P 2150 3300
+F 0 "U?" H 2150 3715 50  0000 C CNN
+F 1 "MT3608" H 2150 3624 50  0000 C CNN
+F 2 "Package_TO_SOT_SMD:SOT-23-6" H 2100 3000 50  0001 C CNN
+F 3 "https://datasheet.lcsc.com/lcsc/XI-AN-Aerosemi-Tech-MT3608_C84817.pdf" H 2150 3300 50  0001 C CNN
+	1    2150 3300
 	1    0    0    -1  
 $EndComp
 $EndSCHEMATC
