@@ -402,6 +402,12 @@ K DAC Current Loop 20mA
 F http://www.ti.com/lit/ds/symlink/dac7750.pdf
 $ENDCMP
 #
+$CMP FS312F-G
+D Voltage and Current Protection for Single-Cell Li-Ion and Li-Polymer Batteries
+K protection Li-Ion Li-Pol
+F https://datasheet.lcsc.com/lcsc/1811151452_Fortune-Semicon-FS312F-G_C82736.pdf
+$ENDCMP
+#
 $CMP HX711
 F https://cdn.sparkfun.com/datasheets/Sensors/ForceFlex/hx711_english.pdf
 $ENDCMP
@@ -686,6 +692,10 @@ $CMP TLV5627CPW
 D 4-Channel DAC, 8bit, w/ Power Down, TSSOP-16
 K DAC 4CH 8bit
 F http://www.ti.com/lit/ds/symlink/tlv5627.pdf
+$ENDCMP
+#
+$CMP TP4056
+F https://datasheet.lcsc.com/lcsc/1904031009_TPOWER-TP4056_C382139.pdf
 $ENDCMP
 #
 #End Doc Library

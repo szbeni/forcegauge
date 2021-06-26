@@ -1,4 +1,4 @@
-17094616577398876
+17096241272543924
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -76033,3 +76033,10 @@ varistor SIOV
 0
 2
 2
+forcegauge
+SOP8-PP
+SOP, 8 Pin (Mini-Circuits XX112 housing; https://ww2.minicircuits.com/case_style/XX112.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py
+SOP SO
+0
+10
+9

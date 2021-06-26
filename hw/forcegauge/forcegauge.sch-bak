@@ -760,7 +760,6 @@ F 0 "U?" H 9450 3500 50  0000 C CNN
 F 1 "HX711" H 9400 3400 50  0000 C CNN
 F 2 "Package_SO:SOP-16_4.55x10.3mm_P1.27mm" H 9500 2300 50  0001 C CNN
 F 3 "https://cdn.sparkfun.com/datasheets/Sensors/ForceFlex/hx711_english.pdf" H 9900 4350 50  0001 C CNN
-F 4 "https://datasheet.lcsc.com/lcsc/2011051703_Avia-Semicon-Xiamen-HX711_C43656.pdf" H 9300 3400 50  0001 C CNN "Alternative"
 	1    9300 3400
 	1    0    0    -1  
 $EndComp
@@ -1886,6 +1885,18 @@ Wire Wire Line
 Wire Wire Line
 	6900 4050 6900 4100
 $Comp
+L ForceGaugeSymbols:FS312F-G U?
+U 1 1 60A476C7
+P 1950 4900
+F 0 "U?" H 1950 5317 50  0000 C CNN
+F 1 "FS312F-G" H 1950 5226 50  0000 C CNN
+F 2 "Package_SON:WSON-6_1.5x1.5mm_P0.5mm" H 1950 5250 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/bq2970.pdf" H 1700 5200 50  0001 C CNN
+F 4 "http://hmsemi.com/downfile/DW01A.PDF" H 1950 4900 50  0001 C CNN "Alternative"
+	1    1950 4900
+	1    0    0    -1  
+$EndComp
+$Comp
 L ForceGaugeSymbols:TP4056 U?
 U 1 1 60A42653
 P 2250 7000
@@ -1894,18 +1905,6 @@ F 1 "TP4056" H 2725 7191 60  0000 C CNN
 F 2 "forcegauge:SOP8-PP" H 2250 7000 60  0001 C CNN
 F 3 "https://datasheet.lcsc.com/lcsc/1904031009_TPOWER-TP4056_C382139.pdf" H 2250 7000 60  0001 C CNN
 	1    2250 7000
-	1    0    0    -1  
-$EndComp
-$Comp
-L ForceGaugeSymbols:FS312F-G U?
-U 1 1 60F8148F
-P 1950 4900
-F 0 "U?" H 1950 5317 50  0000 C CNN
-F 1 "FS312F-G" H 1950 5226 50  0000 C CNN
-F 2 "Package_TO_SOT_SMD:SOT-23-6" H 1950 5250 50  0001 C CNN
-F 3 "https://datasheet.lcsc.com/lcsc/1811151452_Fortune-Semicon-FS312F-G_C82736.pdf" H 1700 5200 50  0001 C CNN
-F 4 "http://www.ti.com/lit/ds/symlink/bq2970.pdf" H 2000 4550 50  0001 C CNN "Alternative"
-	1    1950 4900
 	1    0    0    -1  
 $EndComp
 $EndSCHEMATC
