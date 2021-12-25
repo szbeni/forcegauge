@@ -59,9 +59,9 @@ boolean screenForce() {
   
   display.clearDisplay();
   
-  display.setTextSize(3);
+  display.setTextSize(2);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(10,1);
+  display.setCursor(1,1);
   display.println(config.lastValue);
   
   display.setTextSize(1);

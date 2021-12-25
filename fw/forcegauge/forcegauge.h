@@ -42,6 +42,7 @@ typedef struct
   float scale;
   long time;
   float lastValue;
+  float filterCoeff;
 
 } configStruct;
 

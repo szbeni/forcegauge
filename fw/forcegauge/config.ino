@@ -24,6 +24,7 @@ void makeDefaultConfig(configStruct* c)
   configJSON["offset"] = 0;
   configJSON["scale"] = 0.000231142;
   configJSON["time"] = 0;
+  configJSON["filterCoeff"] = 0;
   copyConfig(c);
 }
 
@@ -33,6 +34,7 @@ bool saveConfig(configStruct* c)
   configJSON["offset"] = c->offset;
   configJSON["scale"] = c->scale;
   configJSON["time"] = c->time;
+  configJSON["filterCoeff"] = c->filterCoeff;
     
   File jsonFile = SPIFFS.open(configFilename, "w");
   if (serializeJsonPretty(configJSON, jsonFile) == 0) {
@@ -80,6 +82,7 @@ void copyConfig(configStruct *c)
   c->offset = configJSON["offset"];
   c->scale = configJSON["scale"];
   c->time = configJSON["time"];
+  c->filterCoeff = configJSON["filterCoeff"];
 }
 
 

@@ -53,6 +53,12 @@ void WiFiLoop()
   }
 }
 
+static float lowpassfilter(float new_input, float current, float coeff)
+{
+  return coeff * current + (1 - coeff) * new_input;
+}
+
+
 static unsigned long lastRefresh = millis();
 
 void loop() {
@@ -72,7 +78,9 @@ void loop() {
     data.v = scale.read();
     data.t = config.time + millis();
     dataBuffer.lockedPush(data);
-    config.lastValue = (data.v - config.offset) * config.scale;
+    float value = (data.v - config.offset) * config.scale;
+    //Add simple filter
+    config.lastValue = lowpassfilter(value, config.lastValue, config.filterCoeff);
     if (config.lastValue > maxForce)
       maxForce = config.lastValue;
     if (config.lastValue < minForce)
