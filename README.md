@@ -12,6 +12,7 @@
  - HX711 ADC - Load cell
  
 
+## Picture of the first prototype:
 <img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/prototype_01.jpg" width="200">
 
 ## PCB version v0.1 3D kicad render:
@@ -41,5 +42,6 @@
 
 ## Webapp:
 - Simple webapp served from the ESP8266 HTTP server
+
 <img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/webapp_01.jpg" width="600">
 
