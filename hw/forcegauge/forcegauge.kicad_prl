@@ -1,10 +1,12 @@
 {
   "board": {
-    "active_layer": 1,
+    "active_layer": 0,
     "active_layer_preset": "",
     "auto_track_width": false,
     "hidden_nets": [
-      "GND"
+      "+5V",
+      "GND",
+      "+3V3"
     ],
     "high_contrast_mode": 0,
     "net_color_mode": 1,
@@ -65,7 +67,7 @@
       36
     ],
     "visible_layers": "001ffdf_80000007",
-    "zone_display_mode": 0
+    "zone_display_mode": 1
   },
   "meta": {
     "filename": "forcegauge.kicad_prl",
