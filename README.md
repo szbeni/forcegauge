@@ -10,7 +10,18 @@
  - Battery with charger
  - USB UART connection
  - HX711 ADC - Load cell
+ 
+
 <img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/prototype_01.jpg" width="200">
+
+## PCB version v0.1 3D kicad render:
+
+<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/pcb_render_01.jpg" width="200">
+<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/pcb_render_02.jpg" width="200">
+
+## Interactive BOM
+
+- [Interactive BOM](https://htmlpreview.github.io/?https://github.com/szbeni/forcegauge/blob/main/hw/forcegauge/bom/ibom.html)
 
 
 ## Firmware:
