@@ -1038,8 +1038,13 @@
       (net 4 "BAT+") (pinfunction "Pin_1") (pintype "passive") (tstamp f08b78e3-00cc-4545-b76f-007757fa75b3))
     (pad "2" thru_hole oval locked (at 0 2.54 90) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask)
       (net 7 "BAT-") (pinfunction "Pin_2") (pintype "passive") (tstamp 59b84cf5-8fad-4fea-b0b7-c97376d20370))
-    (model "${KISYS3DMOD}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_1x02_P2.54mm_Vertical.wrl"
+    (model "${KISYS3DMOD}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_1x02_P2.54mm_Vertical.wrl" hide
       (offset (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
+    (model "/home/beni/kicad/libraries/3d/1100mAh lipo v8.step"
+      (offset (xyz 18 15 -10.5))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
@@ -1091,8 +1096,13 @@
       (net 27 "A+") (pinfunction "Pin_4") (pintype "passive") (tstamp e5c3c323-3462-4dd1-b98c-36f997c5b6c0))
     (pad "5" thru_hole oval locked (at 0 10.16 90) (size 1.7 1.7) (drill 1) (layers *.Cu *.Mask)
       (net 3 "GND") (pinfunction "Pin_5") (pintype "passive") (tstamp fa731abd-5343-4a3a-97a6-2fafda7929ea))
-    (model "${KISYS3DMOD}/Connector_PinSocket_2.54mm.3dshapes/PinSocket_1x05_P2.54mm_Vertical.wrl"
+    (model "${KISYS3DMOD}/Connector_PinSocket_2.54mm.3dshapes/PinSocket_1x05_P2.54mm_Vertical.wrl" hide
       (offset (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz 0 0 0))
+    )
+    (model "/home/beni/kicad/libraries/3d/FS07-20kN.STEP"
+      (offset (xyz -17 10 -23))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
