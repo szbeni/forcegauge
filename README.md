@@ -16,8 +16,8 @@
 
 ## PCB version v0.1 3D kicad render:
 
-<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/pcb_render_01.jpg" width="200">
-<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/pcb_render_02.jpg" width="200">
+<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/pcb_render_01.png" width="200">
+<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/pcb_render_02.png" width="200">
 
 ## Interactive BOM
 
