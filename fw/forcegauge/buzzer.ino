@@ -9,13 +9,15 @@ void buzz(unsigned int freq, unsigned long duration)
 
 void startBuzzer()
 {
-    digitalWrite(BUZZER_PIN, HIGH);
+  noTone(BUZZER_PIN);
+    //digitalWrite(BUZZER_PIN, HIGH);
 
 }
 void buzzerLoop()
 {
   if(millis() >= buzzerStopTime)
   {
-    digitalWrite(BUZZER_PIN, HIGH);
+    noTone(BUZZER_PIN);
+    //digitalWrite(BUZZER_PIN, HIGH);
   }  
 }

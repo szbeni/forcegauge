@@ -1,4 +1,4 @@
-#include "forcegauge.h"
+    #include "forcegauge.h"
 
 const char configFilename[] = "/config.json";
 const char version[] = "1.0.0"; 

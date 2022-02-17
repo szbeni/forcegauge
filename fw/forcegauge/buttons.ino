@@ -4,8 +4,8 @@
 #define HOLD_TIME 1500
 
 int lastSent = 0;
-int currentState[3]  = {HIGH,HIGH,HIGH};
-int lastState[3]  = {HIGH,HIGH,HIGH};
+int currentState[3]  = {LOW,LOW,LOW};
+int lastState[3]  = {LOW,LOW,LOW};
 bool holdStateOn[3] = {false, false, false};
 unsigned long pressedTime[3] = {0,0,0};
 unsigned long releasedTime[3]  = {0,0,0};
@@ -23,9 +23,9 @@ void startButtons() {
 void buttonsLoop() {
   
   // read the state of the switch/button:
-  currentState[0] = digitalRead(BUTTON1_PIN);
+  currentState[0] = !digitalRead(BUTTON1_PIN);
   currentState[1] = digitalRead(BUTTON2_PIN);
-  currentState[2] = digitalRead(BUTTON3_PIN);
+  currentState[2] = !digitalRead(BUTTON3_PIN);
   
   if(millis()-lastSent > 200)
   {
@@ -35,11 +35,15 @@ void buttonsLoop() {
   
   for(int i=0;i<3;i++)
   {
-    if(lastState[i] == HIGH && currentState[i] == LOW)
+    
+    int pressedState = HIGH;
+    int releasedState = LOW;
+ 
+    if(lastState[i] == releasedState && currentState[i] == pressedState)
     {
       pressedTime[i] = millis();
     }
-    else if(lastState[i] == LOW && currentState[i] == HIGH)
+    else if(lastState[i] == pressedState && currentState[i] == releasedState)
     {
       releasedTime[i] = millis();  
       holdStateOn[i] = false;
@@ -68,7 +72,7 @@ void buttonsLoop() {
         //debounce
       }
     }
-    else if(lastState[i] == LOW && currentState[i] == LOW)
+    else if(lastState[i] == pressedState && currentState[i] == pressedState)
     {
       if((millis() - pressedTime[i]) > HOLD_TIME)
       {
