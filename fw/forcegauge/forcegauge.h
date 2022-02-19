@@ -20,8 +20,8 @@
 #define R2 100.0f  //100k
 #define BATTERY_SCALER (((R1+R2)/R2)/1023.0f)
 #define BATTERY_VOLTAGE A0
-#define BUZZER_PIN D4
-#define POWER_PIN D8
+#define BUZZER_PIN D8
+#define POWER_PIN D4
 #define DOUT  D5
 #define CLK  D6
 

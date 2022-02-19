@@ -24,7 +24,7 @@ void buttonsLoop() {
   
   // read the state of the switch/button:
   currentState[0] = !digitalRead(BUTTON1_PIN);
-  currentState[1] = digitalRead(BUTTON2_PIN);
+  currentState[1] = !digitalRead(BUTTON2_PIN);
   currentState[2] = !digitalRead(BUTTON3_PIN);
   
   if(millis()-lastSent > 200)
