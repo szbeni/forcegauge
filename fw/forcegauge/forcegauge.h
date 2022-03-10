@@ -12,7 +12,7 @@
 #include <ArduinoJson.h>
 #include "screen_handler.h"
 
-#define BUTTON1_PIN D7
+#define BUTTON1_PIN D4
 #define BUTTON2_PIN D0
 #define BUTTON3_PIN D3
 
@@ -21,9 +21,9 @@
 #define BATTERY_SCALER (((R1+R2)/R2)/1023.0f)
 #define BATTERY_VOLTAGE A0
 #define BUZZER_PIN D8
-#define POWER_PIN D4
-#define DOUT  D5
-#define CLK  D6
+#define POWER_PIN D7
+#define DOUT  D6
+#define CLK  D5
 
 #define CONFIG_BUFFER_SIZE 512
 
