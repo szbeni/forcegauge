@@ -1,4 +1,4 @@
-    #include "forcegauge.h"
+#include "forcegauge.h"
 
 const char configFilename[] = "/config.json";
 const char version[] = "1.0.0"; 
@@ -17,32 +17,8 @@ ScreenHandler screenHandler;      //Screen hanlder
 float maxForce=0;
 float minForce=0;
 
-void TaskBlink(void *pvParameters)  // This is a task.
-{
-  (void) pvParameters;
-
-  // initialize digital pin 13 as an output.
-//  pinMode(13, OUTPUT);
-
-  for (;;) // A Task shall never return or exit.
-  {
-//    digitalWrite(13, HIGH);   // turn the LED on (HIGH is the voltage level)
-//    vTaskDelay( 1000 / portTICK_PERIOD_MS ); // wait for one second
-//    digitalWrite(13, LOW);    // turn the LED off by making the voltage LOW
-//    vTaskDelay( 1000 / portTICK_PERIOD_MS ); // wait for one second
-  }
-}
 
 void setup() {
-
-   xTaskCreate(
-    TaskBlink
-    ,  "Blink"   // A name just for humans
-    ,  128  // Stack size
-    ,  NULL
-    ,  2  // priority
-    ,  NULL );
-    
   Serial.begin(115200); // Start Serial
   startBuzzer();
   startButtons();
@@ -61,14 +37,12 @@ void WiFiLoop()
     
       if (checkWifiConnected())
       {
-        printf("Starting servers\n");
         startOTA();
         startDNSServer();
         //startMDNS();
         startWebSocket();
         startServer();
         wifiInitialized = true;
-        printf("Wifi initialized\n");
       }
   }
   else
