@@ -31,8 +31,10 @@ void startWiFi() { // Start a Wi-Fi access point, and try to connect to some giv
 
 bool checkWifiConnected()
 {
+  printf("Wifimulti run\n");
   if (wifiMulti.run() != WL_CONNECTED && WiFi.softAPgetStationNum() < 1)
   {
+    printf("Wifimulti endfalse\n");
     return false;
   }
   Serial.println("\r\n");
@@ -47,6 +49,7 @@ bool checkWifiConnected()
   Serial.println("\r\n");
 
   return true;
+  printf("Wifimulti endtrue\n");
 }
 
 void startServer() { // Start a HTTP server with a file read handler and an upload handler

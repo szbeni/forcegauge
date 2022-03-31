@@ -30,7 +30,7 @@ void buttonsLoop() {
   if(millis()-lastSent > 200)
   {
     lastSent = millis();
-    Serial.printf("Button %d, %d, %d\n", currentState[0],currentState[1],currentState[2]);  
+    //Serial.printf("Button %d, %d, %d\n", currentState[0],currentState[1],currentState[2]);  
   }
   
   for(int i=0;i<3;i++)
