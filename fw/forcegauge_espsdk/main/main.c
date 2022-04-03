@@ -21,6 +21,7 @@
 #include "lwip/err.h"
 #include "lwip/sys.h"
 #include "mytask.h"
+#include "ssd1306.h"
 
 /* The examples use WiFi configuration that you can set via project configuration menu.
 
@@ -157,5 +158,7 @@ void app_main()
 
     ESP_LOGI(TAG, "ESP_WIFI_MODE_AP");
     mytask_init();
+    ssd1306_start();
+
     wifi_init_softap();
 }
