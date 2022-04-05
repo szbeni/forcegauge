@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "ssd1366.h": "c"
+        "ssd1366.h": "c",
+        "eagle_soc.h": "c",
+        "gpio_register.h": "c"
     }
 }
