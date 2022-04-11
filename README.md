@@ -12,6 +12,11 @@
  - HX711 ADC - Load cell
  
 
+## Schematic ##
+
+- [Schematic](https://github.com/szbeni/forcegauge/blob/main/hw/forcegauge/forcegauge.pdf)
+
+
 ## Picture of the first prototypes
 <img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/prototypes_02.jpg" width="600">
 
