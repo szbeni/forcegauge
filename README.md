@@ -12,13 +12,16 @@
  - HX711 ADC - Load cell
  
 
-## Picture of the first prototype:
+## Picture of the first prototypes
 <img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/prototype_01.jpg" width="200">
+<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/prototypes_02.jpg" width="200">
+
 
 ## PCB version v0.1 3D kicad render:
 
 <img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/pcb_render_01.png">
 <img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/pcb_render_02.png">
+<img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/pcb_photo.jpg">
 
 ## Interactive BOM
 
