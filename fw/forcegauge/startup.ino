@@ -8,7 +8,7 @@ void startWiFi() { // Start a Wi-Fi access point, and try to connect to some giv
 
   wifiMulti.addAP(config.ssid1, config.passwd1);
   wifiMulti.addAP(config.ssid2, config.passwd2);
-  wifiMulti.addAP(config.ssid2, config.passwd3);
+//  wifiMulti.addAP(config.ssid3, config.passwd3);
 
 //This is blocking dont need it
 //  Serial.println("Connecting");

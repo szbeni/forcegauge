@@ -4,6 +4,7 @@ void startConfig()
 {
   if (loadConfig(&config) == false)
   {
+    Serial.println("Failed to load config.json. making new one\n");
     makeDefaultConfig(&config);
     saveConfig(&config);  
   }
@@ -19,12 +20,12 @@ void makeDefaultConfig(configStruct* c)
   configJSON["passwd1"] = "";
   configJSON["ssid2"] = "";
   configJSON["passwd2"] = "";
-  configJSON["ssid3"] = "";
-  configJSON["passwd3"] = "";
+//  configJSON["ssid3"] = "";
+//  configJSON["passwd3"] = "";
   configJSON["offset"] = 0;
   configJSON["scale"] = 0.000231142;
+  configJSON["filterCoeff"] = 0.0;
   configJSON["time"] = 0;
-  configJSON["filterCoeff"] = 0;
   copyConfig(c);
 }
 
@@ -33,8 +34,9 @@ bool saveConfig(configStruct* c)
   bool retval = true;
   configJSON["offset"] = c->offset;
   configJSON["scale"] = c->scale;
-  configJSON["time"] = c->time;
   configJSON["filterCoeff"] = c->filterCoeff;
+  configJSON["time"] = c->time;
+  
     
   File jsonFile = SPIFFS.open(configFilename, "w");
   if (serializeJsonPretty(configJSON, jsonFile) == 0) {
@@ -77,8 +79,8 @@ void copyConfig(configStruct *c)
   c->passwd1 = configJSON["passwd1"];
   c->ssid2 = configJSON["ssid2"];
   c->passwd2 = configJSON["passwd2"];
-  c->ssid3 = configJSON["ssid3"]; 
-  c->passwd3 = configJSON["passwd3"];
+//  c->ssid3 = configJSON["ssid3"]; 
+//  c->passwd3 = configJSON["passwd3"];
   c->offset = configJSON["offset"];
   c->scale = configJSON["scale"];
   c->time = configJSON["time"];

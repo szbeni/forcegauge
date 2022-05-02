@@ -26,7 +26,9 @@
 #define DOUT  D6
 #define CLK  D5
 
-#define CONFIG_BUFFER_SIZE 512
+#define CONFIG_BUFFER_SIZE 2048
+
+
 
 typedef struct
 {
@@ -37,14 +39,13 @@ typedef struct
   const char *passwd1;
   const char *ssid2;
   const char *passwd2;
-  const char *ssid3;
-  const char *passwd3;
+//  const char *ssid3;
+//  const char *passwd3;
   long offset;
   float scale;
   long time;
   float lastValue;
   float filterCoeff;
-
 } configStruct;
 
 typedef struct
