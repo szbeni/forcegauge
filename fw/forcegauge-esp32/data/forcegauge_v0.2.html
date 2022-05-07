@@ -1,0 +1,445 @@
+<html>
+
+<head>
+  <script src="plotly-basic-latest.min.js"></script>
+  <script src="forcegauge.js"></script>
+
+  <style>
+    .block {
+      /*display: block;*/
+      /* width: 100px; */
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      padding: 14px 28px;
+      font-size: 16px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .stat-text-red {
+      font-size: 50px;
+      color: red;
+    }
+
+    #title {
+      width: 100%;
+      text-align: center;
+    }
+
+    #left {
+      width: 50%;
+      float: left;
+    }
+
+    #right {
+      width: 50%;
+      float: right;
+    }
+
+    #myChart {
+      width: 100%;
+      clear: both;
+    }
+
+    #footer {
+      width: 100%;
+      clear: both;
+
+    }
+
+    #container {
+      width: 100%;
+      margin-right: auto;
+      margin-left: auto;
+      font-size: xx-large;
+    }
+
+    input {
+      font-size: xx-large;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="container">
+    <div id="title">
+      <b>Force: </b><b class="stat-text-red" id="currentValue">0</b><br>
+      <br>
+    </div>
+    <div id="left">
+      <input type="button" class="block" onclick="graphingOn = !graphingOn;" value="Start/Stop">
+      <input type="button" class="block" onclick="clearData();" value="Clear Data">
+      <input type="button" class="block" onclick="zeroOffset();" value="Zero Offset"><br>
+      <b>Min Value (kg): </b><b id="minValue">0</b><br>
+      <b>Absolute Min Value (kg): </b><b id="absMinValue">0</b><br>
+      <b>Max Value (kg): </b><b id="maxValue">0</b><br>
+      <b>Absolute Max Value (kg): </b><b id="absMaxValue">0</b><br>
+      <b>AverageValue (kg): </b><b id="averageValue">0</b>
+    </div>
+    <div id="right">
+      <input type="button" class="block" onclick="targetZoneAudio(targetZoneAudioFlag);" value="Tone Start/Stop">
+      <input type="button" class="block" onclick="resetTargetData();" value="Reset Target"><br>
+      <b>Target force (kg): </b><input id="targetForce" type="number" value="20" style="width:100px;"><br>
+      <b>Deadband (+-kg): </b><input id="targetDeadband" type="number" value="2" style="width:100px;"><br>
+      <b>Error time (msec): </b><input id="targetErrorTime" type="number" value="1000" style="width:100px;"><br>
+      <b>Time in target (sec): </b><b id="timeInTarget">0</b><br>
+      <b>Longest in target (sec): </b><b id="longestTimeInTarget">0</b>
+    </div>
+    <div id="myChart" style="width:100%; height:600px;"></div>
+    <div id="footer">
+      <b>Number of points: </b><input id="maxRows" type="number" value="1500" step="50" min="300" style="width:100px;">
+    </div>
+  </div>
+  <script>
+    var address = "ws://" + location.host + ":81"
+    if (location.host == "") {
+      address = "ws://192.168.3.152:81"
+    }
+
+    var device1 = new forceGauge("Device1", address);
+    device1.onNewData = function (data) {
+      processData(data);
+    }
+    device1.connect();
+    var graphingOn = true;
+    var updateInterval = 100;
+    var absoluteMinValue = Number.MAX_VALUE;
+    var absoluteMaxValue = -Number.MAX_VALUE;
+
+
+    var dataSeries1 = [{
+      x: [],
+      y: [],
+      mode: 'lines',
+      line: { color: 'green', width: 5 }
+    }]
+    var myChart;
+    var myChartDiv = document.getElementById('myChart');
+
+
+    var layout = {
+      title: 'Force',
+      xaxis: {
+        autorange: true,
+        //range: ['2015-02-17', '2017-02-16'],
+        //rangeslider: { range: ['2015-02-17', '2017-02-16'] },
+        //rangeslider: {},
+        //type: 'date'
+      },
+      yaxis: {
+        autorange: true,
+        fixedrange: true,
+        //range: [86.8700008333, 138.870004167],
+        type: 'linear'
+      }, shapes: [
+        {
+          type: 'line', x0: 0, y0: 0, x1: 0, y1: 0,
+          line: {
+            color: 'blue', width: 3, dash: 'dot'
+          }
+        },
+        {
+          type: 'line', x0: 0, y0: 0, x1: 0, y1: 0,
+          line: {
+            color: 'red', width: 3, dash: 'dot'
+          }
+        },
+        {
+          type: 'line', x0: 0, y0: 0, x1: 0, y1: 0,
+          line: {
+            color: 'orange', width: 3, dash: 'dot'
+          }
+        }
+      ]
+    };
+
+    window.onload = function () {
+
+      myChart = Plotly.newPlot('myChart', dataSeries1, layout);
+
+      myChartDiv.on('plotly_relayout',
+        function (eventdata) {
+          getMinMax([eventdata['xaxis.range[0]'], eventdata['xaxis.range[1]']]);
+        });
+      setInterval(function () { updateChart() }, updateInterval);
+
+    }
+
+    function resetTargetData() {
+      timeInTarget = 0;
+      longestTimeInTarget = 0;
+    }
+    function zeroOffset() {
+      device1.setOffset();
+    }
+    function clearData() {
+      absoluteMinValue = Number.MAX_VALUE;
+      absoluteMaxValue = -Number.MAX_VALUE;
+      dataSeries1[0].x = [];
+      dataSeries1[0].y = [];
+      Plotly.redraw('myChart');
+
+    }
+
+    function getMinMax(range) {
+      rangeMin = range[0];
+      rangeMax = range[1];
+      //Get min and max
+      var min = Number.MAX_VALUE;
+      var max = -Number.MAX_VALUE;
+      var average = 0;
+      var averageSum = 0;
+      var averageNum = 0;
+
+      for (let i = 0; i < dataSeries1[0].x.length; i++) {
+        time = dataSeries1[0].x[i];
+        value = dataSeries1[0].y[i];
+        if (rangeMin != undefined && time < rangeMin)
+          continue;
+        if (rangeMax != undefined && time > rangeMax)
+          continue;
+
+        averageSum += value;
+        averageNum += 1;
+
+        if (value < min)
+          min = value;
+        if (value > max)
+          max = value;
+      }
+      if (min == Number.MAX_VALUE) min = 0;
+      if (max == -Number.MAX_VALUE) max = 0;
+      if (averageNum > 0) average = averageSum / averageNum;
+
+      if (min < absoluteMinValue) absoluteMinValue = min;
+      if (max > absoluteMaxValue) absoluteMaxValue = max;
+      var absMin = absoluteMinValue;
+      var absMax = absoluteMaxValue;
+      if (absMin == Number.MAX_VALUE) absMin = 0;
+      if (absMax == -Number.MAX_VALUE) absMax = 0;
+
+      layout.shapes[0].x0 = dataSeries1[0].x[0];
+      layout.shapes[0].y0 = min;
+      layout.shapes[0].x1 = dataSeries1[0].x[dataSeries1[0].x.length - 1];
+      layout.shapes[0].y1 = min;
+
+      layout.shapes[1].x0 = dataSeries1[0].x[0];
+      layout.shapes[1].y0 = max;
+      layout.shapes[1].x1 = dataSeries1[0].x[dataSeries1[0].x.length - 1];
+      layout.shapes[1].y1 = max;
+
+      layout.shapes[2].x0 = dataSeries1[0].x[0];
+      layout.shapes[2].y0 = average;
+      layout.shapes[2].x1 = dataSeries1[0].x[dataSeries1[0].x.length - 1];
+      layout.shapes[2].y1 = average;
+
+
+      document.getElementById("minValue").innerText = min.toFixed(2);
+      document.getElementById("maxValue").innerText = max.toFixed(2);
+      document.getElementById("absMinValue").innerText = absMin.toFixed(2);
+      document.getElementById("absMaxValue").innerText = absMax.toFixed(2);
+
+      document.getElementById("averageValue").innerText = average.toFixed(2);
+      //Plotly.redraw('myChart');
+
+    }
+
+    var lastval = 0;
+    var update = {
+      x: [[],],
+      y: [[],]
+    }
+
+
+    function updateChart() {
+      if (graphingOn == false)
+        return;
+
+      var maxRows = document.getElementById("maxRows").value;
+      getMinMax(layout.xaxis.range);
+      Plotly.extendTraces('myChart', update, [0]);
+      update.x[0] = [];
+      update.y[0] = [];
+
+      while (dataSeries1[0].x.length > maxRows) {
+        dataSeries1[0].x.shift();
+        dataSeries1[0].y.shift();
+      }
+      toneLimit(lastval);
+    }
+    function processData(data) {
+      //var showTable = document.getElementById("showTable").checked;
+      var xArray = Array(data.length)
+      var yArray = Array(data.length)
+      for (let i = 0; i < data.length; i++) {
+        value = parseFloat(data[i]['value']);
+        time = parseFloat(data[i]['time']) / 1000.0;
+        xArray[i] = time;
+        yArray[i] = value;
+        lastval = value;
+        update.x[0].push(time);
+        update.y[0].push(value);
+      }
+
+      document.getElementById("currentValue").innerText = lastval;
+
+    }
+
+    var context = new AudioContext();
+    var targetZoneAudioFlag = false;
+    var osc;
+    var baseFreq = 440;
+    var beepStoppedTime = 0;
+    var playToneFlag = false;
+    var toneOsc;
+
+    function playTone(freq) {
+      if (playToneFlag == false) {
+        playToneFlag = true;
+        toneOsc = context.createOscillator();
+        toneOsc.frequency.value = baseFreq;
+        toneOsc.type = "sine";
+        toneOsc.connect(context.destination);
+        toneOsc.start();
+      }
+    }
+
+    function stopTone() {
+      if (playToneFlag == true) {
+        playToneFlag = false;
+        toneOsc.stop();
+      }
+    }
+
+    function beep(vol, freq, duration, pause) {
+      stopTone();
+      var d = new Date()
+      var now = d.getTime();
+      diffTime = now - beepStoppedTime;
+      if (diffTime > pause) {
+        osc = context.createOscillator();
+        gain = context.createGain();
+        osc.connect(gain);
+        osc.frequency.value = freq
+        osc.type = "square"
+        gain.connect(context.destination)
+        gain.gain.value = vol * 0.01
+        osc.start(context.currentTime)
+        osc.stop(context.currentTime + duration * 0.001)
+        beepStoppedTime = now + duration * 0.001;
+      }
+    }
+
+    function targetZoneAudio(start) {
+      if (targetZoneAudioFlag == false) {
+        targetZoneAudioFlag = true;
+      }
+      else {
+        targetZoneAudioFlag = false;
+        stopTone();
+      }
+    }
+
+    var deadbandEnterTime = 0;
+    var deadbandExitTime = 0;
+    var pervInDeadband = false;
+    var timeInTarget = 0;
+    var longestTimeInTarget = 0;
+    function toneLimit(current) {
+
+      var target = parseFloat(document.getElementById("targetForce").value);
+      var deadband = parseFloat(document.getElementById("targetDeadband").value);
+      var errorTime = parseFloat(document.getElementById("targetErrorTime").value);
+      if (!isNaN(current)) {
+
+        var d = new Date()
+        var now = d.getTime();
+
+        diff = target - current;
+
+        if (target < 0)
+          freq = baseFreq + diff * 15;
+        else
+          freq = baseFreq - diff * 15;
+
+        pause = 700 - Math.abs(diff) * 50;
+
+        if (pause < 150) pause = 150;
+
+        if (freq < 150) freq = 150;
+        else if (freq > 1500) freq = 1500;
+
+        if (Math.abs(diff) < deadband) {
+          if (pervInDeadband == false) {
+            pervInDeadband = true;
+            if ((now - deadbandExitTime) > errorTime) {
+              console.log(now);
+              deadbandEnterTime = now;
+            }
+            else {
+              deadbandEnterTime += (now - deadbandExitTime);
+            }
+          }
+          timeInTarget = (now - deadbandEnterTime)
+
+          if (timeInTarget > longestTimeInTarget)
+            longestTimeInTarget = timeInTarget;
+
+          if (targetZoneAudioFlag)
+            playTone(baseFreq);
+        }
+        else {
+          if (pervInDeadband == true) {
+            pervInDeadband = false;
+            deadbandExitTime = now;
+          }
+
+          if (targetZoneAudioFlag)
+            beep(100, freq, 150, pause);
+        }
+      }
+      document.getElementById("timeInTarget").innerText = timeInTarget / 1000.0;
+      document.getElementById("longestTimeInTarget").innerText = longestTimeInTarget / 1000.0;
+    }
+
+
+    function getData() {
+
+      if (graphingOn == false)
+        return;
+
+      var testing = true;
+      if (testing == true) {
+        //Testing:
+        var data = JSON.parse('{"data": [{"time":"1682061", "value":"0.09"},{"time":"1682070", "value":"0.10"},{"time":"1682082", "value":"0.09"},{"time":"1682094", "value":"0.09"},{"time":"1682106", "value":"0.10"},{"time":"1682118", "value":"0.07"},{"time":"1682130", "value":"0.07"},{"time":"1682142", "value":"0.11"},{"time":"1682154", "value":"0.15"},{"time":"1682166", "value":"0.14"},{"time":"1682178", "value":"0.12"},{"time":"1682190", "value":"0.11"},{"time":"1682203", "value":"0.09"},{"time":"1682215", "value":"0.09"},{"time":"1682227", "value":"0.09"},{"time":"1682239", "value":"0.09"},{"time":"1682251", "value":"0.12"},{"time":"1682263", "value":"0.11"},{"time":"1682275", "value":"0.08"},{"time":"1682287", "value":"0.08"},{"time":"1682299", "value":"0.11"},{"time":"1682311", "value":"0.12"},{"time":"1682323", "value":"0.12"},{"time":"1682335", "value":"0.10"},{"time":"1682347", "value":"0.08"},{"time":"1682359", "value":"0.02"},{"time":"1682371", "value":"0.09"},{"time":"1682383", "value":"0.14"},{"time":"1682395", "value":"0.12"},{"time":"1682407", "value":"0.08"},{"time":"1682419", "value":"0.09"},{"time":"1682431", "value":"0.08"},{"time":"1682443", "value":"0.09"},{"time":"1682455", "value":"0.06"},{"time":"1682467", "value":"0.08"},{"time":"1682480", "value":"0.08"},{"time":"1682492", "value":"0.04"},{"time":"1682504", "value":"0.08"},{"time":"1682516", "value":"0.07"},{"time":"1682528", "value":"0.09"},{"time":"1682540", "value":"0.08"},{"time":"1682552", "value":"0.12"},{"time":"1682564", "value":"0.13"},{"time":"1682576", "value":"0.09"},{"time":"1682588", "value":"0.10"},{"time":"1682600", "value":"0.09"},{"time":"1682612", "value":"0.07"},{"time":"1682624", "value":"0.07"},{"time":"1682636", "value":"0.09"},{"time":"1682648", "value":"0.07"},{"time":"1682660", "value":"0.07"},{"time":"1682672", "value":"0.03"},{"time":"1682684", "value":"0.05"},{"time":"1682696", "value":"0.07"},{"time":"1682708", "value":"0.10"},{"time":"1682720", "value":"0.04"},{"time":"1682732", "value":"0.01"},{"time":"1682745", "value":"0.03"},{"time":"1682757", "value":"0.10"},{"time":"1682769", "value":"0.16"},{"time":"1682781", "value":"0.13"},{"time":"1682793", "value":"0.10"},{"time":"1682805", "value":"0.12"},{"time":"1682817", "value":"0.08"}]}')["data"];
+        var d = new Date()
+        var t = d.getTime();
+        for (var i = 0; i < data.length; i++) {
+          data[i].time = t + i;
+          data[i].value = Math.sin(t / 1000.0) * 5 + Math.random();
+        }
+        processData(data);
+        return;
+      }
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          try {
+            var data = JSON.parse(this.responseText)["data"];
+            processData(data);
+          }
+          catch (err) {
+            console.log("Error: ", err);
+          }
+
+        }
+      };
+      xhttp.open("GET", "getData", true);	//Handle getData server on ESP8266
+      xhttp.send();
+    }
+  </script>
+</body>
+
+</html>

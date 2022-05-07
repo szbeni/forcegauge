@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Force Gauge</title>
+    <script src="forcegauge.js"></script>
+    <style>
+        .center {
+            /*display: block;*/
+            width: 100%;
+            text-align: center;
+            font-size: xx-large;
+        }
+    </style>
+</head>
+
+<body>
+    <div><input type="button" onclick="zeroOffest()" value="zeroOffset"><br>
+        <input type="button" onclick="setTime()" value="setTime"><br>
+    </div>
+    <div id="received"></div>
+    <script>
+        var device1 = new forceGauge("Test", "ws://192.168.3.152:81");
+        var lastRawValue = 0;
+        var lastValue = 0;
+        var lastValueTime = 0;
+        function zeroOffest() {
+            device1.setOffset(lastRawValue);
+        }
+
+        function setTime() {
+            device1.setTime(10000);
+        }
+
+        window.onload = function () {
+
+            device1.onNewData = function (data) {
+                lastValueTime = parseFloat(data[0].time) / 1000.0;
+                lastValue = parseFloat(data[0].value);
+                lastRawValue = parseFloat(data[0].raw);
+                document.getElementById("received").innerText = lastValueTime + ": " + lastValue + "<br>Raw:" + lastRawValue;
+            }
+            device1.connect();
+
+        };
+    </script>
+</body>
+
+</html>
