@@ -2,20 +2,13 @@
 
 #include <WiFi.h>
 #include <RingBuf.h>
+#include <SPIFFS.h>
+#include <FS.h>
+#include <SPIFFSEditor.h>
 #include "hx711_custom.h"
 #include "screen_handler.h"
 
 
-//#include <WiFi.h>
-//#include <WiFiMulti.h>
-//#include <WebServer.h>
-//#include <mDNS.h>
-//#include <DNSServer.h>
-//#include <WebSocketsServer.h>
-//#include <FS.h>
-//#include <ArduinoOTA.h>
-//#include <ArduinoJson.h>
-//#include "SPIFFS.h"
 
 #define BUTTON1_PIN 10
 #define BUTTON2_PIN 2

@@ -16,25 +16,51 @@ TaskHandle_t anotherTaskHandle;
 
 
 void setup() {
+  delay(2000);
   Serial.begin(115200); // Start Serial
   config.filterCoeff = 0.5;
   config.scale = 1.0;
   config.offset = 0;
-  int priority = (configMAX_PRIORITIES - 1);
+  
+  
+  if (!SPIFFS.begin(true)) {
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
+  File root = SPIFFS.open("/");
+ 
+  File file = root.openNextFile();
+ 
+  while(file){
+ 
+      Serial.print("FILE: ");
+      Serial.println(file.name());
+ 
+      file = root.openNextFile();
+  }
+  
+  startConfig();  
+  int priority = (configMAX_PRIORITIES);
   //func| name | Stack in word | param | priority | handle
-  xTaskCreate(anotherTask, "another Task", 10000, NULL, priority, &anotherTaskHandle); 
-  
+  xTaskCreate(anotherTask, "another Task", 5000, NULL, priority, &anotherTaskHandle); 
+
   startWiFi();
-  //startSPIFFS();  
-  //startConfig();  
-  
+  startServer();
 }
+
 static unsigned long lastRefresh = millis();
 
 void loop() {
   Serial.print("Main Loop: priority = ");
   Serial.println(uxTaskPriorityGet(NULL));
-  delay(1000); 
+  
+  Serial.print("ESP32 IP as soft AP: ");
+  Serial.println(WiFi.softAPIP());
+ 
+  Serial.print("ESP32 IP on the WiFi network: ");
+  Serial.println(WiFi.localIP());
+  
+  delay(10000); 
 }
 
 

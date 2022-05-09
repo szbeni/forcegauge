@@ -1,10 +1,4 @@
  
-const char* wifi_network_ssid = "ABWifi";
-const char* wifi_network_password =  "Secret_12345";
- 
-const char *soft_ap_ssid = "MyESP32AP";
-const char *soft_ap_password = "testpassword";
-
 void WiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info){
   Serial.println("Station connected");
 
@@ -21,9 +15,11 @@ void startWiFi() {
    
   WiFi.mode(WIFI_MODE_APSTA);
  
-  WiFi.softAP(soft_ap_ssid, soft_ap_password);
-  WiFi.begin(wifi_network_ssid, wifi_network_password);
+  WiFi.softAP(config.APssid, config.APpasswd);
+  WiFi.begin(config.ssid1, config.passwd1);
   WiFi.onEvent(WiFiStationConnected, ARDUINO_EVENT_WIFI_AP_STACONNECTED);
+  WiFi.onEvent(WiFiStationConnected, ARDUINO_EVENT_WIFI_STA_CONNECTED);
+
 //  while (WiFi.status() != WL_CONNECTED) {
 //    delay(500);
 //    Serial.println("Connecting to WiFi..");
