@@ -2,13 +2,44 @@
 
 DynamicJsonDocument configJSON(CONFIG_BUFFER_SIZE);
 
+void startSPIFFS()
+{
+  if (!SPIFFS.begin(true)) {
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
+  File root = SPIFFS.open("/");
+  File file = root.openNextFile();
+  while (file) {
+    Serial.print("FILE: ");
+    Serial.println(file.name());
+    file = root.openNextFile();
+  }
+
+//  
+//  File file2 = SPIFFS.open("/index.html");
+//  if (!file2) {
+//    Serial.println("Failed to open file for reading");
+//    return;
+//  }
+//  Serial.println("File Content:");
+//
+//  while (file2.available()) {
+//
+//    Serial.write(file2.read());
+//  }
+//  file2.close();
+}
+
 void startConfig()
 {
+  startSPIFFS();
+  
   if (loadConfig(&config) == false)
   {
     Serial.println("Failed to load config.json. making new one\n");
     makeDefaultConfig(&config);
-    saveConfig(&config);  
+    saveConfig(&config);
   }
   serializeJsonPretty(configJSON, Serial);
 }
@@ -18,12 +49,12 @@ void makeDefaultConfig(configStruct* c)
   configJSON["name"] = "forcegauge";
   configJSON["APssid"] = "ForceGauge";
   configJSON["APpasswd"] = "1234567890";
-  configJSON["ssid1"] = "";
-  configJSON["passwd1"] = "";
+  configJSON["ssid1"] = "ABWifi";
+  configJSON["passwd1"] = "Secret_12345";
   configJSON["ssid2"] = "";
   configJSON["passwd2"] = "";
-//  configJSON["ssid3"] = "";
-//  configJSON["passwd3"] = "";
+  //  configJSON["ssid3"] = "";
+  //  configJSON["passwd3"] = "";
   configJSON["offset"] = 0;
   configJSON["scale"] = 0.000231142;
   configJSON["filterCoeff"] = 0.0;
@@ -38,8 +69,8 @@ bool saveConfig(configStruct* c)
   configJSON["scale"] = c->scale;
   configJSON["filterCoeff"] = c->filterCoeff;
   configJSON["time"] = c->time;
-  
-    
+
+
   File jsonFile = SPIFFS.open(configFilename, "w");
   if (serializeJsonPretty(configJSON, jsonFile) == 0) {
     Serial.println("Failed to write to file.");
@@ -74,55 +105,17 @@ bool loadConfig(configStruct* c)
 
 void copyConfig(configStruct *c)
 {
-  c->name = configJSON["name"]; 
+  c->name = configJSON["name"];
   c->APssid = configJSON["APssid"];
-  c->APpasswd = configJSON["APpasswd"]; 
+  c->APpasswd = configJSON["APpasswd"];
   c->ssid1 = configJSON["ssid1"];
   c->passwd1 = configJSON["passwd1"];
   c->ssid2 = configJSON["ssid2"];
   c->passwd2 = configJSON["passwd2"];
-//  c->ssid3 = configJSON["ssid3"]; 
-//  c->passwd3 = configJSON["passwd3"];
+  //  c->ssid3 = configJSON["ssid3"];
+  //  c->passwd3 = configJSON["passwd3"];
   c->offset = configJSON["offset"];
   c->scale = configJSON["scale"];
   c->time = configJSON["time"];
   c->filterCoeff = configJSON["filterCoeff"];
 }
-
-
-//void handleConfigUpdate()
-//{
-//  for (int i = 0; i < server.args(); i++) {
-//    if (configJSON.containsKey(server.argName(i)))
-//    {
-//        configJSON[server.argName(i)] = server.arg(i);
-//    }
-//  }
-//  copyConfig(&config);
-//  saveConfig(&config);
-//  if (server.uri().endsWith("/configure.html"))
-//    handleFileRead("/configure.html");
-//}
-//
-//bool loggedIn = false;
-//void handleLoginPage()
-//{
-//  Serial.println("Login page");
-//  Serial.println(loggedIn);
-//  if (loggedIn == false)
-//  {
-//    if (server.method() == HTTP_POST)
-//    {
-//      handleConfigUpdate();
-//      loggedIn = true;
-//    }
-//    else
-//    {
-//      handleFileRead("/configure.html");
-//    }      
-//  }
-//  else
-//  {
-//    server.send(204);
-//  }
-//}

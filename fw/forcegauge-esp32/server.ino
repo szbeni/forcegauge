@@ -3,6 +3,8 @@
 #include <AsyncElegantOTA.h>
 #include <ESPmDNS.h>
 #include <DNSServer.h>
+#include <SPIFFSEditor.h>
+
 
   
 AsyncWebServer server(80);
@@ -20,6 +22,9 @@ void startWebSocket() { // Start a WebSocket server
 void startServer()
 {
 
+  // Dns server start
+  dnsServer.start(53, "*", WiFi.softAPIP());
+
   //Add MDNS name
   MDNS.addService("http","tcp",80);
 
@@ -27,90 +32,44 @@ void startServer()
      Serial.println("Error starting mDNS");
   }
 
-  // Websocket server
-//  webSocket.begin();                          // start the websocket server
-//  webSocket.onEvent(webSocketEvent);          // if there's an incomming websocket message, go to function 'webSocketEvent'
-//  Serial.println("WebSocket server started.");
-
-
   //OTA
   AsyncElegantOTA.begin(&server);    // Start AsyncElegantOTA
 
-  //Default handler
-//  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-//    request->send(200, "text/plain", "Hi! This is a sample response.");
-//  });
+  
+  // Handlers
+  // There was a bug with AsyncWebServer, someone fixed it, so applied only the mem corruption patch
+  // https://github.com/me-no-dev/ESPAsyncWebServer/compare/master...Depau:mem-corruption
+  
+  
+  //Websocket
+  ws.onEvent(onWsEvent);
+  server.addHandler(&ws);
 
-//  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");
-//
-//  server.onNotFound([](AsyncWebServerRequest *request){
-//    Serial.printf("NOT_FOUND: ");
-//    if(request->method() == HTTP_GET)
-//      Serial.printf("GET");
-//    else if(request->method() == HTTP_POST)
-//      Serial.printf("POST");
-//    else if(request->method() == HTTP_DELETE)
-//      Serial.printf("DELETE");
-//    else if(request->method() == HTTP_PUT)
-//      Serial.printf("PUT");
-//    else if(request->method() == HTTP_PATCH)
-//      Serial.printf("PATCH");
-//    else if(request->method() == HTTP_HEAD)
-//      Serial.printf("HEAD");
-//    else if(request->method() == HTTP_OPTIONS)
-//      Serial.printf("OPTIONS");
-//    else
-//      Serial.printf("UNKNOWN");
-//    Serial.printf(" http://%s%s\n", request->host().c_str(), request->url().c_str());
-//
-//    if(request->contentLength()){
-//      Serial.printf("_CONTENT_TYPE: %s\n", request->contentType().c_str());
-//      Serial.printf("_CONTENT_LENGTH: %u\n", request->contentLength());
-//    }
-//
-//    int headers = request->headers();
-//    int i;
-//    for(i=0;i<headers;i++){
-//      AsyncWebHeader* h = request->getHeader(i);
-//      Serial.printf("_HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
-//    }
-//
-//    int params = request->params();
-//    for(i=0;i<params;i++){
-//      AsyncWebParameter* p = request->getParam(i);
-//      if(p->isFile()){
-//        Serial.printf("_FILE[%s]: %s, size: %u\n", p->name().c_str(), p->value().c_str(), p->size());
-//      } else if(p->isPost()){
-//        Serial.printf("_POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
-//      } else {
-//        Serial.printf("_GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
-//      }
-//    }
-//
-//    request->send(404);
-//  });
-//  
-//
-//  server.on("/getData", handleGetData);
-    server.onNotFound([](AsyncWebServerRequest *request) {
-    //if (!handleFileRead(server.uri()))                  // send it if it exists
-        request->send(404, "text/plain", "404: Not Found"); 
-      
-    });
+  // Does work with this too as the bug is patched
+  // server.serveStatic("/", SPIFFS, "/").setCacheControl("max-age=600");
 
-    server.on("/about", handleAbout);
-//  server.on("/edit.html",  HTTP_POST, []() {  // If a POST request is sent to the /edit.html address,
-//    server.send(200, "text/plain", "");
-//  }, handleFileUpload);                       // go to 'handleFileUpload'
-//
-//  server.on("/configure.html",  HTTP_POST, handleConfigUpdate); // config update
-//  server.on("/generate_204", handleLoginPage);
-// 
-//  server.onNotFound([]() {                              // If the client requests any URI
-//    if (!handleFileRead(server.uri()))                  // send it if it exists
-//        server.send(404, "text/plain", "404: Not Found"); // otherwise, respond with a 404 (Not Found) error, shouldt get here if there is an index
-//      
-//  });
+  server.on("/configure.html",  HTTP_POST, handleConfigUpdate); // config update
+  server.on("/edit.html", HTTP_POST, [](AsyncWebServerRequest * request) {
+    request->send(200);
+  }, onUpload);
+
+  server.on("/files", [](AsyncWebServerRequest * request) {
+    String msg("Files:\n");
+    File root = SPIFFS.open("/");
+    File file = root.openNextFile();
+    while (file) {
+      msg += file.name();
+      msg += "\n";
+      file = root.openNextFile();
+    }
+    request->send(200, "text/plain", msg);
+  });
+  server.on("/generate_204", handleLoginPage);
+  server.on("/getData", handleGetData);
+  server.on("/about", handleAbout);
+
+  server.onNotFound(handleGetFile);
+  server.onFileUpload(onUpload);
 
   server.begin();
   

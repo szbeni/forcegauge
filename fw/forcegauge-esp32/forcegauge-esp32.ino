@@ -22,23 +22,6 @@ void setup() {
   config.scale = 1.0;
   config.offset = 0;
   
-  
-  if (!SPIFFS.begin(true)) {
-    Serial.println("An Error has occurred while mounting SPIFFS");
-    return;
-  }
-  File root = SPIFFS.open("/");
- 
-  File file = root.openNextFile();
- 
-  while(file){
- 
-      Serial.print("FILE: ");
-      Serial.println(file.name());
- 
-      file = root.openNextFile();
-  }
-  
   startConfig();  
   int priority = (configMAX_PRIORITIES);
   //func| name | Stack in word | param | priority | handle
@@ -74,6 +57,7 @@ void anotherTask( void   * parameter )
   Serial.print("Another Loop: priority = ");
   Serial.println(uxTaskPriorityGet(NULL));
 
+int32_t cntr = 0;
   while(1)
   {
     buzzerLoop();
@@ -84,10 +68,16 @@ void anotherTask( void   * parameter )
       screenLoop();
     } 
       
-    if (scale.is_ready())
+    //if (scale.is_ready())
+    if(true)
     {
       dataStruct data;
-      data.v = scale.read();
+      
+      //data.v = scale.read();
+      data.v = cntr++;
+      if (cntr > 100000) 
+        cntr = 0 ;
+      
       data.t = config.time + millis();
       dataBuffer.lockedPush(data);
       float value = (data.v - config.offset) * config.scale;
@@ -98,10 +88,9 @@ void anotherTask( void   * parameter )
         maxForce = config.lastValue;
       if (config.lastValue < minForce)
         minForce = config.lastValue;
-  //    if(wifiInitialized)
-  //      webSocketBroadcastData(&data);
+        webSocketBroadcastData(&data);
     }
-    delay(2);
+    delay(10);
   }
   
   //Should never get here
