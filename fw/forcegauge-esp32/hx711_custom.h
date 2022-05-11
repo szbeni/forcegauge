@@ -69,6 +69,10 @@ class HX711
 
 		// wakes up the chip after power down mode
 		void power_up();
+
+    //Shift bits slowly
+    uint8_t shiftInSlow(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder);
+
 };
 
 #endif /* HX711_h */

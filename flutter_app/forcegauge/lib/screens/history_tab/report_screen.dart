@@ -36,6 +36,7 @@ class _ReportScreenState extends State<ReportScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
+                  //builder: (context) => Container(),
                   builder: (context) => ReportGraph(report),
                 ),
               );

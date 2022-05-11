@@ -117,6 +117,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
+                  //builder: (context) => Container(),
                   builder: (context) => ReportGraph(reports[report]),
                 ),
               );
@@ -138,11 +139,13 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           create: (_) => DeviceCubit(state.devices[0]),
           child: BlocBuilder<DeviceCubit, DeviceState>(builder: (context, state) {
             if (_workout.step == WorkoutState.exercising) {
-              return Container(width: 200, child: EvenMoreRealtime(true, widget.targetForce));
+              //return Container(width: 200, child: EvenMoreRealtime(true, widget.targetForce));
+              return Container();
             } else {
               var lastReport = _workout.workoutReport.getSetRepReport(_workout.set, _workout.rep);
               if (lastReport != null) {
                 return Container(width: 200, child: ReportGraph(lastReport));
+                //return Container();
               } else {
                 return Container();
                 //return Text(state.device.lastValue.toStringAsFixed(1), style: TextStyle(fontSize: 40.0));

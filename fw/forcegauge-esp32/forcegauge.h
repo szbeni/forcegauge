@@ -4,9 +4,9 @@
 #include <RingBuf.h>
 #include <SPIFFS.h>
 #include <FS.h>
-#include <SPIFFSEditor.h>
 #include "hx711_custom.h"
 #include "screen_handler.h"
+#include <ESPAsyncWebServer.h>
 
 
 
@@ -17,7 +17,7 @@
 #define R1 390.0f  //390k
 #define R2 100.0f  //100k
 #define BATTERY_SCALER (((R1+R2)/R2)/1023.0f)
-#define BATTERY_VOLTAGE A0
+#define BATTERY_VOLTAGE A1
 #define BUZZER_PIN 8
 #define POWER_PIN 5
 #define DOUT  4

@@ -1,7 +1,7 @@
 void startHX711()
 {
   
-  scale.begin(DOUT, CLK);
+  scale.begin(DOUT, CLK, 128);
   Serial.print("Scale: ");
   config.offset = scale.read_average();
   Serial.print("Zero Offset: ");

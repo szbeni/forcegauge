@@ -4,7 +4,7 @@ import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
 import 'package:forcegauge/models/network_analyzer.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:wifi/wifi.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 
 class Device {
   String ipAddress = "";
@@ -26,7 +26,7 @@ class DeviceListItem extends StatelessWidget {
       subtitle: Text("name: " + _device.name + ", version: " + _device.version),
       onTap: () {
         var deviceName = _device.name;
-        var deviceUrl = "ws://" + _device.ipAddress + ":81";
+        var deviceUrl = "ws://" + _device.ipAddress + "/ws";
         if (deviceName.length > 0 && deviceUrl.length > 0) {
           BlocProvider.of<DevicemanagerCubit>(context).addDevice(deviceName, deviceUrl);
         }
@@ -58,7 +58,8 @@ class _DiscoverDevicesScreenState extends State<DiscoverDevicesScreen> {
       print("Scan is already in progress");
       return;
     }
-    final String ip = await Wifi.ip;
+    final info = NetworkInfo();
+    final String ip = await info.getWifiIP();
     final String subnet = ip.substring(0, ip.lastIndexOf('.'));
     final int port = 80;
     print("Scan started");
@@ -82,6 +83,8 @@ class _DiscoverDevicesScreenState extends State<DiscoverDevicesScreen> {
   void _testConnection(final http.Client client, final String ip) async {
     try {
       final response = await client.get(Uri.parse('http://$ip/about'));
+      print(ip);
+      print(response.statusCode);
       if (response.statusCode == 200) {
         if (response.body.contains("type:forcegauge")) {
           var fields = response.body.split("\n");

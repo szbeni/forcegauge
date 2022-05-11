@@ -26,6 +26,9 @@ bool HX711::is_ready() {
 }
 
 void HX711::set_gain(byte gain) {
+  Serial.print("Gain: ");
+  Serial.println(gain);
+  
 	switch (gain) {
 		case 128:		// channel A, gain factor 128
 			GAIN = 1;
@@ -44,14 +47,12 @@ void HX711::set_gain(byte gain) {
 
 long HX711::read() {
   unsigned long startedWaiting = millis();
-	// wait for the chip to become ready or timeout in 300ms
+	// wait for the chip to become ready or timeout in 100ms
 	while (!is_ready()) {
-    if(millis() - startedWaiting >= 300)
+    if(millis() - startedWaiting >= 100)
     {
       return 0;
     }
-		// Will do nothing on Arduino but prevent resets of ESP8266 (Watchdog Issue)
-		yield();
 	}
 
 	unsigned long value = 0;
@@ -59,14 +60,16 @@ long HX711::read() {
 	uint8_t filler = 0x00;
 
 	// pulse the clock pin 24 times to read the data
-	data[2] = shiftIn(DOUT, PD_SCK, MSBFIRST);
-	data[1] = shiftIn(DOUT, PD_SCK, MSBFIRST);
-	data[0] = shiftIn(DOUT, PD_SCK, MSBFIRST);
+	data[2] = shiftInSlow(DOUT, PD_SCK, MSBFIRST);
+	data[1] = shiftInSlow(DOUT, PD_SCK, MSBFIRST);
+	data[0] = shiftInSlow(DOUT, PD_SCK, MSBFIRST);
 
 	// set the channel and the gain factor for the next reading using the clock pin
 	for (unsigned int i = 0; i < GAIN; i++) {
 		digitalWrite(PD_SCK, HIGH);
+    delayMicroseconds(1);
 		digitalWrite(PD_SCK, LOW);
+    delayMicroseconds(1);
 	}
 
 	// Replicate the most significant bit to pad out a 32-bit signed integer
@@ -89,7 +92,6 @@ long HX711::read_average(byte times) {
 	long sum = 0;
 	for (byte i = 0; i < times; i++) {
 		sum += read();
-		yield();
 	}
 	return sum / times;
 }
@@ -130,4 +132,21 @@ void HX711::power_down() {
 
 void HX711::power_up() {
 	digitalWrite(PD_SCK, LOW);
+}
+
+uint8_t HX711::shiftInSlow(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) {
+    uint8_t value = 0;
+    uint8_t i;
+
+    for(i = 0; i < 8; ++i) {
+        digitalWrite(clockPin, HIGH);
+        delayMicroseconds(1);
+        if(bitOrder == LSBFIRST)
+            value |= digitalRead(dataPin) << i;
+        else
+            value |= digitalRead(dataPin) << (7 - i);
+        digitalWrite(clockPin, LOW);
+        delayMicroseconds(1);
+    }
+    return value;
 }
