@@ -1,6 +1,6 @@
-# Force Gauge with ESP8266
+# Force Gauge
 
-- ESP8266 based Force Gauge - Aiming to help rock climbing specific training (finger excercises)
+- ESP32 based Force Gauge - Aiming to help rock climbing specific training (finger excercises)
 - Real time plotting via wifi Webapp/Android app
 
 
@@ -13,7 +13,7 @@
 
 # Hardware
 ## Main parts
- - ESP8266 MCU
+ - ESP32-C3 MCU
  - 3 buttons
  - OLED screen 0.96" SSD1306
  - Battery with charger
@@ -53,7 +53,7 @@ Pictures of the PCB:
 </p>
 
 ## Webapp
-- Simple webapp served from the ESP8266 HTTP server
+- Simple webapp served from a HTTP server
 
 <img src="https://raw.githubusercontent.com/szbeni/forcegauge/main/photos/webapp_01.jpg" width="600">
 
