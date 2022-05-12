@@ -42,7 +42,7 @@ class _AddNewDeviceScreenState extends State<AddNewDeviceScreen> {
                 deviceUrl = url;
               },
               decoration: new InputDecoration(
-                  hintText: 'Enter device URL. ex.: ws://192.168.4.1/ws',
+                  hintText: 'Enter device URL. ex.: ws://192.168.4.1:81',
                   contentPadding: const EdgeInsets.all(16.0)),
             )
           ],

@@ -1,10 +1,13 @@
 #define FILESYSTEM SPIFFS
 #define DBG_OUTPUT_PORT Serial
 
-
 WebServer server(80);
 WebSocketsServer webSocket(81);
 File fsUploadFile;
+DNSServer dnsServer;
+IPAddress apIP(192,168,4,1); 
+const byte DNS_PORT = 53;
+
 
 bool exists(String path){
   bool yes = false;
@@ -214,7 +217,7 @@ void handleLoginPage()
   {
     if (server.method() == HTTP_POST)
     {
-      server.send(200, "text/plain", "Logged in");
+      server.send(204, "text/plain", "Logged in");
       //handleConfigUpdate();
       loggedIn = true;
     }
@@ -401,7 +404,54 @@ void handleUpdateStart()
   }
 }
 
+// check if this string is an IP address
+boolean isIp(String str) {
+  for (size_t i = 0; i < str.length(); i++) {
+    int c = str.charAt(i);
+    if (c != '.' && (c < '0' || c > '9')) {
+      return false;
+    }
+  }
+  return true;
+}
 
+String toStringIp(IPAddress ip) {
+  String res = "";
+  for (int i = 0; i < 3; i++) {
+    res += String((ip >> (8 * i)) & 0xFF) + ".";
+  }
+  res += String(((ip >> 8 * 3)) & 0xFF);
+  return res;
+}
+
+boolean captivePortal() {
+  if (!isIp(server.hostHeader())) {
+    Serial.println("Request redirected to captive portal");
+    server.sendHeader("Location", String("http://") + toStringIp(server.client().localIP()), true);
+    server.send(302, "text/plain", "");   
+    server.client().stop(); 
+    return true;
+  }
+  return false;
+}
+
+void handleRoot() {
+  if (captivePortal()) { 
+    return;
+  }
+  server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  server.sendHeader("Pragma", "no-cache");
+  server.sendHeader("Expires", "-1");
+
+  String p;
+  p += F(
+            "<html><head></head><body>"
+            "<h1>Connected!</h1>");
+  p += F("</body></html>");
+
+  server.send(200, "text/html", p);
+
+}
 
 
 bool checkWifiConnection(const char* ssid, const char* passwd)
@@ -424,7 +474,7 @@ bool checkWifiConnection(const char* ssid, const char* passwd)
   if ((current_time - previous_time >= 10000) || ( previous_time == 0))
   {
     previous_time = current_time;
-    Serial.print("Connecting to WIFI network: ");
+    Serial.print("\nConnecting to WIFI network: ");
     Serial.println(ssid);
     WiFi.begin(ssid, passwd);
   }
@@ -432,22 +482,21 @@ bool checkWifiConnection(const char* ssid, const char* passwd)
 }
 
 
+void WiFiStationConnected(WiFiEvent_t event, WiFiEventInfo_t info)
+{
+    Serial.println("Connected to AP!");
+}
+
 void wifiTask( void * parameter )
 {
   
   Serial.print("WiFiTask: priority = ");
   Serial.println(uxTaskPriorityGet(NULL));
-  
-  // Begin Access Point Mode if required
-  if (config.APssid != "")
-  {
-    WiFi.mode(WIFI_AP_STA);
-    WiFi.softAP(config.APssid, config.APpasswd);
-  }
-  else
-  {
-    WiFi.mode(WIFI_STA);
-  }
+
+  WiFi.onEvent(WiFiEvent);
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.softAP(config.APssid, config.APpasswd);
+  WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
 
   bool connectedFlag = false;
   int cntr = 0;
@@ -456,7 +505,7 @@ void wifiTask( void * parameter )
      connectedFlag = checkWifiConnection(config.ssid1, config.passwd1);
      delay(500);
      Serial.print(".");
-     if (++cntr > 20)
+     if (++cntr > 15)
        break;
   }
   if(connectedFlag)
@@ -472,11 +521,12 @@ void wifiTask( void * parameter )
       Serial.println(config.ssid1);
   }
 
- 
 
-//  dnsServer.start(53, "*", WiFi.softAPIP());
-//  MDNS.addService("http","tcp",80);
+  dnsServer.start(DNS_PORT, "*", apIP);
 
+
+
+  MDNS.addService("http","tcp",80);
   MDNS.begin(config.name);
   DBG_OUTPUT_PORT.print("Open http://");
   DBG_OUTPUT_PORT.print(config.name);
@@ -495,7 +545,10 @@ void wifiTask( void * parameter )
   server.on("/edit", HTTP_POST, []() {
     server.send(200, "text/plain", "");
   }, handleFileUpload);
-  server.on("/generate_204", handleLoginPage);
+
+  //server.on("/", handleRoot);
+  server.on("/generate_204", handleRoot);
+  server.on("/gen_204", handleRoot);
   server.on("/configure.htm",  HTTP_POST, handleConfigUpdate);
   server.on("/getData", handleGetData);
   server.on("/about", handleAbout);
@@ -507,6 +560,9 @@ void wifiTask( void * parameter )
   server.on("/update", HTTP_POST, handleUpdateFinish, handleUpdateStart);
   server.onNotFound([]() {
     if (!handleFileRead(server.uri())) {
+      if (captivePortal()) { 
+        return;
+      }
       server.send(404, "text/plain", "FileNotFound");
     }
   });
@@ -531,9 +587,10 @@ void wifiTask( void * parameter )
   unsigned long previous_time = 0;
   while(1){
     checkWifiConnection(config.ssid1, config.passwd1);
+    dnsServer.processNextRequest();
     server.handleClient();
-    webSocketBroadcastData();
     webSocket.loop();
+    webSocketBroadcastData();
     delay(2);
   }
   

@@ -3,14 +3,14 @@
 
 configStruct config;
 const char configFilename[] = "/config.json";
-const char version[] = "1.0.0"; 
+const char version[] = "1.0.0";
 
 HX711 scale;
 RingBuf<dataStruct, 64> dataBuffer;
 
 ScreenHandler screenHandler;      //Screen hanlder
-float maxForce=0;
-float minForce=0;
+float maxForce = 0;
+float minForce = 0;
 
 TaskHandle_t wifiTaskHandle;
 
@@ -23,7 +23,7 @@ void setup() {
   startConfig();
   startScreen();
   startHX711();
-  
+
   //int priority = (configMAX_PRIORITIES - 1);
   //Increase our priority
   vTaskPrioritySet( NULL, (configMAX_PRIORITIES - 1) );
@@ -31,63 +31,62 @@ void setup() {
 
   //func| name | Stack in word | param | priority | handle
   int priority = 1;
-  xTaskCreate(wifiTask, "wifiTask", 40000, NULL, priority, &wifiTaskHandle); 
+  //tskIDLE_PRIORITY
+  xTaskCreate(wifiTask, "wifiTask", 100000, NULL, priority, &wifiTaskHandle);
 }
 
 static unsigned long lastRefresh = millis();
 
-int32_t cntr = 0;
+//int32_t cntr = 0;
 int spike_cntr = 0;
+
 void loop() {
-    buzzerLoop();
-    buttonsLoop();
-    if(millis() - lastRefresh >= 50)
-    {
-      lastRefresh = millis();
-      screenLoop();
-    } 
-      
-    //if (scale.is_ready())
-    if(true)
-    {
-      dataStruct data;
+  buzzerLoop();
+  buttonsLoop();
+  if (millis() - lastRefresh >= 50)
+  {
+    lastRefresh = millis();
+    screenLoop();
+  }
 
-//      noInterrupts();
-//      data.v = scale.read();
-//      interrupts();
-      data.v = cntr+=100;
-      if (cntr > 100000) 
-        cntr = 0 ;
-      
-      data.t = config.time + millis();
-      dataBuffer.lockedPush(data);
-      float value = (data.v - config.offset) * config.scale;
+  //if (true)
+  if (scale.is_ready())
+  {
+    dataStruct data;
 
-      float diff = fabsf(value - config.lastValue);
-      //Filter out sudden spikes in reading..
-      if (diff > 100 && spike_cntr < 1) 
-      {
-        Serial.print("Spike filter: ");
-        Serial.println(config.lastValue);
-        Serial.println(value);
-        spike_cntr++;
-      }
-      else
-      {
-        spike_cntr = 0;
-        config.lastValue = lowpassfilter(value, config.lastValue, config.filterCoeff);
-        if (config.lastValue > maxForce)
-          maxForce = config.lastValue;
-        if (config.lastValue < minForce)
-          minForce = config.lastValue;
-          //noInterrupts();
-          //webSocketBroadcastData(&data);
-          //interrupts();
-      }
+    noInterrupts();
+    data.v = scale.read();
+    interrupts();
+    //data.v = cntr += 100;
+    //if (cntr > 100000)
+    //  cntr = 0 ;
+    data.t = config.time + millis();
+    float value = (data.v - config.offset) * config.scale;
+
+    float diff = fabsf(value - config.lastValue);
+    //Filter out sudden spikes in reading, max 5 times in a row
+    if (diff > 30 && spike_cntr < 5)
+    {
+      Serial.print("Spike filter: ");
+      Serial.print(config.lastValue);
+      Serial.print(" ");
+      Serial.println(value);
+      spike_cntr++;
     }
-    delay(12);
+    else
+    {
+      config.lastRawValue = data.v;
+      dataBuffer.lockedPush(data);
+      spike_cntr = 0;
+      config.lastValue = lowpassfilter(value, config.lastValue, config.filterCoeff);
+      if (config.lastValue > maxForce)
+        maxForce = config.lastValue;
+      if (config.lastValue < minForce)
+        minForce = config.lastValue;
+      //noInterrupts();
+      //webSocketBroadcastData(&data);
+      //interrupts();
+    }
+  }
+  delay(2);
 }
-
-
-
- 

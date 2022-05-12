@@ -80,6 +80,11 @@ void buttonsLoop() {
           holdStateOn[i] = true;
           buzz(2000, 500);
           Serial.printf("Hold\n");
+          if(i == 0) 
+          {
+            Serial.println("Reset offset");
+            config.offset = config.lastRawValue;
+          }
           if(i == 1) 
           {
            Serial.printf("Power off\n");

@@ -7,6 +7,8 @@
 #include <WebSockets.h>
 #include <WebSocketsServer.h>
 #include <Update.h>
+#include <DNSServer.h>
+
 
 #include <RingBuf.h>
 #include <SPIFFS.h>
@@ -49,6 +51,7 @@ typedef struct
   long time;
   float lastValue;
   float filterCoeff;
+  long lastRawValue;
 } configStruct;
 
 typedef struct

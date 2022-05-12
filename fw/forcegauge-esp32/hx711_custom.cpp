@@ -67,9 +67,9 @@ long HX711::read() {
 	// set the channel and the gain factor for the next reading using the clock pin
 	for (unsigned int i = 0; i < GAIN; i++) {
 		digitalWrite(PD_SCK, HIGH);
-    delayMicroseconds(1);
+    delayMicroseconds(2);
 		digitalWrite(PD_SCK, LOW);
-    delayMicroseconds(1);
+    delayMicroseconds(2);
 	}
 
 	// Replicate the most significant bit to pad out a 32-bit signed integer
@@ -140,13 +140,13 @@ uint8_t HX711::shiftInSlow(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder) 
 
     for(i = 0; i < 8; ++i) {
         digitalWrite(clockPin, HIGH);
-        delayMicroseconds(1);
+        delayMicroseconds(2);
         if(bitOrder == LSBFIRST)
             value |= digitalRead(dataPin) << i;
         else
             value |= digitalRead(dataPin) << (7 - i);
         digitalWrite(clockPin, LOW);
-        delayMicroseconds(1);
+        delayMicroseconds(2);
     }
     return value;
 }

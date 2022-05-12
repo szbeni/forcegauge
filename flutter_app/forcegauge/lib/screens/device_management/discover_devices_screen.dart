@@ -26,7 +26,7 @@ class DeviceListItem extends StatelessWidget {
       subtitle: Text("name: " + _device.name + ", version: " + _device.version),
       onTap: () {
         var deviceName = _device.name;
-        var deviceUrl = "ws://" + _device.ipAddress + "/ws";
+        var deviceUrl = "ws://" + _device.ipAddress + ":81";
         if (deviceName.length > 0 && deviceUrl.length > 0) {
           BlocProvider.of<DevicemanagerCubit>(context).addDevice(deviceName, deviceUrl);
         }

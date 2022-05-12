@@ -1,121 +1,89 @@
-//
-//
-//
-//void onUpload(AsyncWebServerRequest * request, const String & filename, size_t index, uint8_t *data, size_t len, bool final) {
-//  if (!index) {
-//    String path = filename;
-//    if (!path.startsWith("/")) path = "/" + path;
-//    if (!path.endsWith(".gz")) {                         // The file server always prefers a compressed version of a file
-//      String pathWithGz = path + ".gz";                  // So if an uploaded file is not compressed, the existing compressed
-//      if (SPIFFS.exists(pathWithGz))                     // version of that file must be deleted (if it exists)
-//        SPIFFS.remove(pathWithGz);
-//    }
-//    Serial.println("Upload started: " + path);
-//    request->_tempFile = SPIFFS.open(path, "w");
-//  }
-//
-//  if (request->_tempFile) {
-//    if (len) {
-//      request->_tempFile.write(data, len);
-//    }
-//    if (final) {
-//      Serial.println("Upload finished");
-//      request->_tempFile.close();
-//      //request->send(200, "text/plain", "File Uploaded !");
-//      request->redirect("/success.htm");
-//    }
-//  }
-//  else
-//  {
-//    request->send(500, "text/plain", "500: couldn't create file");
-//  }
-//}
-//
-//
-//void handleGetData(AsyncWebServerRequest * request) {
-//  String jsonObj = "{\"data\": [";
-//  dataStruct data;
-//  bool first = true;
-//  while (dataBuffer.lockedPop(data))
-//  {
-//    if (first)
-//    {
-//      first = false;
-//    }
-//    else
-//    {
-//      jsonObj += ",";
-//    }
-//    float valueFloat = (data.v - config.offset) * config.scale;
-//    jsonObj += "{\"time\":\"" + String(data.t) + "\", ";
-//    jsonObj += "\"value\":\"" + String(valueFloat) + "\"}";
-//  }
-//  jsonObj += "]}";
-//  request->send(200, "text/plane", jsonObj);
-//}
-//
-//
-//void handleGetFile(AsyncWebServerRequest * request)
-//{
-//  String path(request->url());
-//  Serial.println("handleFileRead: " + path);
-//
-//  if (path.endsWith("/"))
-//    path += "index.htm";                                  // If a folder is requested, send the index file
-//
-//  if (path.endsWith(configFilename))
-//    saveConfig(&config);                                  //save config before display it to user
-//
-//  request->send(SPIFFS, path, String(), false, nullptr);
-//}
-//
-//void handleConfigUpdate(AsyncWebServerRequest * request)
-//{
-//  for (int i = 0; i < request->args(); i++) {
-//    if (configJSON.containsKey(request->argName(i)))
-//    {
-//      configJSON[request->argName(i)] = request->arg(i);
-//    }
-//  }
-//  copyConfig(&config);
-//  saveConfig(&config);
-//
-//  //Serve /configure.htm
-//  request->send(SPIFFS, "/configure.htm", String(), false, nullptr);
-//}
-//
-//
-//bool loggedIn = false;
-//void handleLoginPage(AsyncWebServerRequest * request)
-//{
-//  Serial.println("Login page");
-//  Serial.println(loggedIn);
-//  if (loggedIn == false)
-//  {
-//    if (request->method() == HTTP_POST)
-//    {
-//      request->send(200, "text/plain", "Logged in");
-//      //handleConfigUpdate();
-//      loggedIn = true;
-//    }
-//    else
-//    {
-//      //Serve configure
-//      //request->send(SPIFFS, "/configure.htm", String(), false, nullptr);
-//      request->send(SPIFFS, "/login.htm", String(), false, nullptr);
-//    }
-//  }
-//  else
-//  {
-//    request->send(204);
-//  }
-//}
-//
-//
-//void handleAbout(AsyncWebServerRequest * request)
-//{
-//  String response = "type:forcegauge\n";
-//  response += "name:" + String(config.name) + "\n";
-//  response += "version:" + String(version)  + "\n";
-//  request->send(200, "text/plane", response);
-//}
+void WiFiEvent(WiFiEvent_t event)
+{
+    Serial.printf("[WiFi-event] event: %d\n", event);
+
+    switch (event) {
+        case ARDUINO_EVENT_WIFI_READY: 
+            Serial.println("WiFi interface ready");
+            break;
+        case ARDUINO_EVENT_WIFI_SCAN_DONE:
+            Serial.println("Completed scan for access points");
+            break;
+        case ARDUINO_EVENT_WIFI_STA_START:
+            Serial.println("WiFi client started");
+            break;
+        case ARDUINO_EVENT_WIFI_STA_STOP:
+            Serial.println("WiFi clients stopped");
+            break;
+        case ARDUINO_EVENT_WIFI_STA_CONNECTED:
+            Serial.println("Connected to access point");
+            break;
+        case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
+            Serial.println("Disconnected from WiFi access point");
+            break;
+        case ARDUINO_EVENT_WIFI_STA_AUTHMODE_CHANGE:
+            Serial.println("Authentication mode of access point has changed");
+            break;
+        case ARDUINO_EVENT_WIFI_STA_GOT_IP:
+            Serial.print("Obtained IP address: ");
+            Serial.println(WiFi.localIP());
+            break;
+        case ARDUINO_EVENT_WIFI_STA_LOST_IP:
+            Serial.println("Lost IP address and IP address is reset to 0");
+            break;
+        case ARDUINO_EVENT_WPS_ER_SUCCESS:
+            Serial.println("WiFi Protected Setup (WPS): succeeded in enrollee mode");
+            break;
+        case ARDUINO_EVENT_WPS_ER_FAILED:
+            Serial.println("WiFi Protected Setup (WPS): failed in enrollee mode");
+            break;
+        case ARDUINO_EVENT_WPS_ER_TIMEOUT:
+            Serial.println("WiFi Protected Setup (WPS): timeout in enrollee mode");
+            break;
+        case ARDUINO_EVENT_WPS_ER_PIN:
+            Serial.println("WiFi Protected Setup (WPS): pin code in enrollee mode");
+            break;
+        case ARDUINO_EVENT_WIFI_AP_START:
+            Serial.println("WiFi access point started");
+            break;
+        case ARDUINO_EVENT_WIFI_AP_STOP:
+            Serial.println("WiFi access point  stopped");
+            break;
+        case ARDUINO_EVENT_WIFI_AP_STACONNECTED:
+            Serial.println("Client connected");
+            break;
+        case ARDUINO_EVENT_WIFI_AP_STADISCONNECTED:
+            Serial.println("Client disconnected");
+            break;
+        case ARDUINO_EVENT_WIFI_AP_STAIPASSIGNED:
+            Serial.println("Assigned IP address to client");
+            break;
+        case ARDUINO_EVENT_WIFI_AP_PROBEREQRECVED:
+            Serial.println("Received probe request");
+            break;
+        case ARDUINO_EVENT_WIFI_AP_GOT_IP6:
+            Serial.println("AP IPv6 is preferred");
+            break;
+        case ARDUINO_EVENT_WIFI_STA_GOT_IP6:
+            Serial.println("STA IPv6 is preferred");
+            break;
+        case ARDUINO_EVENT_ETH_GOT_IP6:
+            Serial.println("Ethernet IPv6 is preferred");
+            break;
+        case ARDUINO_EVENT_ETH_START:
+            Serial.println("Ethernet started");
+            break;
+        case ARDUINO_EVENT_ETH_STOP:
+            Serial.println("Ethernet stopped");
+            break;
+        case ARDUINO_EVENT_ETH_CONNECTED:
+            Serial.println("Ethernet connected");
+            break;
+        case ARDUINO_EVENT_ETH_DISCONNECTED:
+            Serial.println("Ethernet disconnected");
+            break;
+        case ARDUINO_EVENT_ETH_GOT_IP:
+            Serial.println("Obtained IP address");
+            break;
+        default: break;
+    }}
