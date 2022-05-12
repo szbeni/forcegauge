@@ -1,12 +1,18 @@
 #pragma once
 
 #include <WiFi.h>
+#include <WiFiClient.h>
+#include <WebServer.h>
+#include <ESPmDNS.h>
+#include <WebSockets.h>
+#include <WebSocketsServer.h>
+#include <Update.h>
+
 #include <RingBuf.h>
 #include <SPIFFS.h>
 #include <FS.h>
 #include "hx711_custom.h"
 #include "screen_handler.h"
-#include <ESPAsyncWebServer.h>
 
 
 

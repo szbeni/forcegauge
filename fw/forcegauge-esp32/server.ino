@@ -1,77 +1,542 @@
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-#include <AsyncElegantOTA.h>
-#include <ESPmDNS.h>
-#include <DNSServer.h>
+#define FILESYSTEM SPIFFS
+#define DBG_OUTPUT_PORT Serial
 
 
+WebServer server(80);
+WebSocketsServer webSocket(81);
+File fsUploadFile;
+
+bool exists(String path){
+  bool yes = false;
+  File file = FILESYSTEM.open(path, "r");
+  if(!file.isDirectory()){
+    yes = true;
+  }
+  file.close();
+  return yes;
+}
+
+bool handleFileRead(String path) {
+  DBG_OUTPUT_PORT.println("handleFileRead: " + path);
   
-AsyncWebServer server(80);
-AsyncWebSocket ws("/ws");
-AsyncEventSource events("/events");
-DNSServer dnsServer;
+  if (path.endsWith("/")) {
+    path += "index.htm";
+  }
+  if (path.endsWith(configFilename))
+    saveConfig(&config);        
+    
+  String contentType = getContentType(path);
+  String pathWithGz = path + ".gz";
+  if (exists(pathWithGz) || exists(path)) {
+    if (exists(pathWithGz)) {
+      path += ".gz";
+    }
+    File file = FILESYSTEM.open(path, "r");
+    server.streamFile(file, contentType);
+    file.close();
+    return true;
+  }
+  return false;
+}
+
+void handleFileUpload() {
+  if (server.uri() != "/edit") {
+    return;
+  }
+  HTTPUpload& upload = server.upload();
+  if (upload.status == UPLOAD_FILE_START) {
+    String filename = upload.filename;
+    if (!filename.startsWith("/")) {
+      filename = "/" + filename;
+    }
+    DBG_OUTPUT_PORT.print("handleFileUpload Name: "); DBG_OUTPUT_PORT.println(filename);
+    fsUploadFile = FILESYSTEM.open(filename, "w");
+    filename = String();
+  } else if (upload.status == UPLOAD_FILE_WRITE) {
+    //DBG_OUTPUT_PORT.print("handleFileUpload Data: "); DBG_OUTPUT_PORT.println(upload.currentSize);
+    if (fsUploadFile) {
+      fsUploadFile.write(upload.buf, upload.currentSize);
+    }
+  } else if (upload.status == UPLOAD_FILE_END) {
+    if (fsUploadFile) {
+      fsUploadFile.close();
+    }
+    DBG_OUTPUT_PORT.print("handleFileUpload Size: "); DBG_OUTPUT_PORT.println(upload.totalSize);
+  }
+}
+
+void handleFileDelete() {
+  if (server.args() == 0) {
+    return server.send(500, "text/plain", "BAD ARGS");
+  }
+  String path = server.arg(0);
+  DBG_OUTPUT_PORT.println("handleFileDelete: " + path);
+  if (path == "/") {
+    return server.send(500, "text/plain", "BAD PATH");
+  }
+  if (!exists(path)) {
+    return server.send(404, "text/plain", "FileNotFound");
+  }
+  FILESYSTEM.remove(path);
+  server.send(200, "text/plain", "");
+  path = String();
+}
+
+void handleFileCreate() {
+  if (server.args() == 0) {
+    return server.send(500, "text/plain", "BAD ARGS");
+  }
+  String path = server.arg(0);
+  DBG_OUTPUT_PORT.println("handleFileCreate: " + path);
+  if (path == "/") {
+    return server.send(500, "text/plain", "BAD PATH");
+  }
+  if (exists(path)) {
+    return server.send(500, "text/plain", "FILE EXISTS");
+  }
+  File file = FILESYSTEM.open(path, "w");
+  if (file) {
+    file.close();
+  } else {
+    return server.send(500, "text/plain", "CREATE FAILED");
+  }
+  server.send(200, "text/plain", "");
+  path = String();
+}
+
+void handleFileList() {
+  if (!server.hasArg("dir")) {
+    server.send(500, "text/plain", "BAD ARGS");
+    return;
+  }
+
+  String path = server.arg("dir");
+  DBG_OUTPUT_PORT.println("handleFileList: " + path);
 
 
+  File root = FILESYSTEM.open(path);
+  path = String();
 
-void startWebSocket() { // Start a WebSocket server
+  String output = "[";
+  if(root.isDirectory()){
+      File file = root.openNextFile();
+      while(file){
+          if (output != "[") {
+            output += ',';
+          }
+          output += "{\"type\":\"";
+          output += (file.isDirectory()) ? "dir" : "file";
+          output += "\",\"name\":\"";
+          output += String(file.path()).substring(1);
+          output += "\"}";
+          file = root.openNextFile();
+      }
+  }
+  output += "]";
+  server.send(200, "text/json", output);
+}
+
+
+String getContentType(String filename) {
+  if (server.hasArg("download")) {
+    return "application/octet-stream";
+  } else if (filename.endsWith(".htm")) {
+    return "text/html";
+  } else if (filename.endsWith(".html")) {
+    return "text/html";
+  } else if (filename.endsWith(".css")) {
+    return "text/css";
+  } else if (filename.endsWith(".js")) {
+    return "application/javascript";
+  } else if (filename.endsWith(".png")) {
+    return "image/png";
+  } else if (filename.endsWith(".gif")) {
+    return "image/gif";
+  } else if (filename.endsWith(".jpg")) {
+    return "image/jpeg";
+  } else if (filename.endsWith(".ico")) {
+    return "image/x-icon";
+  } else if (filename.endsWith(".xml")) {
+    return "text/xml";
+  } else if (filename.endsWith(".pdf")) {
+    return "application/x-pdf";
+  } else if (filename.endsWith(".zip")) {
+    return "application/x-zip";
+  } else if (filename.endsWith(".gz")) {
+    return "application/x-gzip";
+  }
+  return "text/plain";
+}
+
+void handleGetData() {
+  String jsonObj = "{\"data\": [";
+  dataStruct data;
+  bool first = true;
+  while (dataBuffer.lockedPop(data))
+  {
+    if (first)
+    {
+      first = false;
+    }
+    else
+    {
+      jsonObj += ",";
+    }
+    float valueFloat = (data.v - config.offset) * config.scale;
+    jsonObj += "{\"time\":\"" + String(data.t) + "\", ";
+    jsonObj += "\"value\":\"" + String(valueFloat) + "\"}";
+  }
+  jsonObj += "]}";
+  server.send(200, "application/json", jsonObj);
+}
+
+void handleConfigUpdate()
+{
+  for (int i = 0; i < server.args(); i++) {
+    if (configJSON.containsKey(server.argName(i)))
+    {
+      configJSON[server.argName(i)] = server.arg(i);
+    }
+  }
+  copyConfig(&config);
+  saveConfig(&config);
+
+  handleFileRead("/configure.htm");
+}
+
+
+bool loggedIn = false;
+void handleLoginPage()
+{
+  Serial.println("Login page");
+  Serial.println(loggedIn);
+  if (loggedIn == false)
+  {
+    if (server.method() == HTTP_POST)
+    {
+      server.send(200, "text/plain", "Logged in");
+      //handleConfigUpdate();
+      loggedIn = true;
+    }
+    else
+    {
+      //Serve configure
+      handleFileRead("./login.htm");
+    }
+  }
+  else
+  {
+    server.send(204);
+  }
+}
+
+
+void handleAbout()
+{
+  String response = "type:forcegauge\n";
+  response += "name:" + String(config.name) + "\n";
+  response += "version:" + String(version)  + "\n";
+  server.send(200, "text/plane", response);
+}
+
+
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
+    String msg = "";
+    switch(type) {
+        case WStype_DISCONNECTED:
+            DBG_OUTPUT_PORT.printf("[%u] Disconnected!\n", num);
+            break;
+        case WStype_CONNECTED:
+            {
+                IPAddress ip = webSocket.remoteIP(num);
+                DBG_OUTPUT_PORT.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+
+        // send message to client
+        // webSocket.sendTXT(num, "Connected");
+            }
+            break;
+        case WStype_TEXT:
+            //DBG_OUTPUT_PORT.printf("[%u] get Text: %s\n", num, payload);
+            for (size_t i = 0; i < length; i++) {
+              msg += (char) payload[i];
+            }
+            handleWSMessage(msg);
+            // send message to client
+            // webSocket.sendTXT(num, "message here");
+
+            // send data to all connected clients
+            // webSocket.broadcastTXT("message here");
+            break;
+        case WStype_BIN:
+            DBG_OUTPUT_PORT.printf("[%u] get binary length: %u\n", num, length);
+            //hexdump(payload, length);
+
+            // send message to client
+            // webSocket.sendBIN(num, payload, length);
+            break;
+    case WStype_ERROR:      
+    case WStype_FRAGMENT_TEXT_START:
+    case WStype_FRAGMENT_BIN_START:
+    case WStype_FRAGMENT:
+    case WStype_FRAGMENT_FIN:
+      break;
+    }
+
+}
+
+//void webSocketBroadcastData()
+//{
+//  if (ws.count())
+//  {
+//    String jsonObj = "{\"data\": [";
+//    jsonObj += "{\"time\":\"" + String(data->t) + "\", ";
+//    jsonObj += "\"raw\":\"" + String(data->v) + "\", ";
+//    jsonObj += "\"value\":\"" + String(config.lastValue) + "\"}";
+//    jsonObj += "]}";
+//    ws.textAll(jsonObj);
+//  }
+//}
+
+void webSocketBroadcastScaleOffset()
+{ 
+  //No connected clients
+  if (webSocket.connectedClients() == 0) 
+    return;
+  String data = "{\"scale\":" + String(config.scale, 10) + ", \"offset\":" + String(config.offset) + "}";    
+  webSocket.broadcastTXT(data);
+}
+
+void handleWSMessage(String& data)
+{
+  if (data.startsWith("offset:"))
+  {
+    String val = getValue(data, ':', 1);
+    config.offset = val.toInt();
+    Serial.print("Set offset: ");
+    Serial.print(config.offset);
+    Serial.println("");
+    webSocketBroadcastScaleOffset();
+  }
+  else if (data.startsWith("scale:"))
+  {
+    String val = getValue(data, ':', 1);
+    config.scale = val.toFloat();
+    Serial.print("Set scale: ");
+    Serial.print(config.scale, 10);
+    Serial.println("");
+    webSocketBroadcastScaleOffset();
+  }
+  else if (data.startsWith("time:"))
+  {
+    String val = getValue(data, ':', 1);
+    config.time = atol(val.c_str()) - millis();
+    Serial.print("Set time: ");
+    Serial.print(config.time);
+    Serial.println("");
+  }
+}
+
+void webSocketBroadcastData() {
+  //Nothing to send
+  if(dataBuffer.isEmpty())
+    return;
+  //No connected clients
+  if (webSocket.connectedClients() == 0) 
+    return;
+    
+  String jsonObj = "{\"data\": [";
+  dataStruct data;
+  bool first = true;
+  while (dataBuffer.lockedPop(data))
+  {
+    if (first)
+    {
+      first = false;
+    }
+    else
+    {
+      jsonObj += ",";
+    }
+    float valueFloat = (data.v - config.offset) * config.scale;
+    jsonObj += "{\"time\":\"" + String(data.t) + "\", ";
+    jsonObj += "\"raw\":\"" + String(data.v) + "\", ";
+    jsonObj += "\"value\":\"" + String(valueFloat) + "\"}";
+  }
+  jsonObj += "]}";
+  
+  webSocket.broadcastTXT(jsonObj);
+}
+
+
+const char* firmwareUpdateHtml = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
+void handleUpdateFinish()
+{
+  server.sendHeader("Connection", "close");
+  server.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+  ESP.restart();
+}
+
+void handleUpdateStart()
+{
+  HTTPUpload& upload = server.upload();
+  if (upload.status == UPLOAD_FILE_START) {
+    Serial.setDebugOutput(true);
+    Serial.printf("Update: %s\n", upload.filename.c_str());
+    if (!Update.begin()) { //start with max available size
+      Update.printError(Serial);
+    }
+  } else if (upload.status == UPLOAD_FILE_WRITE) {
+    if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+      Update.printError(Serial);
+    }
+  } else if (upload.status == UPLOAD_FILE_END) {
+    if (Update.end(true)) { //true to set the size to the current progress
+      Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+    } else {
+      Update.printError(Serial);
+    }
+    Serial.setDebugOutput(false);
+  } else {
+    Serial.printf("Update Failed Unexpectedly (likely broken connection): status=%d\n", upload.status);
+  }
 }
 
 
 
-void startServer()
+
+bool checkWifiConnection(const char* ssid, const char* passwd)
 {
 
-  // Dns server start
-  dnsServer.start(53, "*", WiFi.softAPIP());
-
-  //Add MDNS name
-  MDNS.addService("http","tcp",80);
-
-  if(!MDNS.begin("forcegauge")) {
-     Serial.println("Error starting mDNS");
+  static unsigned long previous_time = 0;
+  unsigned long current_time = millis();
+  
+  if (ssid == "") 
+    return false;
+  
+  if (WiFi.status() == WL_CONNECTED)
+  {
+     if (String(WiFi.SSID()) == String(ssid)) 
+     {
+        return true;
+     }
   }
 
-  //OTA
-  AsyncElegantOTA.begin(&server);    // Start AsyncElegantOTA
+  if ((current_time - previous_time >= 10000) || ( previous_time == 0))
+  {
+    previous_time = current_time;
+    Serial.print("Connecting to WIFI network: ");
+    Serial.println(ssid);
+    WiFi.begin(ssid, passwd);
+  }
+  return false;
+}
 
+
+void wifiTask( void * parameter )
+{
   
-  // Handlers
-  // There was a bug with AsyncWebServer, someone fixed it, so applied only the mem corruption patch
-  // https://github.com/me-no-dev/ESPAsyncWebServer/compare/master...Depau:mem-corruption
+  Serial.print("WiFiTask: priority = ");
+  Serial.println(uxTaskPriorityGet(NULL));
   
-  
-  //Websocket
-  ws.onEvent(onWsEvent);
-  server.addHandler(&ws);
+  // Begin Access Point Mode if required
+  if (config.APssid != "")
+  {
+    WiFi.mode(WIFI_AP_STA);
+    WiFi.softAP(config.APssid, config.APpasswd);
+  }
+  else
+  {
+    WiFi.mode(WIFI_STA);
+  }
 
-  // Does work with this too as the bug is patched
-  // server.serveStatic("/", SPIFFS, "/").setCacheControl("max-age=600");
+  bool connectedFlag = false;
+  int cntr = 0;
+  while(!connectedFlag)
+  {
+     connectedFlag = checkWifiConnection(config.ssid1, config.passwd1);
+     delay(500);
+     Serial.print(".");
+     if (++cntr > 20)
+       break;
+  }
+  if(connectedFlag)
+  {
+      Serial.print("\nConnected: ");
+      Serial.println(config.ssid1);
+      Serial.print("IP: ");
+      Serial.println(WiFi.localIP());
+  }
+  else
+  {
+      Serial.print("\nFailed to connect: ");
+      Serial.println(config.ssid1);
+  }
 
-  server.on("/configure.html",  HTTP_POST, handleConfigUpdate); // config update
-  server.on("/edit.html", HTTP_POST, [](AsyncWebServerRequest * request) {
-    request->send(200);
-  }, onUpload);
+ 
 
-  server.on("/files", [](AsyncWebServerRequest * request) {
-    String msg("Files:\n");
-    File root = SPIFFS.open("/");
-    File file = root.openNextFile();
-    while (file) {
-      msg += file.name();
-      msg += "\n";
-      file = root.openNextFile();
+//  dnsServer.start(53, "*", WiFi.softAPIP());
+//  MDNS.addService("http","tcp",80);
+
+  MDNS.begin(config.name);
+  DBG_OUTPUT_PORT.print("Open http://");
+  DBG_OUTPUT_PORT.print(config.name);
+  DBG_OUTPUT_PORT.println(".local/");
+
+
+  //SERVER INIT
+  server.on("/list", HTTP_GET, handleFileList);
+  server.on("/edit", HTTP_GET, []() {
+    if (!handleFileRead("/edit.htm")) {
+      server.send(404, "text/plain", "FileNotFound");
     }
-    request->send(200, "text/plain", msg);
   });
+  server.on("/edit", HTTP_PUT, handleFileCreate);
+  server.on("/edit", HTTP_DELETE, handleFileDelete);
+  server.on("/edit", HTTP_POST, []() {
+    server.send(200, "text/plain", "");
+  }, handleFileUpload);
   server.on("/generate_204", handleLoginPage);
+  server.on("/configure.htm",  HTTP_POST, handleConfigUpdate);
   server.on("/getData", handleGetData);
   server.on("/about", handleAbout);
-
-  server.onNotFound(handleGetFile);
-  server.onFileUpload(onUpload);
-
-  server.begin();
   
+  server.on("/update", HTTP_GET, []() {
+      server.sendHeader("Connection", "close");
+      server.send(200, "text/html", firmwareUpdateHtml);
+    });
+  server.on("/update", HTTP_POST, handleUpdateFinish, handleUpdateStart);
+  server.onNotFound([]() {
+    if (!handleFileRead(server.uri())) {
+      server.send(404, "text/plain", "FileNotFound");
+    }
+  });
 
-  Serial.println("HTTP server started");
+  //get heap status, analog input value and all GPIO statuses in one json call
+  server.on("/all", HTTP_GET, []() {
+    String json = "{";
+    json += "\"heap\":" + String(ESP.getFreeHeap());
+    json += ", \"analog\":" + String(analogRead(A1));
+    json += ", \"gpio\":" + String((uint32_t)(0));
+    json += "}";
+    server.send(200, "text/json", json);
+    json = String();
+  });
+  server.begin();
+  DBG_OUTPUT_PORT.println("HTTP server started");
+
+  // Websocket server start
+  webSocket.begin();
+  webSocket.onEvent(webSocketEvent);
+  
+  unsigned long previous_time = 0;
+  while(1){
+    checkWifiConnection(config.ssid1, config.passwd1);
+    server.handleClient();
+    webSocketBroadcastData();
+    webSocket.loop();
+    delay(2);
+  }
+  
+  //Should never get here
+  vTaskDelete( NULL );
 }

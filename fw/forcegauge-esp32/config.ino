@@ -17,7 +17,7 @@ void startSPIFFS()
   }
 
 //  
-//  File file2 = SPIFFS.open("/index.html");
+//  File file2 = SPIFFS.open("/index.htm");
 //  if (!file2) {
 //    Serial.println("Failed to open file for reading");
 //    return;
@@ -49,8 +49,8 @@ void makeDefaultConfig(configStruct* c)
   configJSON["name"] = "forcegauge";
   configJSON["APssid"] = "ForceGauge";
   configJSON["APpasswd"] = "1234567890";
-  configJSON["ssid1"] = "ABWifi";
-  configJSON["passwd1"] = "Secret_12345";
+  configJSON["ssid1"] = "";
+  configJSON["passwd1"] = "";
   configJSON["ssid2"] = "";
   configJSON["passwd2"] = "";
   //  configJSON["ssid3"] = "";
