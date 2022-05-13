@@ -32,7 +32,7 @@
 #define CLK  3
 
 #define CONFIG_BUFFER_SIZE 2048
-
+#define SSID_CONFIG_NUM 3
 
 
 typedef struct
@@ -44,8 +44,8 @@ typedef struct
   const char *passwd1;
   const char *ssid2;
   const char *passwd2;
-//  const char *ssid3;
-//  const char *passwd3;
+  const char *ssid3;
+  const char *passwd3;
   long offset;
   float scale;
   long time;

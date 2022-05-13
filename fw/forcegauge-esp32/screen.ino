@@ -16,6 +16,7 @@ boolean screenForce();
 boolean screenTabata();
 boolean screenSettings();
 boolean screenShutdown();
+boolean screenWifi();
 
 ScreenItem screenItemShutdown = { "Shutdown", screenShutdown };
 
@@ -23,9 +24,11 @@ ScreenItem screenItems[] = {
   { "Force", screenForce },
   { "Tabata", screenTabata },
   { "Settings", screenSettings },
+  { "WiFi", screenWifi },
+
 };
 
-ScreenList screenList(screenItems, 3);
+ScreenList screenList(screenItems, 4);
 
 
 void startScreen()
@@ -101,6 +104,34 @@ boolean screenSettings() {
   display.setCursor(10,0);
   display.println("Settings");
   display.display();  
+  return true;
+}
+
+boolean screenWifi() {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(10,0);
+  display.println("WiFi Info");
+  
+  display.setTextSize(1);
+  display.setCursor(1,16);
+  display.print("AP name: ");
+  display.print(config.APssid);
+  display.setCursor(1,26);
+  display.print("AP IP: ");
+  display.print(WiFi.softAPIP());
+  display.print(" #: ");
+  display.print(WiFi.softAPgetStationNum());
+  
+  display.setCursor(1,36);
+  display.print("STA name: ");
+  display.print(WiFi.SSID());
+  display.setCursor(1,46);
+  display.print("STA IP: ");
+  display.print(WiFi.localIP());
+  display.display();  
+
   return true;
 }
 

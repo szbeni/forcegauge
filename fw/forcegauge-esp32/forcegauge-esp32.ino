@@ -13,7 +13,8 @@ float maxForce = 0;
 float minForce = 0;
 
 TaskHandle_t wifiTaskHandle;
-
+TaskHandle_t httpServerTaskHandle;
+TaskHandle_t websocketServerTaskHandle;
 
 
 void setup() {
@@ -27,20 +28,20 @@ void setup() {
   //int priority = (configMAX_PRIORITIES - 1);
   //Increase our priority
   vTaskPrioritySet( NULL, (configMAX_PRIORITIES - 1) );
-
-
+  
   //func| name | Stack in word | param | priority | handle
-  int priority = 1;
-  //tskIDLE_PRIORITY
-  xTaskCreate(wifiTask, "wifiTask", 100000, NULL, priority, &wifiTaskHandle);
+  startWifi();
+  xTaskCreate(wifiTask, "wifiTask", 10000, NULL, tskIDLE_PRIORITY + 1, &wifiTaskHandle);
+  xTaskCreate(httpServerTask, "httpServerTask", 100000, NULL, tskIDLE_PRIORITY + 1, &httpServerTaskHandle);
+  xTaskCreate(websocketServerTask, "websocketServerTask", 10000, NULL, configMAX_PRIORITIES - 1, &websocketServerTaskHandle);
+
 }
 
 static unsigned long lastRefresh = millis();
 
-//int32_t cntr = 0;
-int spike_cntr = 0;
-
 void loop() {
+  static int spike_cntr = 0;
+
   buzzerLoop();
   buttonsLoop();
   if (millis() - lastRefresh >= 50)
@@ -48,8 +49,9 @@ void loop() {
     lastRefresh = millis();
     screenLoop();
   }
-
-  //if (true)
+  
+  // static int32_t cntr = 0;
+  // if (true)
   if (scale.is_ready())
   {
     dataStruct data;
@@ -57,9 +59,12 @@ void loop() {
     noInterrupts();
     data.v = scale.read();
     interrupts();
-    //data.v = cntr += 100;
-    //if (cntr > 100000)
-    //  cntr = 0 ;
+   
+//    data.v = cntr;
+//    cntr += 20;
+//    if (cntr > 100000)
+//      cntr = 0 ;
+    
     data.t = config.time + millis();
     float value = (data.v - config.offset) * config.scale;
 
@@ -83,9 +88,6 @@ void loop() {
         maxForce = config.lastValue;
       if (config.lastValue < minForce)
         minForce = config.lastValue;
-      //noInterrupts();
-      //webSocketBroadcastData(&data);
-      //interrupts();
     }
   }
   delay(2);

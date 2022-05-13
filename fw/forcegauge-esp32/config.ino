@@ -53,8 +53,8 @@ void makeDefaultConfig(configStruct* c)
   configJSON["passwd1"] = "";
   configJSON["ssid2"] = "";
   configJSON["passwd2"] = "";
-  //  configJSON["ssid3"] = "";
-  //  configJSON["passwd3"] = "";
+  configJSON["ssid3"] = "";
+  configJSON["passwd3"] = "";
   configJSON["offset"] = 0;
   configJSON["scale"] = 0.000231142;
   configJSON["filterCoeff"] = 0.0;
@@ -112,10 +112,27 @@ void copyConfig(configStruct *c)
   c->passwd1 = configJSON["passwd1"];
   c->ssid2 = configJSON["ssid2"];
   c->passwd2 = configJSON["passwd2"];
-  //  c->ssid3 = configJSON["ssid3"];
-  //  c->passwd3 = configJSON["passwd3"];
+  c->ssid3 = configJSON["ssid3"];
+  c->passwd3 = configJSON["passwd3"];
   c->offset = configJSON["offset"];
   c->scale = configJSON["scale"];
   c->time = configJSON["time"];
   c->filterCoeff = configJSON["filterCoeff"];
+}
+
+
+const char* getConfigSSID(int n)
+{
+  if (n ==0 ) return config.ssid1;
+  else if (n == 1 ) return config.ssid2;
+  else if (n == 2 ) return config.ssid3;
+  return nullptr;
+}
+
+const char* getConfigPasswd(int n)
+{
+  if (n ==0 ) return config.passwd1;
+  else if (n == 1 ) return config.passwd2;
+  else if (n == 2 ) return config.passwd3;
+  return nullptr;
 }
