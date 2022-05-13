@@ -1,17 +1,26 @@
 
 name: Build
 on: [push, pull_request]
+env:
+  ARDUINO_LIBRARY_ENABLE_UNSAFE_INSTALL: true
+  
 jobs:
   build:
-    name: Build for ESP32
+    name: Build fw
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install Arduino CLI
         uses: arduino/setup-arduino-cli@v1
-      - name: Install platform
-        run: fw/forcegauge-esp32/scripts/build.sh
+      - name: Build
+        run: |
+         chmod +x ./fw/forcegauge-esp32/scripts/build.sh
+         ./fw/forcegauge-esp32/scripts/build.sh
+        shell: bash
+
+      # - name: Install platform
+      #   run: 
 #       - name: Compile Sketch
 #         working-directory: ./microcontroller
 #         run: ARDUINO_DIRECTORIES_USER=$GITHUB_WORKSPACE/microcontroller arduino-cli compile -b ${{ matrix.core_a }}:${{ matrix.core_b }}:${{ matrix.board }}:${{ matrix.opts }} -e --build-property="compiler.cpp.extra_flags=\"-DAPN_${{ matrix.apn }}\""
