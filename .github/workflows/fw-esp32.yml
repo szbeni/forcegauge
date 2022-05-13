@@ -2,9 +2,6 @@
 name: Build
 on: [push]
 
-env:
-  ARDUINO_LIBRARY_ENABLE_UNSAFE_INSTALL: true
-  
 jobs:
   build:
     name: Build fw
