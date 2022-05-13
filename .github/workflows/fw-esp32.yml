@@ -1,9 +1,7 @@
 
 name: Build
-on: 
-  push:
-    tags:
-      - '*'
+on: [push]
+
 env:
   ARDUINO_LIBRARY_ENABLE_UNSAFE_INSTALL: true
   
@@ -28,9 +26,9 @@ jobs:
           name: forcegauge-esp32-fw
           path: ./fw/forcegauge-esp32/build/forcegauge-esp32.ino.bin
 
-      - uses: ncipollo/release-action@v1
+      - name: Release
+        uses: softprops/action-gh-release@v1
+      # if: startsWith(github.ref, 'refs/tags/')
         with:
-          artifacts: "forcegauge-esp32-fw"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          #tag_name: ${{ env.VERSION }}
-          #release_name: Release ${{ env.VERSION }}
+          files: ./fw/forcegauge-esp32/build/forcegauge-esp32.ino.bin
+      
