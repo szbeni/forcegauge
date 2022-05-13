@@ -9,8 +9,8 @@ mkdir -p ./build/$DATE
 set ARDUINO_OUTPUT_DIR=./build/$DATE
 set ARDUINO_LIBRARY_ENABLE_UNSAFE_INSTALL=true
 
-ESP32_URL=https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-GLOBAL_FLAGS= --additional-urls $ESP32_URL
+ESP32_URL="https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json"
+GLOBAL_FLAGS="--additional-urls $ESP32_URL"
 
 
 arduino-cli core update-index $GLOBAL_FLAGS
