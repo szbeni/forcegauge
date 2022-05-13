@@ -1,0 +1,22 @@
+
+name: Build
+on: [push, pull_request]
+jobs:
+  build:
+    name: Build for ESP32
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Arduino CLI
+        uses: arduino/setup-arduino-cli@main
+      - name: Install platform
+        run: fw/forcegauge-esp32/scripts/build.sh
+#       - name: Compile Sketch
+#         working-directory: ./microcontroller
+#         run: ARDUINO_DIRECTORIES_USER=$GITHUB_WORKSPACE/microcontroller arduino-cli compile -b ${{ matrix.core_a }}:${{ matrix.core_b }}:${{ matrix.board }}:${{ matrix.opts }} -e --build-property="compiler.cpp.extra_flags=\"-DAPN_${{ matrix.apn }}\""
+#       - name: Upload bin
+#         uses: actions/upload-artifact@v2
+#         with:
+#           name: ${{ matrix.core_a}}_${{ matrix.core_b }}_${{ matrix.board }}_${{ matrix.apn }}
+#           path: ./microcontroller/build/${{ matrix.core_a}}.${{ matrix.core_b }}.${{ matrix.board }}/microcontroller.ino.bin
