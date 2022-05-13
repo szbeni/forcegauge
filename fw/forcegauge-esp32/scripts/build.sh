@@ -5,10 +5,10 @@ SCRIPT_DIR=`dirname $SCRIPT`
 
 cd "$SCRIPT_DIR/.."
 
-DATE=$(date --iso-8601=seconds | tr : - | tr T _ | grep -oP '^.*\d\+' | grep -oP '^.*\d')
-mkdir -p ./build/$DATE
-
-ARDUINO_OUTPUT_DIR=./build/$DATE
+#DATE=$(date --iso-8601=seconds | tr : - | tr T _ | grep -oP '^.*\d\+' | grep -oP '^.*\d')
+#mkdir -p ./build/$DATE
+#ARDUINO_OUTPUT_DIR=./build/$DATE
+ARDUINO_OUTPUT_DIR=./build/
 CONFIG_FILE="--config-file $SCRIPT_DIR/arduino-cli.yaml"
 
 # Update boards

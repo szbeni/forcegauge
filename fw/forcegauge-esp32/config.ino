@@ -1,5 +1,6 @@
 #include <ArduinoJson.h>
 
+
 DynamicJsonDocument configJSON(CONFIG_BUFFER_SIZE);
 
 void startSPIFFS()

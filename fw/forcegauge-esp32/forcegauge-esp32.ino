@@ -1,9 +1,11 @@
 
+
 #include "forcegauge.h"
+#define VERSION "1.0.0"
 
 configStruct config;
 const char configFilename[] = "/config.json";
-const char version[] = "1.0.0";
+const char version[] = VERSION;
 
 HX711 scale;
 RingBuf<dataStruct, 64> dataBuffer;
@@ -28,7 +30,7 @@ void setup() {
   //int priority = (configMAX_PRIORITIES - 1);
   //Increase our priority
   vTaskPrioritySet( NULL, (configMAX_PRIORITIES - 1) );
-  
+
   //func| name | Stack in word | param | priority | handle
   startWifi();
   xTaskCreate(wifiTask, "wifiTask", 10000, NULL, tskIDLE_PRIORITY + 1, &wifiTaskHandle);
@@ -49,7 +51,7 @@ void loop() {
     lastRefresh = millis();
     screenLoop();
   }
-  
+
   // static int32_t cntr = 0;
   // if (true)
   if (scale.is_ready())
@@ -59,12 +61,12 @@ void loop() {
     noInterrupts();
     data.v = scale.read();
     interrupts();
-   
-//    data.v = cntr;
-//    cntr += 20;
-//    if (cntr > 100000)
-//      cntr = 0 ;
-    
+
+    //    data.v = cntr;
+    //    cntr += 20;
+    //    if (cntr > 100000)
+    //      cntr = 0 ;
+
     data.t = config.time + millis();
     float value = (data.v - config.offset) * config.scale;
 
