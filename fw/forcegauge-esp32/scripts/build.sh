@@ -14,7 +14,7 @@ GLOBAL_FLAGS="--additional-urls $ESP32_URL"
 
 
 arduino-cli core update-index $GLOBAL_FLAGS
-arduino-cli core install esp32:esp32 --additional-urls $GLOBAL_FLAGS
+arduino-cli core install esp32:esp32 $GLOBAL_FLAGS
 
 #Adafruit_BusIO - https://github.com/adafruit/Adafruit_BusIO
 #Adafruit GFX Library - https://github.com/adafruit/Adafruit-GFX-Library
