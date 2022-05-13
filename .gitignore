@@ -3,3 +3,8 @@ plottests
 *autosave*
 build
 fw_esp_sdk
+*.stl
+*.zip
+hw/forcegauge/forcegauge*
+*.mp4
+*.FCStd1
