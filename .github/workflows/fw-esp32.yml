@@ -15,9 +15,8 @@ jobs:
         uses: arduino/setup-arduino-cli@v1
       - name: Build
         run: |
-        cd ${GITHUB_WORKSPACE}/fw/forcegauge-esp32/scripts/
-        ./build.sh
-        
+          cd ${GITHUB_WORKSPACE}/fw/forcegauge-esp32/scripts/
+          ./build.sh
 
       # - name: Install platform
       #   run: 
