@@ -116,19 +116,18 @@ boolean screenWifi() {
   
   display.setTextSize(1);
   display.setCursor(1,16);
-  display.print("AP name: ");
   display.print(config.APssid);
-  display.setCursor(1,26);
-  display.print("AP IP: ");
-  display.print(WiFi.softAPIP());
-  display.print(" #: ");
+  display.print(" (");
   display.print(WiFi.softAPgetStationNum());
+  display.print(")");
+  display.setCursor(1,26);
+  display.print(WiFi.softAPIP());
   
-  display.setCursor(1,36);
-  display.print("STA name: ");
-  display.print(WiFi.SSID());
   display.setCursor(1,46);
-  display.print("STA IP: ");
+  display.print("");
+  display.print(WiFi.SSID());
+  display.setCursor(1,56);
+  display.print("");
   display.print(WiFi.localIP());
   display.display();  
 
