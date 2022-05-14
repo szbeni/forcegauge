@@ -56,7 +56,7 @@ void webSocketBroadcastScaleOffset()
 
 void webSocketBroadcastData() {
   //Nothing to send
-  if(dataBuffer.isEmpty())
+  if(websocketBuffer.isEmpty())
     return;
   //No connected clients
   if (webSocket.connectedClients() == 0) 
@@ -65,7 +65,7 @@ void webSocketBroadcastData() {
   String jsonObj = "{\"data\": [";
   dataStruct data;
   bool first = true;
-  while (dataBuffer.lockedPop(data))
+  while (websocketBuffer.lockedPop(data))
   {
     if (first)
     {
@@ -128,7 +128,7 @@ void websocketServerTask( void * parameter )
   while(1){
     webSocket.loop();
     webSocketBroadcastData();
-    delay(2);
+    delay(10);
   }
   
   //Should never get here

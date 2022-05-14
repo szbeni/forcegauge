@@ -203,7 +203,14 @@ void wifiTask(void * parameter)
 {
   while(1)
   {
-    if (WiFi.status() != WL_CONNECTED) {
+    bool ssidConfigured = false;
+    for (int i=0;i<SSID_CONFIG_NUM;i++)
+    {
+      if (strlen(getConfigSSID(i)) > 0)
+        ssidConfigured = true;
+    }
+    
+    if (ssidConfigured && WiFi.status() != WL_CONNECTED) {
         Serial.println("Scan start");
         // WiFi.scanNetworks will return the number of networks found
         int n = WiFi.scanNetworks();

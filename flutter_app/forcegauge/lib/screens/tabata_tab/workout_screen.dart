@@ -139,8 +139,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           create: (_) => DeviceCubit(state.devices[0]),
           child: BlocBuilder<DeviceCubit, DeviceState>(builder: (context, state) {
             if (_workout.step == WorkoutState.exercising) {
-              //return Container(width: 200, child: EvenMoreRealtime(true, widget.targetForce));
-              return Container();
+              return Container(width: 200, child: EvenMoreRealtime(true, widget.targetForce));
+              //return Container();
             } else {
               var lastReport = _workout.workoutReport.getSetRepReport(_workout.set, _workout.rep);
               if (lastReport != null) {

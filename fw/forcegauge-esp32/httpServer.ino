@@ -170,28 +170,6 @@ String getContentType(String filename) {
   return "text/plain";
 }
 
-void handleGetData() {
-  String jsonObj = "{\"data\": [";
-  dataStruct data;
-  bool first = true;
-  while (dataBuffer.lockedPop(data))
-  {
-    if (first)
-    {
-      first = false;
-    }
-    else
-    {
-      jsonObj += ",";
-    }
-    float valueFloat = (data.v - config.offset) * config.scale;
-    jsonObj += "{\"time\":\"" + String(data.t) + "\", ";
-    jsonObj += "\"value\":\"" + String(valueFloat) + "\"}";
-  }
-  jsonObj += "]}";
-  server.send(200, "application/json", jsonObj);
-}
-
 void handleConfigUpdate()
 {
   for (int i = 0; i < server.args(); i++) {
@@ -372,7 +350,6 @@ void httpServerTask( void * parameter )
   server.on("/generate_204", handleRoot);
   server.on("/gen_204", handleRoot);
   server.on("/configure.htm",  HTTP_POST, handleConfigUpdate);
-  //server.on("/getData", handleGetData);
   server.on("/about", handleAbout);
   
   server.on("/update", HTTP_GET, []() {
@@ -407,7 +384,7 @@ void httpServerTask( void * parameter )
     //checkWifiConnection(config.ssid1, config.passwd1);
     dnsServer.processNextRequest();
     server.handleClient();
-    delay(2);
+    delay(10);
   }
   
   //Should never get here

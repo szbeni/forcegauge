@@ -1,4 +1,4 @@
-
+  
 
 #include "forcegauge.h"
 #define VERSION "1.0.0"
@@ -8,7 +8,8 @@ const char configFilename[] = "/config.json";
 const char version[] = VERSION;
 
 HX711 scale;
-RingBuf<dataStruct, 64> dataBuffer;
+RingBuf<dataStruct, 32> websocketBuffer;
+RingBuf<dataStruct, 32> bluetoothBuffer;
 
 ScreenHandler screenHandler;      //Screen hanlder
 float maxForce = 0;
@@ -17,6 +18,7 @@ float minForce = 0;
 TaskHandle_t wifiTaskHandle;
 TaskHandle_t httpServerTaskHandle;
 TaskHandle_t websocketServerTaskHandle;
+TaskHandle_t bluetoothTaskHandle;
 
 
 void setup() {
@@ -33,9 +35,12 @@ void setup() {
 
   //func| name | Stack in word | param | priority | handle
   startWifi();
-  xTaskCreate(wifiTask, "wifiTask", 10000, NULL, tskIDLE_PRIORITY + 1, &wifiTaskHandle);
-  xTaskCreate(httpServerTask, "httpServerTask", 100000, NULL, tskIDLE_PRIORITY + 1, &httpServerTaskHandle);
-  xTaskCreate(websocketServerTask, "websocketServerTask", 10000, NULL, configMAX_PRIORITIES - 1, &websocketServerTaskHandle);
+  xTaskCreate(wifiTask, "wifiTask", 4096, NULL, tskIDLE_PRIORITY + 1, &wifiTaskHandle);
+  xTaskCreate(httpServerTask, "httpServerTask", 80000, NULL, tskIDLE_PRIORITY + 1, &httpServerTaskHandle);
+
+  // High prio task
+  xTaskCreate(websocketServerTask, "websocketServerTask", 8192, NULL, configMAX_PRIORITIES - 1, &websocketServerTaskHandle);
+  //xTaskCreate(bluetoothTask, "bluetoothTask", 20000, NULL, tskIDLE_PRIORITY + 1, &bluetoothTaskHandle);
 
 }
 
@@ -52,9 +57,9 @@ void loop() {
     screenLoop();
   }
 
-  // static int32_t cntr = 0;
-  // if (true)
-  if (scale.is_ready())
+  static int32_t cntr = 0;
+  if (true)
+    //if (scale.is_ready())
   {
     dataStruct data;
 
@@ -62,10 +67,10 @@ void loop() {
     data.v = scale.read();
     interrupts();
 
-    //    data.v = cntr;
-    //    cntr += 20;
-    //    if (cntr > 100000)
-    //      cntr = 0 ;
+    data.v = cntr;
+    cntr += 20;
+    if (cntr > 100000)
+      cntr = 0 ;
 
     data.t = config.time + millis();
     float value = (data.v - config.offset) * config.scale;
@@ -83,7 +88,8 @@ void loop() {
     else
     {
       config.lastRawValue = data.v;
-      dataBuffer.lockedPush(data);
+      websocketBuffer.lockedPush(data);
+      bluetoothBuffer.lockedPush(data);
       spike_cntr = 0;
       config.lastValue = lowpassfilter(value, config.lastValue, config.filterCoeff);
       if (config.lastValue > maxForce)
@@ -92,5 +98,5 @@ void loop() {
         minForce = config.lastValue;
     }
   }
-  delay(2);
+  delay(10);
 }
