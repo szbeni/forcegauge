@@ -1,41 +1,42 @@
 #include <ArduinoJson.h>
 
-
 DynamicJsonDocument configJSON(CONFIG_BUFFER_SIZE);
 
 void startSPIFFS()
 {
-  if (!SPIFFS.begin(true)) {
+  if (!SPIFFS.begin(true))
+  {
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
   File root = SPIFFS.open("/");
   File file = root.openNextFile();
-  while (file) {
+  while (file)
+  {
     Serial.print("FILE: ");
     Serial.println(file.name());
     file = root.openNextFile();
   }
 
-//  
-//  File file2 = SPIFFS.open("/index.htm");
-//  if (!file2) {
-//    Serial.println("Failed to open file for reading");
-//    return;
-//  }
-//  Serial.println("File Content:");
-//
-//  while (file2.available()) {
-//
-//    Serial.write(file2.read());
-//  }
-//  file2.close();
+  //
+  //  File file2 = SPIFFS.open("/index.htm");
+  //  if (!file2) {
+  //    Serial.println("Failed to open file for reading");
+  //    return;
+  //  }
+  //  Serial.println("File Content:");
+  //
+  //  while (file2.available()) {
+  //
+  //    Serial.write(file2.read());
+  //  }
+  //  file2.close();
 }
 
 void startConfig()
 {
   startSPIFFS();
-  
+
   if (loadConfig(&config) == false)
   {
     Serial.println("Failed to load config.json. making new one\n");
@@ -45,7 +46,7 @@ void startConfig()
   serializeJsonPretty(configJSON, Serial);
 }
 
-void makeDefaultConfig(configStruct* c)
+void makeDefaultConfig(configStruct *c)
 {
   configJSON["name"] = "forcegauge";
   configJSON["APssid"] = "ForceGauge";
@@ -60,20 +61,26 @@ void makeDefaultConfig(configStruct* c)
   configJSON["scale"] = 0.000231142;
   configJSON["filterCoeff"] = 0.0;
   configJSON["time"] = 0;
+  configJSON["buzzerEnable"] = true;
+  configJSON["wifiAPEnable"] = true;
+  configJSON["bluetoothEnable"] = false;
   copyConfig(c);
 }
 
-bool saveConfig(configStruct* c)
+bool saveConfig(configStruct *c)
 {
   bool retval = true;
   configJSON["offset"] = c->offset;
   configJSON["scale"] = c->scale;
   configJSON["filterCoeff"] = c->filterCoeff;
   configJSON["time"] = c->time;
-
+  configJSON["buzzerEnable"] = c->buzzerEnable ? "true" : "false";
+  configJSON["wifiAPEnable"] = c->wifiAPEnable ? "true" : "false";
+  configJSON["bluetoothEnable"] = c->bluetoothEnable ? "true" : "false";
 
   File jsonFile = SPIFFS.open(configFilename, "w");
-  if (serializeJsonPretty(configJSON, jsonFile) == 0) {
+  if (serializeJsonPretty(configJSON, jsonFile) == 0)
+  {
     Serial.println("Failed to write to file.");
     retval = false;
   }
@@ -83,14 +90,15 @@ bool saveConfig(configStruct* c)
   return retval;
 }
 
-bool loadConfig(configStruct* c)
+bool loadConfig(configStruct *c)
 {
   bool retval = false;
   if (SPIFFS.exists(configFilename))
   {
     File file = SPIFFS.open(configFilename, "r");
     DeserializationError error = deserializeJson(configJSON, file);
-    if (error) {
+    if (error)
+    {
       Serial.print(F("deserializeJson() failed: "));
       Serial.println(error.f_str());
     }
@@ -119,21 +127,29 @@ void copyConfig(configStruct *c)
   c->scale = configJSON["scale"];
   c->time = configJSON["time"];
   c->filterCoeff = configJSON["filterCoeff"];
+  c->buzzerEnable = (configJSON["buzzerEnable"] == "true") ? true : false;
+  c->wifiAPEnable = (configJSON["wifiAPEnable"] == "true") ? true : false;
+  c->bluetoothEnable = (configJSON["bluetoothEnable"] == "true") ? true : false;
 }
 
-
-const char* getConfigSSID(int n)
+const char *getConfigSSID(int n)
 {
-  if (n ==0 ) return config.ssid1;
-  else if (n == 1 ) return config.ssid2;
-  else if (n == 2 ) return config.ssid3;
+  if (n == 0)
+    return config.ssid1;
+  else if (n == 1)
+    return config.ssid2;
+  else if (n == 2)
+    return config.ssid3;
   return nullptr;
 }
 
-const char* getConfigPasswd(int n)
+const char *getConfigPasswd(int n)
 {
-  if (n ==0 ) return config.passwd1;
-  else if (n == 1 ) return config.passwd2;
-  else if (n == 2 ) return config.passwd3;
+  if (n == 0)
+    return config.passwd1;
+  else if (n == 1)
+    return config.passwd2;
+  else if (n == 2)
+    return config.passwd3;
   return nullptr;
 }

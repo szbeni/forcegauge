@@ -149,8 +149,12 @@
     function generateForm(configJson) {
         for (key in configJson) {
             type = "text";
+            // Hide elements starting with
             if (key.includes("passwd")) type = "password";
-            createElement(key, configJson[key], type);
+            if (!key.startsWith("_")) {
+                createElement(key, configJson[key], type);
+            }
+
         }
         createElement("submit", "Save Config", "submit");
     }

@@ -5,8 +5,11 @@ bool buzzing = 0;
 void buzz(unsigned int freq, unsigned long duration)
 {
   Serial.println("buzz");
-  ledcWriteTone(CHN, freq);
-  ledcWrite(CHN, 127);
+  if (config.buzzerEnable)
+  {
+    ledcWriteTone(CHN, freq);
+    ledcWrite(CHN, 127);
+  }
 
   buzzerStopTime = millis() + duration;
   buzzing = 1;
@@ -23,11 +26,11 @@ void buzzerLoop()
 {
   if (buzzing)
   {
-    if(millis() >= buzzerStopTime)
+    if (millis() >= buzzerStopTime)
     {
       Serial.println("buzz stop");
       buzzing = 0;
       ledcWrite(CHN, 0);
-    }      
+    }
   }
 }

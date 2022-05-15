@@ -1,67 +1,69 @@
 WebSocketsServer webSocket(81);
 
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
+{
+  String msg = "";
+  switch (type)
+  {
+  case WStype_DISCONNECTED:
+    DBG_OUTPUT_PORT.printf("[%u] Disconnected!\n", num);
+    break;
+  case WStype_CONNECTED:
+  {
+    IPAddress ip = webSocket.remoteIP(num);
+    DBG_OUTPUT_PORT.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
 
-void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
-    String msg = "";
-    switch(type) {
-        case WStype_DISCONNECTED:
-            DBG_OUTPUT_PORT.printf("[%u] Disconnected!\n", num);
-            break;
-        case WStype_CONNECTED:
-            {
-                IPAddress ip = webSocket.remoteIP(num);
-                DBG_OUTPUT_PORT.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-
-        // send message to client
-        // webSocket.sendTXT(num, "Connected");
-            }
-            break;
-        case WStype_TEXT:
-            //DBG_OUTPUT_PORT.printf("[%u] get Text: %s\n", num, payload);
-            for (size_t i = 0; i < length; i++) {
-              msg += (char) payload[i];
-            }
-            handleWSMessage(msg);
-            // send message to client
-            // webSocket.sendTXT(num, "message here");
-
-            // send data to all connected clients
-            // webSocket.broadcastTXT("message here");
-            break;
-        case WStype_BIN:
-            DBG_OUTPUT_PORT.printf("[%u] get binary length: %u\n", num, length);
-            //hexdump(payload, length);
-
-            // send message to client
-            // webSocket.sendBIN(num, payload, length);
-            break;
-    case WStype_ERROR:      
-    case WStype_FRAGMENT_TEXT_START:
-    case WStype_FRAGMENT_BIN_START:
-    case WStype_FRAGMENT:
-    case WStype_FRAGMENT_FIN:
-      break;
+    // send message to client
+    // webSocket.sendTXT(num, "Connected");
+  }
+  break;
+  case WStype_TEXT:
+    // DBG_OUTPUT_PORT.printf("[%u] get Text: %s\n", num, payload);
+    for (size_t i = 0; i < length; i++)
+    {
+      msg += (char)payload[i];
     }
+    handleWSMessage(msg);
+    // send message to client
+    // webSocket.sendTXT(num, "message here");
+
+    // send data to all connected clients
+    // webSocket.broadcastTXT("message here");
+    break;
+  case WStype_BIN:
+    DBG_OUTPUT_PORT.printf("[%u] get binary length: %u\n", num, length);
+    // hexdump(payload, length);
+
+    // send message to client
+    // webSocket.sendBIN(num, payload, length);
+    break;
+  case WStype_ERROR:
+  case WStype_FRAGMENT_TEXT_START:
+  case WStype_FRAGMENT_BIN_START:
+  case WStype_FRAGMENT:
+  case WStype_FRAGMENT_FIN:
+    break;
+  }
 }
 
-
 void webSocketBroadcastScaleOffset()
-{ 
-  //No connected clients
-  if (webSocket.connectedClients() == 0) 
+{
+  // No connected clients
+  if (webSocket.connectedClients() == 0)
     return;
-  String data = "{\"scale\":" + String(config.scale, 10) + ", \"offset\":" + String(config.offset) + "}";    
+  String data = "{\"scale\":" + String(config.scale, 10) + ", \"offset\":" + String(config.offset) + "}";
   webSocket.broadcastTXT(data);
 }
 
-void webSocketBroadcastData() {
-  //Nothing to send
-  if(websocketBuffer.isEmpty())
+void webSocketBroadcastData()
+{
+  // Nothing to send
+  if (websocketBuffer.isEmpty())
     return;
-  //No connected clients
-  if (webSocket.connectedClients() == 0) 
+  // No connected clients
+  if (webSocket.connectedClients() == 0)
     return;
-    
+
   String jsonObj = "{\"data\": [";
   dataStruct data;
   bool first = true;
@@ -81,11 +83,11 @@ void webSocketBroadcastData() {
     jsonObj += "\"value\":\"" + String(valueFloat) + "\"}";
   }
   jsonObj += "]}";
-  
+
   webSocket.broadcastTXT(jsonObj);
 }
 
-void handleWSMessage(String& data)
+void handleWSMessage(String &data)
 {
   if (data.startsWith("offset:"))
   {
@@ -115,22 +117,23 @@ void handleWSMessage(String& data)
   }
 }
 
-void websocketServerTask( void * parameter )
+void websocketServerTask(void *parameter)
 {
   Serial.print("websocketServerTask: priority = ");
   Serial.println(uxTaskPriorityGet(NULL));
-  
+
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
 
   DBG_OUTPUT_PORT.println("Websocket server started");
-  
-  while(1){
+
+  while (1)
+  {
     webSocket.loop();
     webSocketBroadcastData();
     delay(10);
   }
-  
-  //Should never get here
-  vTaskDelete( NULL );
+
+  // Should never get here
+  vTaskDelete(NULL);
 }
