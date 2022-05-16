@@ -231,7 +231,7 @@ void screenTask(void *parameter)
   Serial.println(uxTaskPriorityGet(NULL));
 
   Serial.println("Screen Task Started");
-
+  unsigned long lastRefresh = millis();
   while (1)
   {
     buzzerLoop();

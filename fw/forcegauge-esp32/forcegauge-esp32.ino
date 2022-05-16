@@ -1,4 +1,4 @@
-
+  
 
 #include "forcegauge.h"
 #define VERSION "1.0.0"
@@ -30,23 +30,31 @@ void setup()
   startScreen();
   startHX711();
 
-  // int priority = (configMAX_PRIORITIES - 1);
-  // Increase our priority
+  // func| name | Stack in word | param | priority | handle
+  // Increase current thread priority
   vTaskPrioritySet(NULL, (configMAX_PRIORITIES - 1));
 
-  // func| name | Stack in word | param | priority | handle
-  startWifi();
   xTaskCreate(screenTask, "screenTask", 8192, NULL, tskIDLE_PRIORITY + 1, &screenTaskHandle);
-  xTaskCreate(wifiTask, "wifiTask", 8192, NULL, tskIDLE_PRIORITY + 1, &wifiTaskHandle);
-  xTaskCreate(httpServerTask, "httpServerTask", 80000, NULL, tskIDLE_PRIORITY + 1, &httpServerTaskHandle);
-  // High prio task
-  xTaskCreate(websocketServerTask, "websocketServerTask", 8192, NULL, configMAX_PRIORITIES - 1, &websocketServerTaskHandle);
 
-  // Bluetooth with WiFi
-  // xTaskCreate(bluetoothTask, "bluetoothTask", 20000, NULL, tskIDLE_PRIORITY + 1, &bluetoothTaskHandle);
+  // Bluetooth, doesnt work very well with WiFi simultaneously
+  // as we are sending quite frequent updates from our sensor 
+  // and switching time of the hardware radio between BLE and WiFi is not very fast.
+  // (Same hw is used for both WiFi and Bluetooth)
+  if(config.bluetoothEnable)
+  {
+    xTaskCreate(bluetoothTask, "bluetoothTask", 20000, NULL, tskIDLE_PRIORITY + 1, &bluetoothTaskHandle);  
+  }
+  else
+  {
+    
+    startWifi();
+    xTaskCreate(wifiTask, "wifiTask", 8192, NULL, tskIDLE_PRIORITY + 1, &wifiTaskHandle);
+    xTaskCreate(httpServerTask, "httpServerTask", 80000, NULL, tskIDLE_PRIORITY + 1, &httpServerTaskHandle);
+    // High prio task
+    xTaskCreate(websocketServerTask, "websocketServerTask", 8192, NULL, configMAX_PRIORITIES - 1, &websocketServerTaskHandle);
+  }
 }
 
-static unsigned long lastRefresh = millis();
 
 void loop()
 {
