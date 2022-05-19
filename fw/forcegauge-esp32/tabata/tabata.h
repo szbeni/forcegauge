@@ -1,9 +1,9 @@
 #pragma once
-#include <iostream>
+#include <string>
 #include "ArduinoJson.h"
 
 class Tabata {
- private:
+ public:
   std::string name;
 
   /// Sets in a workout
@@ -27,7 +27,6 @@ class Tabata {
   /// Warning time before end of break
   int warningBeforeBreakEndsTime;
 
- public:
   Tabata(std::string jsonStr) {
     DynamicJsonDocument doc(2048);
     deserializeJson(doc, jsonStr);
@@ -41,9 +40,25 @@ class Tabata {
     warningBeforeBreakEndsTime = doc["warningBeforeBreakEndsTime"];
   }
 
-  std::string toJson() {
-    std::string retval = "{";
-    retval += "\"";
+  std::string toJson(bool pretty = false) {
+    std::string jsonStr;
+    DynamicJsonDocument doc(2048);
+
+    doc["name"] = name;
+    doc["sets"] = sets;
+    doc["reps"] = reps;
+    doc["exerciseTime"] = exerciseTime;
+    doc["restTime"] = restTime;
+    doc["breakTime"] = breakTime;
+    doc["startDelay"] = startDelay;
+    doc["warningBeforeBreakEndsTime"] = warningBeforeBreakEndsTime;
+
+    if (pretty) {
+      serializeJsonPretty(doc, jsonStr);
+    } else {
+      serializeJson(doc, jsonStr);
+    }
+    return jsonStr;
   }
 
   Tabata(std::string name,
@@ -66,6 +81,6 @@ class Tabata {
   const std::string getName() { return name; }
 
   int getTotalTime() {
-    return (exerciseTime * sets * reps) + (restTime * sets * (reps - 1)) + (breakTime * (sets - 1));
+    return startDelay + (exerciseTime * sets * reps) + (restTime * sets * (reps - 1)) + (breakTime * (sets - 1));
   }
 };
