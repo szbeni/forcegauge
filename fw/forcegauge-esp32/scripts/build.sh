@@ -34,5 +34,5 @@ PACKAGES_DIR=`arduino-cli core list -v | grep "Loading hardware from" | awk '{pr
 MKSPIFFS_VER=`ls $PACKAGES_DIR/esp32/tools/mkspiffs/`
 MKSPIFF="$PACKAGES_DIR/esp32/tools/mkspiffs/$MKSPIFFS_VER/mkspiffs"
 echo "Making spiffs files"
-$MKSPIFF -c ./data --size 0x090000 --page 256 --block 8192 -- ./build/forcegauge-esp32.info.spiffs.bin
+$MKSPIFF -c ./data --start 0x090000 --page 256 --block 4096 -- ./build/forcegauge-esp32.info.spiffs.bin
 

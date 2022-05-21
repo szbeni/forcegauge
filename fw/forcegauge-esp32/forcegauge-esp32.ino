@@ -1,10 +1,11 @@
-  
+
 
 #include "forcegauge.h"
 #define VERSION "1.0.0"
 
 configStruct config;
 const char configFilename[] = "/config.json";
+const char tabatasFilename[] = "/tabatas.json";
 const char version[] = VERSION;
 
 HX711 scale;
@@ -29,6 +30,7 @@ void setup()
   startConfig();
   startScreen();
   startHX711();
+  startTabata();
 
   // func| name | Stack in word | param | priority | handle
   // Increase current thread priority
@@ -37,16 +39,16 @@ void setup()
   xTaskCreate(screenTask, "screenTask", 8192, NULL, tskIDLE_PRIORITY + 1, &screenTaskHandle);
 
   // Bluetooth, doesnt work very well with WiFi simultaneously
-  // as we are sending quite frequent updates from our sensor 
+  // as we are sending quite frequent updates from our sensor
   // and switching time of the hardware radio between BLE and WiFi is not very fast.
   // (Same hw is used for both WiFi and Bluetooth)
-  if(config.bluetoothEnable)
+  if (config.bluetoothEnable)
   {
-    xTaskCreate(bluetoothTask, "bluetoothTask", 20000, NULL, tskIDLE_PRIORITY + 1, &bluetoothTaskHandle);  
+    xTaskCreate(bluetoothTask, "bluetoothTask", 20000, NULL, tskIDLE_PRIORITY + 1, &bluetoothTaskHandle);
   }
   else
   {
-    
+
     startWifi();
     xTaskCreate(wifiTask, "wifiTask", 8192, NULL, tskIDLE_PRIORITY + 1, &wifiTaskHandle);
     xTaskCreate(httpServerTask, "httpServerTask", 80000, NULL, tskIDLE_PRIORITY + 1, &httpServerTaskHandle);
@@ -54,7 +56,6 @@ void setup()
     xTaskCreate(websocketServerTask, "websocketServerTask", 8192, NULL, configMAX_PRIORITIES - 1, &websocketServerTaskHandle);
   }
 }
-
 
 void loop()
 {

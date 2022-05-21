@@ -110,18 +110,6 @@ boolean screenForce()
   return true;
 }
 
-boolean screenTabata()
-{
-  bType lastPress = buttonHandler();
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(10, 0);
-  display.println("Tabata");
-  display.display();
-  return true;
-}
-
 boolean screenSettings()
 {
   static int menuItem = 0;
@@ -137,28 +125,42 @@ boolean screenSettings()
   if (menuItem == 1)
   {
     if (lastPress == B1_SHORT)
+    {
       config.buzzerEnable = false;
+      saveConfig(&config);
+    }
     else if (lastPress == B3_SHORT)
+    {
       config.buzzerEnable = true;
-    saveConfig(&config);
+      saveConfig(&config);
+    }
   }
 
   if (menuItem == 2)
   {
     if (lastPress == B1_SHORT)
+    {
       config.wifiAPEnable = false;
+      saveConfig(&config);
+    }
     else if (lastPress == B3_SHORT)
+    {
       config.wifiAPEnable = true;
-    saveConfig(&config);
+      saveConfig(&config);
+    }
   }
 
   if (menuItem == 3)
   {
     if (lastPress == B1_SHORT)
+    {
       config.bluetoothEnable = false;
+    }
     else if (lastPress == B3_SHORT)
+    {
       config.bluetoothEnable = true;
-    saveConfig(&config);
+      saveConfig(&config);
+    }
   }
 
   display.clearDisplay();

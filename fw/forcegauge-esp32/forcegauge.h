@@ -14,6 +14,8 @@
 #include <FS.h>
 #include "hx711_custom.h"
 #include "screen_handler.h"
+#include "tabata.h"
+#include "workout.h"
 
 #define BUTTON1_PIN 10
 #define BUTTON2_PIN 2
@@ -23,7 +25,7 @@
 #define R2 100.0f // 100k
 #define BATTERY_SCALER (((R1 + R2) / R2) / 1023.0f)
 #define BATTERY_VOLTAGE A1
-#define BUZZER_PIN 8
+#define BUZZER_PIN 0
 #define POWER_PIN 5
 #define DOUT 4
 #define CLK 3
