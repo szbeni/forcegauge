@@ -28,11 +28,11 @@ arduino-cli lib install "Adafruit GFX Library" "Adafruit SSD1306" "ArduinoJson" 
 arduino-cli lib install --git-url https://github.com/Links2004/arduinoWebSockets $CONFIG_FILE
 
 # Compile
-arduino-cli compile -v -b esp32:esp32:esp32c3 --output-dir=$ARDUINO_OUTPUT_DIR $CONFIG_FILE $BUILD_PROPERTIES
+arduino-cli compile -b esp32:esp32:esp32c3 --output-dir=$ARDUINO_OUTPUT_DIR $CONFIG_FILE $BUILD_PROPERTIES
 
 PACKAGES_DIR=`arduino-cli core list -v | grep "Loading hardware from" | awk '{print $5}'`
 MKSPIFFS_VER=`ls $PACKAGES_DIR/esp32/tools/mkspiffs/`
 MKSPIFF="$PACKAGES_DIR/esp32/tools/mkspiffs/$MKSPIFFS_VER/mkspiffs"
 echo "Making spiffs files"
-$MKSPIFF -c ./data --start 0x090000 --page 256 --block 4096 -- ./build/forcegauge-esp32.info.spiffs.bin
+$MKSPIFF -c ./data --size 0x090000 --page 256 --block 4096 -- ./build/forcegauge-esp32.info.spiffs.bin
 
