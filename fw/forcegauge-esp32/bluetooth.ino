@@ -24,26 +24,26 @@
 #include <BLEUtils.h>
 #include <BLE2902.h>
 
- BLEServer *pServer = NULL;
- BLECharacteristic * pTxCharacteristic;
- bool deviceConnected = false;
- bool oldDeviceConnected = false;
- uint8_t txValue = 0;
+BLEServer *pServer = NULL;
+BLECharacteristic *pTxCharacteristic;
+bool deviceConnected = false;
+bool oldDeviceConnected = false;
+uint8_t txValue = 0;
 
 // See the following for generating UUIDs:
 // https://www.uuidgenerator.net/
 
-#define SERVICE_UUID           "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" // UART service UUID
+#define SERVICE_UUID "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" // UART service UUID
 #define CHARACTERISTIC_UUID_RX "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
 #define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
-
- void bluetoothBroadcastData() {
-  //No connected clients
+void bluetoothBroadcastData()
+{
+  // No connected clients
   if (!deviceConnected)
     return;
 
-  //Nothing to send
+  // Nothing to send
   if (bluetoothBuffer.isEmpty())
     return;
 
@@ -70,55 +70,57 @@
   String jsonObj;
   dataStruct data;
 
-  while (bluetoothBuffer.lockedPop(data)) {}
+  while (bluetoothBuffer.lockedPop(data))
+  {
+  }
 
   jsonObj = "";
   float valueFloat = (data.v - config.offset) * config.scale;
   jsonObj.concat(valueFloat);
-  pTxCharacteristic->setValue((uint8_t*)jsonObj.c_str(), jsonObj.length());
+  pTxCharacteristic->setValue((uint8_t *)jsonObj.c_str(), jsonObj.length());
   pTxCharacteristic->notify();
   delay(2);
 
-
-  //pTxCharacteristic->setValue((uint8_t*)jsonObj.c_str(), jsonObj.length());
-  //txValue++;
-  //SerialBT.write((const uint8_t*)jsonObj.c_str(), jsonObj.length());
+  // pTxCharacteristic->setValue((uint8_t*)jsonObj.c_str(), jsonObj.length());
+  // txValue++;
+  // SerialBT.write((const uint8_t*)jsonObj.c_str(), jsonObj.length());
 }
 
-
-
-
-
- class MyServerCallbacks: public BLEServerCallbacks {
-    void onConnect(BLEServer* pServer) {
-      deviceConnected = true;
-    };
-
-    void onDisconnect(BLEServer* pServer) {
-      deviceConnected = false;
-    }
-};
-
- class MyCallbacks: public BLECharacteristicCallbacks {
-    void onWrite(BLECharacteristic *pCharacteristic) {
-      std::string rxValue = pCharacteristic->getValue();
-
-      if (rxValue.length() > 0) {
-        Serial.println("*********");
-        Serial.print("Received Value: ");
-        for (int i = 0; i < rxValue.length(); i++)
-          Serial.print(rxValue[i]);
-
-        Serial.println();
-        Serial.println("*********");
-      }
-    }
-};
-
-
- void bluetoothTask( void * parameter )
+class MyServerCallbacks : public BLEServerCallbacks
 {
-  
+  void onConnect(BLEServer *pServer)
+  {
+    deviceConnected = true;
+  };
+
+  void onDisconnect(BLEServer *pServer)
+  {
+    deviceConnected = false;
+  }
+};
+
+class MyCallbacks : public BLECharacteristicCallbacks
+{
+  void onWrite(BLECharacteristic *pCharacteristic)
+  {
+    std::string rxValue = pCharacteristic->getValue();
+
+    if (rxValue.length() > 0)
+    {
+      Serial.println("*********");
+      Serial.print("Received Value: ");
+      for (int i = 0; i < rxValue.length(); i++)
+        Serial.print(rxValue[i]);
+
+      Serial.println();
+      Serial.println("*********");
+    }
+  }
+};
+
+void bluetoothTask(void *parameter)
+{
+
   Serial.print("bluetoothTask: priority = ");
   Serial.println(uxTaskPriorityGet(NULL));
 
@@ -134,16 +136,14 @@
 
   // Create a BLE Characteristic
   pTxCharacteristic = pService->createCharacteristic(
-                        CHARACTERISTIC_UUID_TX,
-                        BLECharacteristic::PROPERTY_NOTIFY
-                      );
+      CHARACTERISTIC_UUID_TX,
+      BLECharacteristic::PROPERTY_NOTIFY);
 
   pTxCharacteristic->addDescriptor(new BLE2902());
 
-  BLECharacteristic * pRxCharacteristic = pService->createCharacteristic(
+  BLECharacteristic *pRxCharacteristic = pService->createCharacteristic(
       CHARACTERISTIC_UUID_RX,
-      BLECharacteristic::PROPERTY_WRITE
-                                          );
+      BLECharacteristic::PROPERTY_WRITE);
 
   pRxCharacteristic->setCallbacks(new MyCallbacks());
 
@@ -155,7 +155,8 @@
   Serial.println("Bluetooth server started");
 
   pService->stop();
-  while (1) {
+  while (1)
+  {
 
     bluetoothBroadcastData();
     //    if (deviceConnected) {
@@ -166,19 +167,21 @@
     //      }
 
     // disconnecting
-    if (!deviceConnected && oldDeviceConnected) {
-      delay(500); // give the bluetooth stack the chance to get things ready
+    if (!deviceConnected && oldDeviceConnected)
+    {
+      delay(500);                  // give the bluetooth stack the chance to get things ready
       pServer->startAdvertising(); // restart advertising
       Serial.println("start advertising");
       oldDeviceConnected = deviceConnected;
     }
     // connecting
-    if (deviceConnected && !oldDeviceConnected) {
+    if (deviceConnected && !oldDeviceConnected)
+    {
       // do stuff here on connecting
       oldDeviceConnected = deviceConnected;
     }
     delay(10);
   }
-  //Should never get here
-  vTaskDelete( NULL );
+  // Should never get here
+  vTaskDelete(NULL);
 }

@@ -1,97 +1,61 @@
-#define TABATA_MAX_NUM 20
-#define TABATA_BUFFER_SIZE 512
-DynamicJsonDocument tabataJSON(TABATA_BUFFER_SIZE);
-char tabatas[TABATA_MAX_NUM][32] = {};
-const char *tabatas_dir = "/tabatas";
-
-int tabataCntr = 0;
+#define TABATA_DIR "/tabatas"
+#define TABATA_JSON_BUFFER_SIZE 512
 
 bool workoutRunning = false;
+DynamicJsonDocument tabataJSON(TABATA_JSON_BUFFER_SIZE);
 Tabata *activeTabata;
 Workout *activeWorkout;
-
-bool loadTabataList()
-{
-    File root = SPIFFS.open(tabatas_dir);
-    File file = root.openNextFile();
-    if (!file)
-        return false;
-
-    Serial.println("Tabatas: ");
-    while (file)
-    {
-        Serial.println(file.name());
-        strncpy(tabatas[tabataCntr], file.name(), 32);
-        tabataCntr++;
-        if (tabataCntr >= TABATA_MAX_NUM)
-            break;
-        file = root.openNextFile();
-    }
-    return true;
-}
-
-bool openTabata(char *filename)
-{
-    String filenameFull = tabatas_dir;
-    filenameFull += "/";
-    filenameFull += filename;
-    bool retval = false;
-    if (SPIFFS.exists(filenameFull.c_str()))
-    {
-        File file = SPIFFS.open(filenameFull.c_str(), "r");
-        DeserializationError error = deserializeJson(tabataJSON, file);
-        if (error)
-        {
-            Serial.print(F("deserializeJson() failed: "));
-            Serial.println(error.f_str());
-        }
-        else
-        {
-            retval = true;
-        }
-        file.close();
-    }
-    return retval;
-}
+TabataHandler tabataHandler(TABATA_DIR);
 
 void startTabata()
 {
-    loadTabataList();
+    tabataHandler.begin();
 }
 
 void playWorkoutSound(Workout::WorkoutSound sound)
 {
     if (sound == Workout::soundCountdownPip)
+    {
         buzz(600, 100);
-    else if (sound == Workout::soundStartSet)
-        buzz(1200, 400);
-    else if (sound == Workout::soundStartRep)
-        buzz(1200, 400);
-    else if (sound == Workout::soundStartRest)
-        buzz(500, 400);
-    else if (sound == Workout::soundStartBreak)
-        buzz(500, 400);
+    }
+
+    else if (sound == Workout::soundStartSet || sound == Workout::soundStartRep)
+    {
+        buzz(1200, 50);
+        buzz(0, 50);
+        buzz(1200, 50);
+        buzz(0, 50);
+        buzz(1200, 50);
+    }
+    else if (sound == Workout::soundStartRest || sound == Workout::soundStartBreak)
+    {
+        buzz(500, 30);
+        buzz(0, 20);
+        buzz(500, 30);
+        buzz(0, 20);
+        buzz(500, 30);
+    }
 }
 
-void startWorkout(char *filename)
+void startWorkout(int tabataID)
 {
-    Serial.print("Start workout: ");
-    Serial.println(filename);
-
     if (workoutRunning == true)
         return;
-    if (openTabata(filename))
+
+    bool opened = tabataHandler.openTabata(tabataID, &tabataJSON);
+    if (!opened)
     {
-        activeTabata = new Tabata(tabataJSON);
-        activeWorkout = new Workout(*activeTabata);
-        activeWorkout->registerOnSounds(playWorkoutSound);
-        activeWorkout->start();
-        workoutRunning = true;
+        Serial.print("Cannot open workout: ");
+        Serial.println(tabataID);
     }
-    else
-    {
-        Serial.print("Failed to open file:");
-    }
+
+    Serial.print("Starting workout: ");
+    Serial.println(tabataHandler.getTabataName(tabataID));
+    activeTabata = new Tabata(tabataJSON);
+    activeWorkout = new Workout(*activeTabata);
+    activeWorkout->registerOnSounds(playWorkoutSound);
+    activeWorkout->start();
+    workoutRunning = true;
 }
 
 void stopWorkout()
@@ -112,13 +76,13 @@ void screenTabataList()
     if (lastPress == B2_SHORT)
     {
         menuItem++;
-        if (menuItem > tabataCntr)
+        if (menuItem > tabataHandler.getTabataCount())
             menuItem = 0;
     }
     if (lastPress == B3_SHORT)
     {
         if (menuItem > 0)
-            startWorkout(tabatas[menuItem - 1]);
+            startWorkout(menuItem - 1);
     }
 
     display.clearDisplay();
@@ -132,10 +96,10 @@ void screenTabataList()
     display.setCursor(15, 0);
     display.println("Tabata");
 
-    for (int i = 0; i < tabataCntr; i++)
+    for (int i = 0; i < tabataHandler.getTabataCount(); i++)
     {
         display.setCursor(5, 16 + i * 10);
-        String s(tabatas[i]);
+        String s(tabataHandler.getTabataName(i));
         s.replace(".json", "");
         display.println(s);
     }

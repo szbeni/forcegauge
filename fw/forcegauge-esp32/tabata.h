@@ -5,7 +5,7 @@
 class Tabata
 {
 public:
-    std::string name;
+    String name;
 
     /// Sets in a workout
     int sets;
@@ -30,7 +30,7 @@ public:
 
     void fromJsonVariant(ArduinoJson::JsonVariant doc)
     {
-        name = (const char *)(doc["name"]);
+        name = (const char*)(doc["name"]);
         sets = doc["sets"];
         reps = doc["reps"];
         exerciseTime = doc["exerciseTime"];
@@ -45,16 +45,16 @@ public:
         fromJsonVariant(doc);
     }
 
-    Tabata(std::string jsonStr)
+    Tabata(String jsonStr)
     {
         DynamicJsonDocument doc(256);
         deserializeJson(doc, jsonStr);
         fromJsonVariant(doc);
     }
 
-    std::string toJson(bool pretty = false)
+    String toJson(bool pretty = false)
     {
-        std::string jsonStr;
+        String jsonStr;
         DynamicJsonDocument doc(256);
 
         doc["name"] = name;
@@ -77,7 +77,7 @@ public:
         return jsonStr;
     }
 
-    Tabata(std::string name,
+    Tabata(const char *name,
            int sets,
            int reps,
            int exerciseTime,
@@ -94,7 +94,7 @@ public:
           startDelay(startDelay),
           warningBeforeBreakEndsTime(warningBeforeBreakEndsTime) {}
 
-    const std::string getName() { return name; }
+    const char *getName() { return name.c_str(); }
 
     int getTotalTime()
     {

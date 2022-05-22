@@ -14,6 +14,7 @@
 #include <FS.h>
 #include "hx711_custom.h"
 #include "screen_handler.h"
+#include "tabataHandler.h"
 #include "tabata.h"
 #include "workout.h"
 
@@ -74,3 +75,9 @@ typedef enum bType
   B3_LONG,
   B3_HOLD
 } bType;
+
+typedef struct
+{
+  int freq;
+  unsigned long duration;
+} buzzStruct;

@@ -1,18 +1,40 @@
 #define CHN 0
+
+bool buzzing = false;
 unsigned long buzzerStopTime = 0;
-bool buzzing = 0;
+RingBuf<buzzStruct, 16> buzzBuffer;
 
 void buzz(unsigned int freq, unsigned long duration)
 {
-  Serial.println("buzz");
   if (config.buzzerEnable)
   {
-    ledcWriteTone(CHN, freq);
-    ledcWrite(CHN, 127);
+    buzzStruct b;
+    b.freq = freq;
+    b.duration = duration;
+    buzzBuffer.lockedPush(b);
   }
+}
 
-  buzzerStopTime = millis() + duration;
-  buzzing = 1;
+void nextBuzz()
+{
+  if (buzzing)
+    return;
+  if (!buzzBuffer.isEmpty())
+  {
+    buzzStruct b;
+    buzzBuffer.lockedPop(b);
+    if (b.freq > 0)
+    {
+      ledcWriteTone(CHN, b.freq);
+      ledcWrite(CHN, 127);
+    }
+    else
+    {
+      ledcWrite(CHN, 0);
+    }
+    buzzerStopTime = millis() + b.duration;
+    buzzing = true;
+  }
 }
 
 void startBuzzer()
@@ -33,4 +55,5 @@ void buzzerLoop()
       ledcWrite(CHN, 0);
     }
   }
+  nextBuzz();
 }

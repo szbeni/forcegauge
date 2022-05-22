@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto;
+            vertical-align: top;
+            margin-bottom: 15px;
+            border: 1px solid #CCCCCC;
+        }
+
+        table thead th {
+            color: #FFFFFF;
+            background-color: #666666;
+            border: 1px solid #CCCCCC;
+            border-collapse: collapse;
+            text-align: center;
+            table-layout: auto;
+            vertical-align: middle;
+        }
+
+        table tbody td {
+            vertical-align: middle;
+            border-collapse: collapse;
+            border-left: 1px solid #CCCCCC;
+            border-right: 1px solid #CCCCCC;
+        }
+
+        table thead th,
+        table tbody td {
+            padding: 5px;
+            border-collapse: collapse;
+        }
+
+        table tbody tr:nth-child(odd) {
+            color: #666666;
+            background-color: #F7F7F7;
+        }
+
+        table tbody tr:nth-child(even) {
+            color: #666666;
+            background-color: #E8E8E8;
+        }
+
+        .table_config {
+            width: 600px;
+        }
+
+        .table_config th:nth-child(1) {
+            width: 200px;
+        }
+
+        .table_config th:nth-child(2) {
+            width: 400px;
+        }
+
+        .table_config input[type="text"] {
+            width: 250px;
+        }
+
+        .table_config input[type="password"] {
+            width: 250px;
+        }
+
+
+
+        ::-webkit-input-placeholder {
+            color: #B0B0B0;
+        }
+
+        ::-moz-placeholder {
+            color: #B0B0B0;
+        }
+
+        :-ms-input-placeholder {
+            color: #B0B0B0;
+        }
+
+        :-moz-placeholder {
+            color: #B0B0B0;
+        }
+
+        .content {
+            max-width: 500px;
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content">
+        <h2>ForceGauge<h2>
+                <h3>Add Tabata</h3>
+                <form id="tabataForm" action="?" method="POST">
+                    <table class="table_config">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                </form>
+    </div>
+</body>
+
+
+<script>
+
+    function revealPass(id) {
+        var x = document.getElementById(id);
+        if (x.type === "password") {
+            x.type = "text";
+        } else {
+            x.type = "password";
+        }
+    }
+    function createElement(name, value, type) {
+        var table = document.getElementById("tableBody");
+        var tr = document.createElement("tr");
+        var td1 = document.createElement("td");
+        var td2 = document.createElement("td");
+
+        if (type != "submit") td1.innerText = name;
+
+        var element = document.createElement("input");
+        element.setAttribute("id", name);
+        if (type != "submit") element.setAttribute("name", name);
+        element.setAttribute("value", value);
+        element.setAttribute("type", type);
+        td2.append(element);
+
+        if (type == "password") {
+            var revelButton = document.createElement("input");
+            revelButton.setAttribute("onclick", "revealPass(\"" + name + "\");");
+            revelButton.setAttribute("type", "checkbox");
+
+            td2.append(revelButton);
+            td2.innerHTML += "Show password";
+
+        }
+
+        tr.append(td1);
+        tr.append(td2);
+        table.append(tr);
+    }
+    function generateForm(configJson) {
+        for (key in configJson) {
+            type = "text";
+            // Hide elements starting with
+            if (key.includes("passwd")) type = "password";
+            if (!key.startsWith("_")) {
+                createElement(key, configJson[key], type);
+            }
+
+        }
+        createElement("submit", "Save Config", "submit");
+    }
+
+    window.onload = function () {
+        sampleTabata = JSON.parse('{"name": "MyNewTabata","sets": 2,"reps": 3,"exerciseTime": 10,"restTime": 20,"breakTime": 60,"startDelay": 10}')
+        generateForm(sampleTabata);
+        // var xmlhttp = new XMLHttpRequest();
+        // var url = "/config.json";
+
+        // xmlhttp.onreadystatechange = function () {
+        //     if (this.readyState == 4 && this.status == 200) {
+        //         //var obj = JSON.parse('{"mdnsName": "forcegauge","APssid": "ForceGauge","APpasswd": "1234567890","ssid1": "ABWifi","passwd1": "Secret_12345","ssid2": "","passwd2": "","ssid3": "","passwd3": "","offset": 0,"scale": 0.000231,"time": 0}');
+        //         var obj = JSON.parse(this.responseText);
+        //         generateForm(obj);
+        //     }
+        // };
+        // xmlhttp.open("GET", url, true);
+        // xmlhttp.send();
+    }
+</script>
+
+</html>

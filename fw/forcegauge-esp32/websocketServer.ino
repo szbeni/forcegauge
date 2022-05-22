@@ -115,6 +115,17 @@ void handleWSMessage(String &data)
     Serial.print(config.time);
     Serial.println("");
   }
+  else if (data.startsWith("add_tabata:"))
+  {
+    String val = getValue(data, ':', 1);
+    Tabata t(val);
+    tabataHandler.createTabata(t);
+  }
+  else if (data.startsWith("del_tabata:"))
+  {
+    String val = getValue(data, ':', 1);
+    tabataHandler.removeTabata(val.c_str());
+  }
 }
 
 void websocketServerTask(void *parameter)
