@@ -89,6 +89,9 @@ void webSocketBroadcastData()
 
 void handleWSMessage(String &data)
 {
+  // Serial.print("New WS message: ");
+  // Serial.println(data);
+
   if (data.startsWith("offset:"))
   {
     String val = getValue(data, ':', 1);
@@ -117,14 +120,13 @@ void handleWSMessage(String &data)
   }
   else if (data.startsWith("add_tabata:"))
   {
-    String val = getValue(data, ':', 1);
-    Tabata t(val);
-    tabataHandler.createTabata(t);
+    data.replace("add_tabata:", "");
+    tabataHandler.addTabata(data);
   }
   else if (data.startsWith("del_tabata:"))
   {
     String val = getValue(data, ':', 1);
-    tabataHandler.removeTabata(val.c_str());
+    tabataHandler.removeTabata(val.toInt());
   }
 }
 

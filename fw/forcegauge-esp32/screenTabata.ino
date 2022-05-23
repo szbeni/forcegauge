@@ -1,11 +1,8 @@
-#define TABATA_DIR "/tabatas"
-#define TABATA_JSON_BUFFER_SIZE 512
+
 
 bool workoutRunning = false;
-DynamicJsonDocument tabataJSON(TABATA_JSON_BUFFER_SIZE);
 Tabata *activeTabata;
 Workout *activeWorkout;
-TabataHandler tabataHandler(TABATA_DIR);
 
 void startTabata()
 {
@@ -42,19 +39,21 @@ void startWorkout(int tabataID)
     if (workoutRunning == true)
         return;
 
-    bool opened = tabataHandler.openTabata(tabataID, &tabataJSON);
-    if (!opened)
+    JsonObject tabataObj = tabataHandler.getTabata(tabataID);
+    if (!tabataObj)
     {
-        Serial.print("Cannot open workout: ");
+        Serial.print("Cannot open tabata witd id: ");
         Serial.println(tabataID);
     }
 
-    Serial.print("Starting workout: ");
-    Serial.println(tabataHandler.getTabataName(tabataID));
-    activeTabata = new Tabata(tabataJSON);
+    activeTabata = new Tabata(tabataObj);
     activeWorkout = new Workout(*activeTabata);
     activeWorkout->registerOnSounds(playWorkoutSound);
     activeWorkout->start();
+
+    Serial.print("Starting workout: ");
+    Serial.println(activeTabata->getName());
+
     workoutRunning = true;
 }
 
@@ -149,23 +148,29 @@ void screenWorkout()
     }
 
     display.clearDisplay();
-    display.setTextSize(1);
     display.setTextColor(SSD1306_WHITE);
-    display.setCursor(20, 0);
-    display.println("Workout");
-    display.setCursor(15, 16);
+    display.setTextSize(2);
+    display.setCursor(10, 1);
+    display.println(config.lastValue);
+
+    display.setTextSize(1);
+    display.setCursor(20, 17);
     display.println(activeWorkout->stepName(activeWorkout->_step));
 
-    display.setCursor(5, 26);
+    display.setTextSize(2);
+    display.setCursor(5, 27);
     display.println(activeWorkout->_timeLeft);
 
-    display.setCursor(5, 46);
+    display.setTextSize(1);
+    display.setCursor(5, 47);
     display.print("set: ");
-    display.println(activeWorkout->_set);
-
-    display.setCursor(5, 56);
-    display.print("rep: ");
+    display.print(activeWorkout->_set);
+    display.print(" rep: ");
     display.println(activeWorkout->_rep);
+
+    display.setCursor(5, 57);
+    display.print("time left: ");
+    display.println(activeWorkout->getTimeRemaining());
     display.display();
 }
 

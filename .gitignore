@@ -8,3 +8,4 @@ fw_esp_sdk
 hw/forcegauge/forcegauge*
 *.mp4
 *.FCStd1
+*.out

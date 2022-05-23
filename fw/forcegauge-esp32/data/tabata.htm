@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <script src="forcegauge.js"></script>
     <style>
         table {
             width: 100%;
@@ -46,6 +47,8 @@
         }
 
         .table_config {
+            margin: 0 auto;
+            text-align: center;
             width: 600px;
         }
 
@@ -58,11 +61,11 @@
         }
 
         .table_config input[type="text"] {
-            width: 250px;
+            width: 100px;
         }
 
-        .table_config input[type="password"] {
-            width: 250px;
+        .table_config input[type="number"] {
+            width: 50px;
         }
 
 
@@ -84,7 +87,8 @@
         }
 
         .content {
-            max-width: 500px;
+            /* max-width: 1000px; */
+            text-align: center;
             margin: auto;
         }
     </style>
@@ -96,11 +100,7 @@
                 <h3>Add Tabata</h3>
                 <form id="tabataForm" action="?" method="POST">
                     <table class="table_config">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Value</th>
-                            </tr>
+                        <thead id="tableHeader">
                         </thead>
                         <tbody id="tableBody">
                         </tbody>
@@ -110,72 +110,151 @@
 
 
 <script>
-
-    function revealPass(id) {
-        var x = document.getElementById(id);
-        if (x.type === "password") {
-            x.type = "text";
-        } else {
-            x.type = "password";
+    device = new forceGauge("Test", "ws://10.1.1.133:81");
+    function addTabata(event) {
+        var newTabataDOM = document.getElementById("newTabata");
+        var inputs = document.querySelectorAll('#newTabata > td > input')
+        var t = {}
+        for (var i = 0; i < inputs.length; i++) {
+            if (inputs[i].id) {
+                var key = inputs[i].id;
+                t[key] = inputs[i].value;
+                console.log(key)
+            }
         }
+        var str = JSON.stringify(t)
+        device.addTabata(str);
+        console.log(str)
+        setTimeout(refreshTabatas, 500);
     }
-    function createElement(name, value, type) {
-        var table = document.getElementById("tableBody");
+
+    function deleteTabata(event) {
+        var source = event.target || event.srcElement;
+        var id = source["id"];
+        console.log(source);
+        console.log("Delete tabata: ", id)
+        device.removeTabata(id)
+        setTimeout(refreshTabatas, 500);
+    }
+
+
+    function generateHeadersDOM(tabataJson) {
+        var table = document.getElementById("tableHeader");
         var tr = document.createElement("tr");
-        var td1 = document.createElement("td");
-        var td2 = document.createElement("td");
-
-        if (type != "submit") td1.innerText = name;
-
-        var element = document.createElement("input");
-        element.setAttribute("id", name);
-        if (type != "submit") element.setAttribute("name", name);
-        element.setAttribute("value", value);
-        element.setAttribute("type", type);
-        td2.append(element);
-
-        if (type == "password") {
-            var revelButton = document.createElement("input");
-            revelButton.setAttribute("onclick", "revealPass(\"" + name + "\");");
-            revelButton.setAttribute("type", "checkbox");
-
-            td2.append(revelButton);
-            td2.innerHTML += "Show password";
-
+        for (key in tabataJson) {
+            var th = document.createElement("th");
+            th.innerText = key;
+            tr.appendChild(th);
         }
+        var th = document.createElement("th");
+        th.innerText = "Action";
+        tr.appendChild(th);
 
-        tr.append(td1);
-        tr.append(td2);
         table.append(tr);
     }
-    function generateForm(configJson) {
-        for (key in configJson) {
-            type = "text";
-            // Hide elements starting with
-            if (key.includes("passwd")) type = "password";
-            if (!key.startsWith("_")) {
-                createElement(key, configJson[key], type);
-            }
 
+    function addTabataDOM(tabataJson, id) {
+        var table = document.getElementById("tableBody");
+        var tr = document.createElement("tr");
+        for (key in tabataJson) {
+            var t = tabataJson[key];
+            var td = document.createElement("td");
+            td.innerText = t;
+            tr.appendChild(td);
         }
-        createElement("submit", "Save Config", "submit");
+        tr.appendChild(td);
+        var td = document.createElement("td");
+        var input = document.createElement("input")
+        input.type = "button"
+        input.value = "Delete"
+        input.id = id;
+        input.addEventListener("click", deleteTabata)
+
+        td.append(input)
+
+        tr.appendChild(td);
+
+        table.append(tr);
+        //createElement("submit", "Save Config", "submit");
+    }
+
+    function addNewTabataRowDOM(tabataJson) {
+        var table = document.getElementById("tableBody");
+        var tr = document.createElement("tr");
+        tr.id = "newTabata"
+
+        for (key in tabataJson) {
+            var t = tabataJson[key];
+            var td = document.createElement("td");
+
+            var input = document.createElement("input")
+
+            if (key == "name") {
+                input.type = "text";
+                input.maxLength = "32"
+            }
+            else {
+                input.type = "number"
+                input.min = "0"
+
+            }
+            input.value = t
+            input.id = key;
+            // td.innerText = t;
+            td.appendChild(input);
+            tr.appendChild(td);
+        }
+        var td = document.createElement("td");
+        var input = document.createElement("input")
+
+        input.type = "button"
+        input.value = "Add"
+        input.addEventListener("click", addTabata)
+        td.append(input)
+        tr.appendChild(td);
+
+        table.append(tr);
+        //createElement("submit", "Save Config", "submit");
+    }
+
+
+    function refreshTabatas() {
+
+        var xmlhttp = new XMLHttpRequest();
+        var url = "/tabatas.json";
+
+        xmlhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var table = document.getElementById("tableBody");
+                table.innerHTML = ""
+                addNewTabataRowDOM(sampleTabata);
+
+                var tabataList = JSON.parse(this.responseText);
+                for (id in tabataList) {
+                    console.log(tabataList[id])
+                    addTabataDOM(tabataList[id], id)
+                }
+            }
+            device.connect()
+
+        };
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send();
     }
 
     window.onload = function () {
-        sampleTabata = JSON.parse('{"name": "MyNewTabata","sets": 2,"reps": 3,"exerciseTime": 10,"restTime": 20,"breakTime": 60,"startDelay": 10}')
-        generateForm(sampleTabata);
-        // var xmlhttp = new XMLHttpRequest();
-        // var url = "/config.json";
+        sampleTabata = JSON.parse('{"name": "MyTabata","sets": 3,"reps": 6,"exerciseTime": 7,"restTime": 3,"breakTime": 60,"startDelay": 10, "warningBeforeBreakEndsTime": 10}');
+        generateHeadersDOM(sampleTabata);
+        addNewTabataRowDOM(sampleTabata);
+        refreshTabatas();
 
-        // xmlhttp.onreadystatechange = function () {
-        //     if (this.readyState == 4 && this.status == 200) {
-        //         //var obj = JSON.parse('{"mdnsName": "forcegauge","APssid": "ForceGauge","APpasswd": "1234567890","ssid1": "ABWifi","passwd1": "Secret_12345","ssid2": "","passwd2": "","ssid3": "","passwd3": "","offset": 0,"scale": 0.000231,"time": 0}');
-        //         var obj = JSON.parse(this.responseText);
-        //         generateForm(obj);
-        //     }
-        // };
-        // xmlhttp.open("GET", url, true);
-        // xmlhttp.send();
+        // generateNewTabata(sampleTabata);
+        // sampleTabtas = "[{\"name\":\"MonoPulls\",\"sets\":2,\"reps\":3,\"exerciseTime\":10,\"restTime\":20,\"breakTime\":60,\"startDelay\":10,\"warningBeforeBreakEndsTime\":10},{\"name\":\"TestTabata\",\"sets\":2,\"reps\":3,\"exerciseTime\":10,\"restTime\":20,\"breakTime\":60,\"startDelay\":20,\"warningBeforeBreakEndsTime\":10}]"
+        // var tabataList = JSON.parse(sampleTabtas);
+        // for (id in tabataList) {
+        //     addTabataDOM(tabataList[id], id)
+        // }
+
     }
 </script>
 

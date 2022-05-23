@@ -79,8 +79,14 @@ void handleFileUpload()
     {
       fsUploadFile.close();
     }
+
     DBG_OUTPUT_PORT.print("handleFileUpload Size: ");
     DBG_OUTPUT_PORT.println(upload.totalSize);
+    DBG_OUTPUT_PORT.println(upload.filename);
+    if (String(upload.filename) == TABATA_FILE)
+    {
+      tabataHandler.refreshList();
+    }
   }
 }
 

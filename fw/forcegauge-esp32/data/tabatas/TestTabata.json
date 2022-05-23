@@ -1,9 +1,0 @@
-{
-    "name": "Test Tabata",
-    "sets": 2,
-    "reps": 3,
-    "exerciseTime": 10,
-    "restTime": 20,
-    "breakTime": 60,
-    "startDelay": 20
-}

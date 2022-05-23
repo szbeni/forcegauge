@@ -1,28 +1,17 @@
 #pragma once
 #include "tabata.h"
+#include <ArduinoJson.h>
 
 class TabataHandler
 {
-
 private:
+    DynamicJsonDocument &_tabataJSON;
+    const char *_tabataFile;
     static const int maxTabataCount = 30;
-    const char *_tabataDir;
-    int _tabataCntr = 0;
-    char tabataNames[maxTabataCount][32];
-
-    String getTabataPath(String name)
-    {
-        String fullPath = _tabataDir;
-        fullPath += "/";
-        fullPath += name;
-        fullPath += ".json";
-        return fullPath;
-    }
 
 public:
-    TabataHandler(const char *tabataDir) : _tabataDir(tabataDir)
+    TabataHandler(DynamicJsonDocument &tabataJSON, const char *tabataFile) : _tabataJSON(tabataJSON), _tabataFile(tabataFile)
     {
-        _tabataCntr = 0;
     }
 
     void begin()
@@ -32,114 +21,124 @@ public:
 
     int getTabataCount()
     {
-        return _tabataCntr;
+        return _tabataJSON.size();
     }
 
     int refreshList()
     {
-        _tabataCntr = 0;
-        File root = SPIFFS.open(_tabataDir);
-        File file = root.openNextFile();
-        if (!file)
-            return _tabataCntr;
-
-        while (file)
+        if (SPIFFS.exists(_tabataFile))
         {
-            Serial.println(file.name());
-            strncpy(tabataNames[_tabataCntr], file.name(), 31);
-            _tabataCntr++;
-            if (_tabataCntr >= maxTabataCount)
-                break;
-            file = root.openNextFile();
-        }
-        return _tabataCntr;
-    }
-
-    bool openTabata(int id, DynamicJsonDocument *tabataJSON)
-    {
-        if (id >= _tabataCntr)
-            return false;
-
-        String filename = _tabataDir;
-        filename += "/";
-        filename += tabataNames[id];
-
-        bool retval = false;
-        if (SPIFFS.exists(filename.c_str()))
-        {
-            File file = SPIFFS.open(filename.c_str(), "r");
-            DeserializationError error = deserializeJson(*tabataJSON, file);
+            File file = SPIFFS.open(_tabataFile, "r");
+            DeserializationError error = deserializeJson(_tabataJSON, file);
             if (error)
             {
-                Serial.print("Failed to parse tabata: ");
-                Serial.println(filename);
+                Serial.print("Failed to parse tabatas: ");
+                Serial.println(_tabataFile);
             }
             else
             {
-                retval = true;
+                for (int i = 0; i < getTabataCount(); i++)
+                {
+                    String name = _tabataJSON[i]["name"];
+                    name = Tabata::stripName(name);
+                    _tabataJSON[i]["name"] = name;
+                    Serial.println(name);
+                }
             }
             file.close();
         }
-        return retval;
+        else
+        {
+            Serial.print("Tabata File doesn't exist, creating and empty one.");
+            Serial.println(_tabataFile);
+
+            File file = SPIFFS.open(_tabataFile, "w");
+            file.print("[]");
+            file.close();
+        }
+
+        return _tabataJSON.size();
     }
 
-    bool createTabata(Tabata &t, const char *name = nullptr)
+    void save()
     {
-        bool retval = false;
-
-        String strippedName = "";
-        if (name != nullptr)
+        File jsonFile = SPIFFS.open(_tabataFile, "w");
+        if (serializeJsonPretty(_tabataJSON, jsonFile) == 0)
         {
-            strippedName = name;
-        }
-        else
-        {
-            strippedName = (char *)t.getName();
-        }
-        strippedName.replace(" ", "_");
-        strippedName.replace("/[^A-Za-z0-9]/g", "");
-
-        String filename = getTabataPath(strippedName);
-
-        File jsonFile = SPIFFS.open(filename.c_str(), "w");
-        if (jsonFile.print(t.toJson()))
-        {
-            Serial.print("Tabata written");
-            Serial.println(filename);
-            retval = true;
-        }
-        else
-        {
-            Serial.print("Failed to write tabata: ");
-            Serial.println(filename);
+            Serial.println("Failed to write tabata file: ");
+            Serial.println(_tabataFile);
         }
         jsonFile.close();
-        return retval;
     }
 
-    const char *getTabataName(int id)
+    JsonObject getTabata(int id)
     {
-        if (id >= _tabataCntr)
-            return nullptr;
-        return tabataNames[id];
+        return _tabataJSON[id];
     }
-    bool removeTabata(const char *name)
+
+    bool addTabata(Tabata &t)
     {
-        int id = findTabataID(name);
-        if (id >= 0)
+        if (findTabataID(t.getName()) == -1)
         {
-            String filename = getTabataPath(name);
-            if (SPIFFS.exists(filename.c_str()))
-            {
-                SPIFFS.remove(filename.c_str());
-                return true;
-            }
+            JsonObject obj = _tabataJSON.createNestedObject();
+            t.toJsonObject(obj);
+            save();
+            return true;
+        }
+        else
+        {
+            Serial.print("Tabata already exists: ");
+            Serial.println(t.getName());
         }
         return false;
     }
 
+    bool addTabata(String jsonStr)
+    {
+        Serial.println(jsonStr);
+        Tabata t(jsonStr);
+        if (t.isEmpty())
+        {
+            Serial.print("Cannot add tabta: ");
+            Serial.println(jsonStr);
+            return false;
+        }
+        else
+        {
+            return addTabata(t);
+        }
+    }
+
+    const char *getTabataName(int id)
+    {
+        if (id >= getTabataCount())
+            return nullptr;
+
+        return (const char *)(_tabataJSON[id]["name"]);
+    }
+
+    void removeTabata(int id)
+    {
+        if (id < getTabataCount())
+        {
+            _tabataJSON.remove(id);
+            save();
+        }
+    }
+
+    void removeTabata(const char *name)
+    {
+        int id = findTabataID(name);
+        if (id >= 0)
+        {
+            _tabataJSON.remove(id);
+            save();
+        }
+    }
+
     int findTabataID(const char *name)
     {
+
         for (int i = 0; i < getTabataCount(); i++)
         {
             String currName = getTabataName(i);

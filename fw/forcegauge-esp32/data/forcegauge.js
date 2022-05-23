@@ -40,6 +40,18 @@ class forceGauge {
         this.sendMessage("time:" + v);
     }
 
+    removeTabata(id) {
+        this.sendMessage("del_tabata:" + id);
+    }
+
+    addTabata(tabata) {
+        this.sendMessage("add_tabata:" + tabata);
+    }
+
+    getTabatas(id) {
+        this.sendMessage("get_tabata:" + id);
+    }
+
     sendMessage(msg) {
         if (this.connected) {
             this.ws.send(msg);

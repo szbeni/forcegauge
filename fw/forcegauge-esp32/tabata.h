@@ -4,7 +4,13 @@
 
 class Tabata
 {
+private:
+    // If tabata is Empty
+    bool _isEmpty = true;
+
 public:
+    static const int maxNameLen = 32;
+
     String name;
 
     /// Sets in a workout
@@ -28,9 +34,14 @@ public:
     /// Warning time before end of break
     int warningBeforeBreakEndsTime;
 
+    static String stripName(String name)
+    {
+        return name.substring(0, maxNameLen);
+    }
+
     void fromJsonVariant(ArduinoJson::JsonVariant doc)
     {
-        name = (const char*)(doc["name"]);
+        name = (const char *)(doc["name"]);
         sets = doc["sets"];
         reps = doc["reps"];
         exerciseTime = doc["exerciseTime"];
@@ -38,11 +49,16 @@ public:
         breakTime = doc["breakTime"];
         startDelay = doc["startDelay"];
         warningBeforeBreakEndsTime = doc["warningBeforeBreakEndsTime"];
+        name = stripName(name);
+        _isEmpty = false;
     }
 
     Tabata(ArduinoJson::JsonVariant doc)
     {
         fromJsonVariant(doc);
+        name = stripName(name);
+
+        _isEmpty = false;
     }
 
     Tabata(String jsonStr)
@@ -50,6 +66,7 @@ public:
         DynamicJsonDocument doc(256);
         deserializeJson(doc, jsonStr);
         fromJsonVariant(doc);
+        _isEmpty = false;
     }
 
     String toJson(bool pretty = false)
@@ -77,6 +94,18 @@ public:
         return jsonStr;
     }
 
+    void toJsonObject(JsonObject obj)
+    {
+        obj["name"] = name;
+        obj["sets"] = sets;
+        obj["reps"] = reps;
+        obj["exerciseTime"] = exerciseTime;
+        obj["restTime"] = restTime;
+        obj["breakTime"] = breakTime;
+        obj["startDelay"] = startDelay;
+        obj["warningBeforeBreakEndsTime"] = warningBeforeBreakEndsTime;
+    }
+
     Tabata(const char *name,
            int sets,
            int reps,
@@ -92,7 +121,20 @@ public:
           restTime(restTime),
           breakTime(breakTime),
           startDelay(startDelay),
-          warningBeforeBreakEndsTime(warningBeforeBreakEndsTime) {}
+          warningBeforeBreakEndsTime(warningBeforeBreakEndsTime)
+    {
+        this->name = stripName(this->name);
+        _isEmpty = false;
+    }
+
+    Tabata()
+    {
+    }
+
+    bool isEmpty()
+    {
+        return _isEmpty;
+    }
 
     const char *getName() { return name.c_str(); }
 

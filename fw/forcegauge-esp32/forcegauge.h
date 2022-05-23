@@ -34,6 +34,11 @@
 #define CONFIG_BUFFER_SIZE 2048
 #define SSID_CONFIG_NUM 3
 
+#define TABATA_FILE "/tabatas.json"
+#define TABATA_JSON_BUFFER_SIZE 8192
+DynamicJsonDocument tabataJSON(TABATA_JSON_BUFFER_SIZE);
+TabataHandler tabataHandler(tabataJSON, TABATA_FILE);
+
 typedef struct
 {
   const char *name;
