@@ -1,6 +1,9 @@
 
 
+bool selectTargetForceScreen = false;
 bool workoutRunning = false;
+float setTargetForce = 0;
+int selectedTabata = -1;
 Tabata *activeTabata;
 Workout *activeWorkout;
 
@@ -11,30 +14,41 @@ void startTabata()
 
 void playWorkoutSound(Workout::WorkoutSound sound)
 {
+    Serial.print("Play sound: ");
+    Serial.println(sound);
+
     if (sound == Workout::soundCountdownPip)
     {
-        buzz(600, 100);
+        buzz(523, 100);
     }
 
     else if (sound == Workout::soundStartSet || sound == Workout::soundStartRep)
     {
-        buzz(1200, 50);
-        buzz(0, 50);
-        buzz(1200, 50);
-        buzz(0, 50);
-        buzz(1200, 50);
+        buzz(523, 10);
+        buzz(0, 10);
+        buzz(659, 10);
+        buzz(0, 10);
+        buzz(784, 10);
     }
     else if (sound == Workout::soundStartRest || sound == Workout::soundStartBreak)
     {
-        buzz(500, 30);
-        buzz(0, 20);
-        buzz(500, 30);
-        buzz(0, 20);
-        buzz(500, 30);
+        buzz(784, 10);
+        buzz(0, 10);
+        buzz(659, 10);
+        buzz(0, 10);
+        buzz(523, 10);
+    }
+    else if (sound == Workout::soundTargetReached)
+    {
+        buzz(1046, 10);
+        buzz(0, 10);
+        buzz(1174, 10);
+        buzz(0, 10);
+        buzz(1318, 10);
     }
 }
 
-void startWorkout(int tabataID)
+void startWorkout(int tabataID, float targetForce = 0)
 {
     if (workoutRunning == true)
         return;
@@ -47,7 +61,7 @@ void startWorkout(int tabataID)
     }
 
     activeTabata = new Tabata(tabataObj);
-    activeWorkout = new Workout(*activeTabata);
+    activeWorkout = new Workout(*activeTabata, targetForce);
     activeWorkout->registerOnSounds(playWorkoutSound);
     activeWorkout->start();
 
@@ -69,25 +83,30 @@ void stopWorkout()
 
 void screenTabataList()
 {
-    static int menuItem = 0;
-    bType lastPress = buttonHandler(menuItem == 0);
+    int itemPerScreen = 5;
+    static int menuItem = -1;
+    bType lastPress = buttonHandler(menuItem == -1);
 
     if (lastPress == B2_SHORT)
     {
         menuItem++;
-        if (menuItem > tabataHandler.getTabataCount())
-            menuItem = 0;
+        if (menuItem >= tabataHandler.getTabataCount())
+            menuItem = -1;
     }
     if (lastPress == B3_SHORT)
     {
-        if (menuItem > 0)
-            startWorkout(menuItem - 1);
+        if (menuItem >= 0)
+        {
+            // Change to set target force screen
+            selectedTabata = menuItem;
+            selectTargetForceScreen = true;
+        }
     }
 
     display.clearDisplay();
-    if (menuItem > 0)
+    if (menuItem >= 0)
     {
-        display.setCursor(0, 6 + menuItem * 10);
+        display.setCursor(0, 16 + (menuItem % itemPerScreen) * 10);
         display.print(">");
     }
     display.setTextSize(1);
@@ -95,11 +114,15 @@ void screenTabataList()
     display.setCursor(15, 0);
     display.println("Tabata");
 
-    for (int i = 0; i < tabataHandler.getTabataCount(); i++)
+    int firstItemOnScreen = (menuItem / itemPerScreen) * itemPerScreen;
+    for (int i = firstItemOnScreen; i < tabataHandler.getTabataCount(); i++)
     {
-        display.setCursor(5, 16 + i * 10);
+        // Only display itemPerScreen number of items
+        if (i >= firstItemOnScreen + itemPerScreen)
+            break;
+
+        display.setCursor(5, 16 + (i % itemPerScreen) * 10);
         String s(tabataHandler.getTabataName(i));
-        s.replace(".json", "");
         display.println(s);
     }
     display.display();
@@ -108,6 +131,24 @@ void screenTabataList()
 void screenWorkout()
 {
     // Run workout
+    activeWorkout->newForceValue(config.lastValue);
+
+    static unsigned long lastTargetForceWarning = millis();
+
+    if ((millis() - lastTargetForceWarning) > 20)
+    {
+        if (setTargetForce > 0)
+        {
+            if (activeWorkout->_step == Workout::stateExercising)
+            {
+                if (fabsf(config.lastValue) < setTargetForce)
+                {
+                    buzz(440.00, 10);
+                }
+            }
+        }
+    }
+
     static unsigned long lastTickTime = millis();
     if ((millis() - lastTickTime) > 1000)
     {
@@ -174,10 +215,50 @@ void screenWorkout()
     display.display();
 }
 
+void screenTargetForce()
+{
+
+    static int menuItem = 0;
+    bType lastPress = buttonHandler(false);
+
+    if (lastPress == B1_SHORT)
+    {
+        setTargetForce -= 0.5;
+    }
+    else if (lastPress == B2_SHORT)
+    {
+        startWorkout(selectedTabata, setTargetForce);
+        selectTargetForceScreen = false;
+    }
+    else if (lastPress == B3_SHORT)
+    {
+        setTargetForce += 0.5;
+    }
+    if (setTargetForce < 0)
+        setTargetForce = 0;
+    else if (setTargetForce > 500)
+        setTargetForce = 500;
+
+    display.clearDisplay();
+    display.setTextColor(SSD1306_WHITE);
+    display.setTextSize(1);
+    display.setCursor(20, 10);
+    display.print("Set target force");
+    display.setTextSize(2);
+    display.setCursor(20, 26);
+    display.println(setTargetForce);
+    display.display();
+}
+
 boolean screenTabata()
 {
     if (workoutRunning == false)
-        screenTabataList();
+    {
+        if (selectTargetForceScreen == false)
+            screenTabataList();
+        else
+            screenTargetForce();
+    }
     else
         screenWorkout();
 

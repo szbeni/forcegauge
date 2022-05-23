@@ -53,13 +53,12 @@ public:
     float _targetForce = 0;
     float _lastForceValue = 0;
     int _timeLeft = 0;
-    bool _recordReportStarted = false;
+    bool _targetForceReached = false;
     void (*_onSound)(WorkoutSound) = nullptr;
     bool timerRunning = false;
 
     void _playSound(WorkoutSound sound)
     {
-
         if (_onSound != nullptr)
         {
             _onSound(sound);
@@ -104,21 +103,22 @@ public:
     // }
 
     // New force value has arrived
-    void newForceValue(double force)
+    void newForceValue(float force)
     {
         _lastForceValue = force;
         bool playSoundFlag = false;
-        if (force > _targetForce && _recordReportStarted == false)
+        if (force > _targetForce && _targetForceReached == false)
         {
-            _recordReportStarted = true;
+            _targetForceReached = true;
             playSoundFlag = true;
         }
+
         // record only in workout
-        if (_step == stateExercising && _recordReportStarted)
+        if (_step == stateExercising && _targetForceReached)
         {
             //   _workoutReport.addValue(_set, _rep, force);
-            //   if (playSound)
-            //     _playSound(_sounds.targetReached);
+            if (playSoundFlag)
+                _playSound(soundTargetReached);
         }
     }
 
@@ -205,7 +205,7 @@ public:
         bool targetForceReached = true;
         if (_step == stateExercising)
         {
-            if (_recordReportStarted == false)
+            if (_targetForceReached == false)
             {
                 targetForceReached = false;
             }
@@ -227,8 +227,8 @@ public:
                 }
                 else if (_targetForce != 0.0f && _step == stateExercising)
                 {
-                    if (_targetForce > 0.001)
-                        _playSound(soundCountdownPip);
+                    // if (_targetForce > 0.001)
+                    //     _playSound(soundCountdownPip);
                 }
                 if (_timeLeft == _config.warningBeforeBreakEndsTime &&
                     _config.warningBeforeBreakEndsTime > 0 && _step != stateExercising)
@@ -294,9 +294,9 @@ public:
 
         // print("Rep: $rep, Set: $set");
         if (_targetForce < 0.001)
-            _recordReportStarted = true;
+            _targetForceReached = true;
         else
-            _recordReportStarted = false;
+            _targetForceReached = false;
 
         if (_step == stateExercising)
         {
@@ -437,24 +437,4 @@ public:
         }
         return time;
     }
-}
-
-//   get config = > _config;
-
-//   get set = > _set;
-
-//   get rep = > _rep;
-
-//   get step = > _step;
-
-//   get targetForce = > targetForce;
-
-//   get timeLeft = > _timeLeft;
-
-//   get workoutReport = > _workoutReport;
-
-//   get totalTime = > _totalTime;
-
-//   get isActive = > _timer != null&& _timer.isActive;
-
-;
+};
