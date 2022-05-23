@@ -38,6 +38,18 @@ void playWorkoutSound(Workout::WorkoutSound sound)
         buzz(0, 10);
         buzz(523, 10);
     }
+    else if (sound == Workout::soundEndWorkout)
+    {
+        buzz(1046, 20);
+        buzz(0, 10);
+        buzz(1318, 20);
+        buzz(0, 10);
+        buzz(1567, 20);
+        buzz(0, 10);
+        buzz(2093, 400);
+        buzz(1567, 10);
+        buzz(2093, 600);
+    }
     else if (sound == Workout::soundTargetReached)
     {
         buzz(1046, 10);
