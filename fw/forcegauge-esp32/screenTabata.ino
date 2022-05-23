@@ -46,7 +46,7 @@ void playWorkoutSound(Workout::WorkoutSound sound)
         buzz(0, 10);
         buzz(1567, 20);
         buzz(0, 10);
-        buzz(2093, 400);
+        buzz(2093, 300);
         buzz(1567, 10);
         buzz(2093, 600);
     }
