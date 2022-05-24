@@ -52,4 +52,8 @@ class TabatamanagerCubit extends Cubit<TabatamanagerState> {
       emit(TabatamanagerUpdated(state.tabatas));
     }
   }
+
+  List<Tabata> getTabtas() {
+    return state.tabatas;
+  }
 }

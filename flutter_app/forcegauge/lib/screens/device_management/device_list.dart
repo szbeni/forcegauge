@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forcegauge/bloc/cubit/device_cubit.dart';
 import 'package:forcegauge/bloc/cubit/devicemanager_cubit.dart';
 import 'package:forcegauge/bloc/cubit/settings_cubit.dart';
+import 'package:forcegauge/bloc/cubit/tabatamanager_cubit.dart';
 import 'package:forcegauge/models/devices/device.dart';
 
 class DeviceList extends StatelessWidget {
@@ -32,6 +33,29 @@ class DeviceList extends StatelessWidget {
 }
 
 class DeviceListTile extends StatelessWidget {
+  void _sendTabatasDialog(BuildContext context, DeviceState state) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return new AlertDialog(title: new Text('Send tabatas to device: "${state.device.name}".'), actions: <Widget>[
+            new FlatButton(
+                child: new Text('Cancel'),
+                // The alert is actually part of the navigation stack, so to close it, we
+                // need to pop it.
+                onPressed: () => Navigator.of(context).pop()),
+            new FlatButton(
+                child: new Text('Send tabatas'),
+                onPressed: () {
+                  // BlocProvider.of<DevicemanagerCubit>(context).removeDevice(state.device.name);
+                  var tabatas = BlocProvider.of<TabatamanagerCubit>(context).getTabtas();
+                  state.device.sendTabatas(tabatas);
+                  //BlocProvider.of<DevicemanagerCubit>(context).sendTabatasToDevice(state.device.name);
+                  Navigator.of(context).pop();
+                })
+          ]);
+        });
+  }
+
   void _removedDeviceDialog(BuildContext context, DeviceState state) {
     showDialog(
         context: context,
@@ -71,6 +95,9 @@ class DeviceListTile extends StatelessWidget {
           ),
           subtitle: new Text("Address: " + state.device.getUrl().toString()),
           onTap: () => _removedDeviceDialog(context, state),
+          onLongPress: () {
+            _sendTabatasDialog(context, state);
+          },
         );
       },
     );

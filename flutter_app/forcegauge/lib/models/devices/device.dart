@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:forcegauge/models/socket_manager.dart';
+import 'package:forcegauge/models/tabata/tabata.dart';
 
 import 'device_data.dart';
 
@@ -77,6 +78,13 @@ class Device extends Equatable {
 
   resetOffset() {
     _socket.send("offset:$lastRawValue");
+  }
+
+  sendTabatas(List<Tabata> tabatas) {
+    for (var t in tabatas) {
+      var tabatJson = jsonEncode(t.toJson());
+      _socket.send("add_tabata:$tabatJson");
+    }
   }
 
   clearMaxMin() {

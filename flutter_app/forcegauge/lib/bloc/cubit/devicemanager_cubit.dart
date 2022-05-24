@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:forcegauge/models/devices/device.dart';
+import 'package:forcegauge/models/tabata/tabata.dart';
 
 part 'devicemanager_state.dart';
 
