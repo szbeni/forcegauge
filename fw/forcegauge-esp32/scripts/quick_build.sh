@@ -37,5 +37,5 @@ arduino-cli compile -b esp32:esp32:esp32c3 --output-dir=$ARDUINO_OUTPUT_DIR $CON
 #curl -F 'update=@./build/forcegauge-esp32.ino.bin' http://10.1.1.133/update
 
 #
-#/home/beni/.arduino15/packages/esp32/tools/mkspiffs/0.2.3/mkspiffs -c ./data --start 0x090000 --size 576 --page 256 --block 4096 -- ./build/forcegauge-esp32.info.spiffs.bin
+#/home/beni/.arduino15/packages/esp32/tools/mkspiffs/0.2.3/mkspiffs -c ./data --size 0x090000 --page 256 --block 4096 -- ./build/forcegauge-esp32.info.spiffs.bin
 #esptool.py --chip esp32c3 --port /dev/ttyUSB0 --baud 460800 write_flash 0x310000 ./build/forcegauge-esp32.info.spiffs.bin

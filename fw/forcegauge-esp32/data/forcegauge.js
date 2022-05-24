@@ -12,6 +12,7 @@ class forceGauge {
         this.offset = 0;
         this.lastData = null;
         this.lastRawArray = [];
+        this.tabatas = [];
         this.avgNum = 50;
         this.CONNECTION_TIMEOUT = 1000;
         this.RECONNECT_TIME = 1000;
@@ -44,12 +45,21 @@ class forceGauge {
         this.sendMessage("del_tabata:" + id);
     }
 
+    removeTabatas() {
+        this.sendMessage("del_tabatas:");
+    }
+
     addTabata(tabata) {
         this.sendMessage("add_tabata:" + tabata);
     }
 
-    getTabatas(id) {
+    _getTabata(id) {
         this.sendMessage("get_tabata:" + id);
+    }
+
+    getTabatas() {
+        this.tabatas = []
+        this._getTabata(0);
     }
 
     sendMessage(msg) {
@@ -108,6 +118,9 @@ class forceGauge {
                 _this.connected = true;
                 _this.debugLog("Connection opened");
                 resetSocketTimeout();
+                if (_this.onConnected) {
+                    _this.onConnected();
+                }
             };
 
             _this.ws.onmessage = function (evt) {
@@ -122,6 +135,19 @@ class forceGauge {
                         _this.offset = parseInt(msg["offset"])
                         _this.debugLog("Offset: " + _this.offset);
                     }
+                    if ("tabata" in msg) {
+                        var tabata = msg["tabata"];
+                        var id = msg["id"];
+                        if (Object.keys(tabata).length === 0) {
+                            if (_this.onTabatas) {
+                                _this.onTabatas(_this.tabatas);
+                            }
+                        }
+                        else {
+                            _this.tabatas.push(tabata)
+                            _this._getTabata(id + 1);
+                        }
+                    }
                     if ("data" in msg) {
                         var data = msg["data"];
                         _this.lastData = data[data.length - 1];
@@ -129,9 +155,6 @@ class forceGauge {
                         while (_this.lastRawArray.length > _this.avgNum) {
                             _this.lastRawArray.shift();
                         }
-
-
-
                         if (_this.onNewData) {
                             _this.onNewData(data);
                         }

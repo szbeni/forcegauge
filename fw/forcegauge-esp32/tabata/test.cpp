@@ -57,8 +57,15 @@ int main()
   deserializeJson(doc, "[{\"name\":\"malac\"},2,3]");
 
   add(doc.createNestedObject());
+  deserializeJson(doc, "[]");
   cout << doc.size() << endl;
   cout << doc[3] << endl;
+  deserializeJson(doc, "[]");
+  cout << doc << endl;
+  uint8_t buffer[128];
+  serializeJson(doc, buffer);
+  cout << buffer << endl;
+
   // doc.remove(5);
   // cout << doc.size() << endl;
 

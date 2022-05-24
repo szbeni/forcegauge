@@ -23,7 +23,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
     {
       msg += (char)payload[i];
     }
-    handleWSMessage(msg);
+    handleWSMessage(num, msg);
     // send message to client
     // webSocket.sendTXT(num, "message here");
 
@@ -87,7 +87,7 @@ void webSocketBroadcastData()
   webSocket.broadcastTXT(jsonObj);
 }
 
-void handleWSMessage(String &data)
+void handleWSMessage(uint8_t clientNum, String &data)
 {
   // Serial.print("New WS message: ");
   // Serial.println(data);
@@ -127,6 +127,27 @@ void handleWSMessage(String &data)
   {
     String val = getValue(data, ':', 1);
     tabataHandler.removeTabata(val.toInt());
+  }
+  else if (data.startsWith("del_tabatas:"))
+  {
+    tabataHandler.removeTabatas();
+  }
+  else if (data.startsWith("get_tabata:"))
+  {
+    String val = getValue(data, ':', 1);
+    int id = val.toInt();
+    JsonObject obj = tabataHandler.getTabata(id);
+    String retval = "{\"id\": " + String(id) + ", \"tabata\": ";
+    if (obj.isNull())
+    {
+      retval += "{}";
+    }
+    else
+    {
+      serializeJson(obj, retval);
+    }
+    retval += "}";
+    webSocket.sendTXT(clientNum, retval);
   }
 }
 

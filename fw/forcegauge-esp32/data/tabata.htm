@@ -110,7 +110,12 @@
 
 
 <script>
-    device = new forceGauge("Test", "ws://10.1.1.133:81");
+    var address = "ws://" + location.host + ":81"
+    if (location.host == "") {
+        address = "ws://10.1.1.132:81"
+    }
+
+    device = new forceGauge("Forcegauge", address);
     function addTabata(event) {
         var newTabataDOM = document.getElementById("newTabata");
         var inputs = document.querySelectorAll('#newTabata > td > input')
@@ -119,22 +124,19 @@
             if (inputs[i].id) {
                 var key = inputs[i].id;
                 t[key] = inputs[i].value;
-                console.log(key)
             }
         }
         var str = JSON.stringify(t)
         device.addTabata(str);
-        console.log(str)
-        setTimeout(refreshTabatas, 500);
+        setTimeout(refreshTabatas, 100);
     }
 
     function deleteTabata(event) {
         var source = event.target || event.srcElement;
         var id = source["id"];
-        console.log(source);
         console.log("Delete tabata: ", id)
         device.removeTabata(id)
-        setTimeout(refreshTabatas, 500);
+        setTimeout(refreshTabatas, 100);
     }
 
 
@@ -143,7 +145,8 @@
         var tr = document.createElement("tr");
         for (key in tabataJson) {
             var th = document.createElement("th");
-            th.innerText = key;
+            var headerName = key[0].toUpperCase() + key.substring(1)
+            th.innerText = headerName;
             tr.appendChild(th);
         }
         var th = document.createElement("th");
@@ -219,35 +222,49 @@
 
 
     function refreshTabatas() {
+        device.getTabatas();
 
-        var xmlhttp = new XMLHttpRequest();
-        var url = "/tabatas.json";
+        // var xmlhttp = new XMLHttpRequest();
+        // var url = "/tabatas.json";
+        // xmlhttp.onreadystatechange = function () {
+        //     if (this.readyState == 4 && this.status == 200) {
+        //         var table = document.getElementById("tableBody");
+        //         table.innerHTML = ""
+        //         addNewTabataRowDOM(sampleTabata);
 
-        xmlhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                var table = document.getElementById("tableBody");
-                table.innerHTML = ""
-                addNewTabataRowDOM(sampleTabata);
+        //         var tabataList = JSON.parse(this.responseText);
+        //         for (id in tabataList) {
+        //             console.log(tabataList[id])
+        //             addTabataDOM(tabataList[id], id)
+        //         }
+        //     }
+        //     device.connect()
 
-                var tabataList = JSON.parse(this.responseText);
-                for (id in tabataList) {
-                    console.log(tabataList[id])
-                    addTabataDOM(tabataList[id], id)
-                }
-            }
-            device.connect()
-
-        };
-        xmlhttp.open("GET", url, true);
-        xmlhttp.send();
+        // };
+        // xmlhttp.open("GET", url, true);
+        // xmlhttp.send();
     }
 
     window.onload = function () {
         sampleTabata = JSON.parse('{"name": "MyTabata","sets": 3,"reps": 6,"exerciseTime": 7,"restTime": 3,"breakTime": 60,"startDelay": 10, "warningBeforeBreakEndsTime": 10}');
         generateHeadersDOM(sampleTabata);
         addNewTabataRowDOM(sampleTabata);
-        refreshTabatas();
 
+        device.onTabatas = function (tabataList) {
+            var table = document.getElementById("tableBody");
+            table.innerHTML = ""
+
+            addNewTabataRowDOM(sampleTabata);
+            for (id in tabataList) {
+                //console.log(tabataList[id])
+                addTabataDOM(tabataList[id], id)
+            }
+        };
+
+        device.onConnected = function () {
+            device.getTabatas();
+        };
+        device.connect();
         // generateNewTabata(sampleTabata);
         // sampleTabtas = "[{\"name\":\"MonoPulls\",\"sets\":2,\"reps\":3,\"exerciseTime\":10,\"restTime\":20,\"breakTime\":60,\"startDelay\":10,\"warningBeforeBreakEndsTime\":10},{\"name\":\"TestTabata\",\"sets\":2,\"reps\":3,\"exerciseTime\":10,\"restTime\":20,\"breakTime\":60,\"startDelay\":20,\"warningBeforeBreakEndsTime\":10}]"
         // var tabataList = JSON.parse(sampleTabtas);

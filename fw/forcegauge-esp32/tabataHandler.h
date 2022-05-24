@@ -126,6 +126,13 @@ public:
         }
     }
 
+    void removeTabatas()
+    {
+        _tabataJSON.clear();
+        deserializeJson(_tabataJSON, "[]");
+        save();
+    }
+
     void removeTabata(const char *name)
     {
         int id = findTabataID(name);
