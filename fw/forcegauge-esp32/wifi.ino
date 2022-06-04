@@ -206,6 +206,7 @@ void printAvailableNetworks(int n)
 
 void wifiTask(void *parameter)
 {
+    int wifiNumber = -1;
     while (1)
     {
         bool ssidConfigured = false;
@@ -217,6 +218,9 @@ void wifiTask(void *parameter)
 
         if (ssidConfigured && WiFi.status() != WL_CONNECTED)
         {
+            wifiNumber++;
+            if (wifiNumber >= SSID_CONFIG_NUM)
+                wifiNumber = 0;
             Serial.println("Scan start");
             // WiFi.scanNetworks will return the number of networks found
             int n = WiFi.scanNetworks();
@@ -228,23 +232,26 @@ void wifiTask(void *parameter)
 
             // Check if any of avaible network is interesting for us
             bool onlineAny = false;
-            for (int i = 0; i < SSID_CONFIG_NUM; i++)
+            for (int i = wifiNumber; i < SSID_CONFIG_NUM; i++)
             {
-                if (checkSSIDAvailable(n, getConfigSSID(i)))
+                if (strlen(getConfigSSID(i)) > 0)
                 {
-                    Serial.print("Connecting to WiFi network: ");
-                    Serial.println(getConfigSSID(i));
-                    WiFi.begin(getConfigSSID(i), getConfigPasswd(i));
-                    onlineAny = true;
-                    break;
-                }
-                else
-                {
-                    Serial.print("WiFi network not available: ");
-                    Serial.println(getConfigSSID(i));
+                    if (checkSSIDAvailable(n, getConfigSSID(i)))
+                    {
+                        Serial.print("Connecting to WiFi network: ");
+                        Serial.println(getConfigSSID(i));
+                        WiFi.begin(getConfigSSID(i), getConfigPasswd(i));
+                        onlineAny = true;
+                        break;
+                    }
+                    else
+                    {
+                        Serial.print("WiFi network not available: ");
+                        Serial.println(getConfigSSID(i));
+                    }
                 }
             }
-            // No avilable network found, disconnect.
+            // No available network found, disconnect.
             if (onlineAny == false)
             {
                 Serial.println("No configured WiFi network is available at the moment.");

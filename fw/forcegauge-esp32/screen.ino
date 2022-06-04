@@ -188,27 +188,52 @@ boolean screenSettings()
 
 boolean screenWifi()
 {
-  bType lastPress = buttonHandler();
+  static int menuItem = 0;
+  bType lastPress = buttonHandler(menuItem == 0);
+
+  if (lastPress == B2_SHORT)
+  {
+    menuItem++;
+    if (menuItem > 1)
+      menuItem = 0;
+  }
+
+  if (menuItem == 1)
+  {
+    if (lastPress == B1_SHORT)
+    {
+      WiFi.disconnect(false, true);
+    }
+    else if (lastPress == B3_SHORT)
+    {
+      WiFi.disconnect(false, true);
+    }
+  }
 
   display.clearDisplay();
+  if (menuItem > 0)
+  {
+    display.setCursor(0, 46 + (menuItem - 1) * 10);
+    display.print(">");
+  }
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(10, 0);
   display.println("WiFi Info");
 
   display.setTextSize(1);
-  display.setCursor(1, 16);
+  display.setCursor(5, 16);
   display.print(config.APssid);
   display.print(" (");
   display.print(WiFi.softAPgetStationNum());
   display.print(")");
-  display.setCursor(1, 26);
+  display.setCursor(0, 26);
   display.print(WiFi.softAPIP());
 
-  display.setCursor(1, 46);
+  display.setCursor(5, 46);
   display.print("");
   display.print(WiFi.SSID());
-  display.setCursor(1, 56);
+  display.setCursor(0, 56);
   display.print("");
   display.print(WiFi.localIP());
   display.display();
