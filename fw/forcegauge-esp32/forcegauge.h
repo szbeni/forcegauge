@@ -24,7 +24,9 @@
 
 #define R1 390.0f // 390k
 #define R2 100.0f // 100k
-#define BATTERY_SCALER (((R1 + R2) / R2) / 1023.0f)
+// ESP8266 1.5V ref ESP32-C3 1.1V
+#define BATTERY_SCALER (((R1 + R2) / R2) / 1023.0f) * (1.1 / 1.5)
+
 #define BATTERY_VOLTAGE A1
 #define BUZZER_PIN 0
 #define POWER_PIN 5
