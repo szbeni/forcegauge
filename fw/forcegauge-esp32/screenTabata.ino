@@ -195,6 +195,10 @@ void screenWorkout()
             activeWorkout->start();
         }
     }
+    else if (lastPress == B2_LONG)
+    {
+        activeWorkout->stop();
+    }
     else if (lastPress == B3_SHORT)
     {
         activeWorkout->next();
@@ -237,6 +241,15 @@ void screenTargetForce()
     {
         setTargetForce -= 0.5;
     }
+    else if (lastPress == B1_LONG)
+    {
+        setTargetForce -= 5;
+    }
+    else if (lastPress == B1_HOLD)
+    {
+        setTargetForce -= 0.5;
+    }
+
     else if (lastPress == B2_SHORT)
     {
         startWorkout(selectedTabata, setTargetForce);
@@ -246,6 +259,15 @@ void screenTargetForce()
     {
         setTargetForce += 0.5;
     }
+    else if (lastPress == B3_LONG)
+    {
+        setTargetForce += 5;
+    }
+    else if (lastPress == B3_HOLD)
+    {
+        setTargetForce += 0.5;
+    }
+
     if (setTargetForce < 0)
         setTargetForce = 0;
     else if (setTargetForce > 500)

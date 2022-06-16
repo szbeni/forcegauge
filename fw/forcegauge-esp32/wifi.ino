@@ -132,9 +132,23 @@ void WiFiEvent(WiFiEvent_t event)
 void startWifi()
 {
     WiFi.onEvent(WiFiEvent);
-    WiFi.mode(WIFI_AP_STA);
-    WiFi.softAP(config.APssid, config.APpasswd);
-    WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+    WiFi.mode(WIFI_STA);
+
+    // if (config.wifiAPEnable)
+    // {
+    //     if (WiFi.softAPSSID() == "")
+    //     {
+    //         Serial.printf("Start AP");
+    //         WiFi.softAP(config.APssid, config.APpasswd);
+    //         WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+    //     }
+    // }
+    // else
+    // {
+    //     WiFi.softAPdisconnect(false);
+    //     Serial.printf("Stop AP");
+    // }
+
     //  WiFi.begin();
 
     //  bool connectedFlag = false;
@@ -204,23 +218,82 @@ void printAvailableNetworks(int n)
     Serial.println("");
 }
 
+static bool isWifiConfig()
+{
+    for (int i = 0; i < SSID_CONFIG_NUM; i++)
+    {
+        if (strlen(getConfigSSID(i)) > 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void checkSoftAPEnable()
+{
+    if (config.wifiAPEnable)
+    {
+        if (WiFi.getMode() == WIFI_MODE_STA && strlen(config.APssid) > 0)
+        {
+            WiFi.mode(WIFI_MODE_APSTA);
+            WiFi.softAP(config.APssid, config.APpasswd);
+            WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+            Serial.printf("Starting AP: %s\n", config.APssid);
+        }
+    }
+    else
+    {
+        if (WiFi.getMode() == WIFI_MODE_APSTA)
+        {
+            Serial.printf("Stop AP\n");
+            WiFi.enableAP(false);
+            WiFi.mode(WIFI_MODE_STA);
+        }
+    }
+}
+
 void wifiTask(void *parameter)
 {
     int wifiNumber = -1;
+
+    // No wifi is configured, waiting for smartconfig
     while (1)
     {
-        bool ssidConfigured = false;
-        for (int i = 0; i < SSID_CONFIG_NUM; i++)
+        if (!isWifiConfig() || config.smartConfigEnable)
         {
-            if (strlen(getConfigSSID(i)) > 0)
-                ssidConfigured = true;
+            WiFi.disconnect(false, true);
+            WiFi.beginSmartConfig();
+            Serial.println("Waiting for SmartConfig.");
+            while (!WiFi.smartConfigDone())
+            {
+                checkSoftAPEnable();
+                delay(500);
+                Serial.print(".");
+            }
+            configJSON["ssid1"] = WiFi.SSID();
+            configJSON["passwd1"] = WiFi.psk();
+
+            Serial.println("Wifi connected: ");
+            Serial.println(WiFi.SSID());
+            Serial.println(WiFi.psk());
+            Serial.println(WiFi.localIP());
+            copyConfig(&config);
+            saveConfig(&config);
+            WiFi.stopSmartConfig();
+            WiFi.disconnect(false, true);
+            config.smartConfigEnable = false;
         }
 
-        if (ssidConfigured && WiFi.status() != WL_CONNECTED)
+        checkSoftAPEnable();
+        bool longDelay = false;
+        bool ssidConfigured = isWifiConfig();
+
+        if (isWifiConfig && WiFi.status() != WL_CONNECTED)
         {
-            wifiNumber++;
-            if (wifiNumber >= SSID_CONFIG_NUM)
-                wifiNumber = 0;
+            // wifiNumber++;
+            // if (wifiNumber >= SSID_CONFIG_NUM)
+            //     wifiNumber = 0;
             Serial.println("Scan start");
             // WiFi.scanNetworks will return the number of networks found
             int n = WiFi.scanNetworks();
@@ -232,7 +305,7 @@ void wifiTask(void *parameter)
 
             // Check if any of avaible network is interesting for us
             bool onlineAny = false;
-            for (int i = wifiNumber; i < SSID_CONFIG_NUM; i++)
+            for (int i = 0; i < SSID_CONFIG_NUM; i++)
             {
                 if (strlen(getConfigSSID(i)) > 0)
                 {
@@ -242,6 +315,7 @@ void wifiTask(void *parameter)
                         Serial.println(getConfigSSID(i));
                         WiFi.begin(getConfigSSID(i), getConfigPasswd(i));
                         onlineAny = true;
+                        delay(10000);
                         break;
                     }
                     else
@@ -256,8 +330,9 @@ void wifiTask(void *parameter)
             {
                 Serial.println("No configured WiFi network is available at the moment.");
                 WiFi.disconnect(false, true);
+                delay(10000);
             }
         }
-        delay(10000);
+        delay(500);
     }
 }

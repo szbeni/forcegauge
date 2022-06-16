@@ -107,7 +107,7 @@ public:
     {
         _lastForceValue = force;
         bool playSoundFlag = false;
-        if (force > _targetForce && _targetForceReached == false)
+        if (fabsf(force) > _targetForce && _targetForceReached == false)
         {
             _targetForceReached = true;
             playSoundFlag = true;
@@ -120,6 +120,11 @@ public:
             if (playSoundFlag)
                 _playSound(soundTargetReached);
         }
+    }
+
+    void stop()
+    {
+        _finish();
     }
 
     // Starts or resumes the workout

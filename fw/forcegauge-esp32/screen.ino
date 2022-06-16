@@ -154,11 +154,11 @@ boolean screenSettings()
   {
     if (lastPress == B1_SHORT)
     {
-      config.bluetoothEnable = false;
+      config.smartConfigEnable = false;
     }
     else if (lastPress == B3_SHORT)
     {
-      config.bluetoothEnable = true;
+      config.smartConfigEnable = true;
       saveConfig(&config);
     }
   }
@@ -180,8 +180,13 @@ boolean screenSettings()
   display.print("Wifi Ap: ");
   display.println(config.wifiAPEnable ? "X" : "O");
   display.setCursor(5, 36);
-  display.print("Bluetooth: ");
-  display.println(config.bluetoothEnable ? "X" : "O");
+  display.print("Smart Config: ");
+  display.println(config.smartConfigEnable ? "X" : "O");
+
+  display.setCursor(5, 56);
+  display.print("FW Version: ");
+  display.println(version);
+
   display.display();
   return true;
 }
@@ -213,7 +218,7 @@ boolean screenWifi()
   display.clearDisplay();
   if (menuItem > 0)
   {
-    display.setCursor(0, 46 + (menuItem - 1) * 10);
+    display.setCursor(0, 36 + (menuItem - 1) * 10);
     display.print(">");
   }
   display.setTextSize(1);
@@ -222,20 +227,34 @@ boolean screenWifi()
   display.println("WiFi Info");
 
   display.setTextSize(1);
-  display.setCursor(5, 16);
-  display.print(config.APssid);
-  display.print(" (");
-  display.print(WiFi.softAPgetStationNum());
-  display.print(")");
-  display.setCursor(0, 26);
-  display.print(WiFi.softAPIP());
 
-  display.setCursor(5, 46);
-  display.print("");
-  display.print(WiFi.SSID());
-  display.setCursor(0, 56);
-  display.print("");
-  display.print(WiFi.localIP());
+  display.setCursor(5, 16);
+  if (config.wifiAPEnable)
+  {
+
+    display.print(config.APssid);
+    display.print(" (");
+    display.print(WiFi.softAPgetStationNum());
+    display.print(")");
+    display.setCursor(0, 26);
+    display.print(WiFi.softAPIP());
+  }
+  else
+  {
+    display.print("WiFi Hotspot Off");
+  }
+
+  display.setCursor(5, 36);
+  if (WiFi.SSID() != "")
+  {
+    display.print(WiFi.SSID());
+    display.setCursor(0, 56);
+    display.print(WiFi.localIP());
+  }
+  else
+  {
+    display.print("WiFi not connected");
+  }
   display.display();
 
   return true;

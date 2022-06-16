@@ -98,19 +98,19 @@ void buttonsLoop()
     {
       if ((millis() - pressedTime[i]) > HOLD_TIME)
       {
+        if (i == 0)
+          lastPressGlobal = B1_HOLD;
+        else if (i == 1)
+          lastPressGlobal = B2_HOLD;
+        else if (i == 2)
+          lastPressGlobal = B3_HOLD;
+
         if (holdStateOn[i] == false)
         {
           // screenHandler.buttonHoldOn(i);
           holdStateOn[i] = true;
           buzz(2000, 500);
-          Serial.printf("Hold\n");
-
-          if (i == 0)
-            lastPressGlobal = B1_HOLD;
-          else if (i == 1)
-            lastPressGlobal = B2_HOLD;
-          else if (i == 2)
-            lastPressGlobal = B3_HOLD;
+          Serial.printf("Hold Start\n");
 
           if (i == 1)
           {

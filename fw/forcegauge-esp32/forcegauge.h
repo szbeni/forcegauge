@@ -61,6 +61,7 @@ typedef struct
   bool buzzerEnable;
   bool wifiAPEnable;
   bool bluetoothEnable;
+  bool smartConfigEnable;
 } configStruct;
 
 typedef struct
