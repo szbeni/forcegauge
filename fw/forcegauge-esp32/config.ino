@@ -50,7 +50,7 @@ void makeDefaultConfig(configStruct *c)
 {
   configJSON["name"] = "forcegauge";
   configJSON["APssid"] = "ForceGauge";
-  configJSON["APpasswd"] = "1234567890";
+  configJSON["APpasswd"] = "";
   configJSON["ssid1"] = "";
   configJSON["passwd1"] = "";
   configJSON["ssid2"] = "";
@@ -59,7 +59,7 @@ void makeDefaultConfig(configStruct *c)
   configJSON["passwd3"] = "";
   configJSON["offset"] = 0;
   configJSON["scale"] = 0.000231142;
-  configJSON["filterCoeff"] = 0.0;
+  configJSON["filterCoeff"] = 0.7;
   configJSON["time"] = 0;
   configJSON["buzzerEnable"] = true;
   configJSON["wifiAPEnable"] = true;
