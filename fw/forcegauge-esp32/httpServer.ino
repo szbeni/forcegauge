@@ -2,6 +2,7 @@
 #define DBG_OUTPUT_PORT Serial
 
 WebServer server(80);
+WiFiUDP udpBroadcaster;
 File fsUploadFile;
 DNSServer dnsServer;
 IPAddress apIP(192, 168, 4, 1);
@@ -273,12 +274,26 @@ void handleLoginPage()
   }
 }
 
-void handleAbout()
+String getAboutString(void)
 {
   String response = "type:forcegauge\n";
   response += "name:" + String(config.name) + "\n";
   response += "version:" + String(version) + "\n";
-  server.send(200, "text/plane", response);
+  return response;
+}
+
+void handleAbout()
+{
+  server.send(200, "text/plane", getAboutString());
+}
+
+void broadcastAddress(void)
+{
+  // const uint8_t *msg = (const uint8_t *)(getAboutString().c_str());
+  // size_t len = strlen((const char *)msg);
+  udpBroadcaster.beginPacket("255.255.255.255", 65123);
+  udpBroadcaster.write((uint8_t *)"forcegauge", 10);
+  udpBroadcaster.endPacket();
 }
 
 // void webSocketBroadcastData()
@@ -461,9 +476,16 @@ void httpServerTask(void *parameter)
   unsigned long previous_time = 0;
   while (1)
   {
+    if (millis() - previous_time > 2000)
+    {
+      previous_time = millis();
+      broadcastAddress();
+    }
+
     // checkWifiConnection(config.ssid1, config.passwd1);
     dnsServer.processNextRequest();
     server.handleClient();
+
     delay(10);
   }
 

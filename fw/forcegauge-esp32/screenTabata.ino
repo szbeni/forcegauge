@@ -161,10 +161,10 @@ void screenWorkout()
         }
     }
 
-    static unsigned long lastTickTime = millis();
-    if ((millis() - lastTickTime) > 1000)
+    static unsigned long nextTick = millis() + 1000;
+    if (millis() > nextTick)
     {
-        lastTickTime = millis();
+        nextTick += 1000;
         activeWorkout->tick();
     }
 
