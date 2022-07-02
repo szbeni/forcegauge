@@ -1,8 +1,62 @@
+// UDP broadcast
+WiFiUDP udpBroadcaster;
+
+#include <lwip/sockets.h>
+#include <lwip/netdb.h>
+#include <errno.h>
+
+int broadcastAddress(void)
+{
+  // static int udp_server = -1;
+  // static struct sockaddr_in recipient;
+  // static struct in_addr localInterface;
+
+  // if (udp_server == -1)
+  // {
+  //   if ((udp_server = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+  //   {
+  //     log_e("could not create socket: %d", errno);
+  //     return 0;
+  //   }
+  //   fcntl(udp_server, F_SETFL, O_NONBLOCK);
+  //   struct in_addr iaddr = {0};
+
+  //   IPAddress remote_ip;
+  //   remote_ip.fromString("255.255.255.255");
+  //   int remote_port = 65123;
+  //   recipient.sin_addr.s_addr = (uint32_t)remote_ip;
+  //   recipient.sin_family = AF_INET;
+  //   recipient.sin_port = htons(remote_port);
+  // }
+  // localInterface.s_addr = inet_addr("192.168.4.1");
+  // int err = setsockopt(udp_server, IPPROTO_IP, IP_MULTICAST_IF, &localInterface, sizeof(localInterface));
+  // if (err < 0)
+  // {
+  //   log_e(V4TAG, "Failed to set IP_MULTICAST_IF. Error %d", errno);
+  //   return 0;
+  // }
+
+  // int sent = sendto(udp_server, "forcegauge", 10, 0, (struct sockaddr *)&recipient, sizeof(recipient));
+  // if (sent < 0)
+  // {
+  //   log_e("could not send data: %d", errno);
+  //   return 0;
+  // }
+  // return 1;
+
+  // // const uint8_t *msg = (const uint8_t *)(getAboutString().c_str());
+  // // size_t len = strlen((const char *)msg);
+  udpBroadcaster.beginPacket("255.255.255.255", 65123);
+  udpBroadcaster.write((uint8_t *)"forcegauge", 10);
+  udpBroadcaster.endPacket();
+  return 1;
+}
+
 #define FILESYSTEM SPIFFS
 #define DBG_OUTPUT_PORT Serial
 
 WebServer server(80);
-WiFiUDP udpBroadcaster;
+
 File fsUploadFile;
 DNSServer dnsServer;
 IPAddress apIP(192, 168, 4, 1);
@@ -285,15 +339,6 @@ String getAboutString(void)
 void handleAbout()
 {
   server.send(200, "text/plane", getAboutString());
-}
-
-void broadcastAddress(void)
-{
-  // const uint8_t *msg = (const uint8_t *)(getAboutString().c_str());
-  // size_t len = strlen((const char *)msg);
-  udpBroadcaster.beginPacket("255.255.255.255", 65123);
-  udpBroadcaster.write((uint8_t *)"forcegauge", 10);
-  udpBroadcaster.endPacket();
 }
 
 // void webSocketBroadcastData()
