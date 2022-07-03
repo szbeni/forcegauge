@@ -70,6 +70,48 @@ boolean screenInit()
   return true;
 }
 
+static float batteryVoltage = 4.1;
+const static float battery_min = 3.0;
+const static float battery_max = 4.15;
+
+static void readBatteryVoltage()
+{
+  int sensorValue = analogRead(BATTERY_VOLTAGE);
+  batteryVoltage = sensorValue * BATTERY_SCALER; // convert the value to a true voltage.
+}
+
+int round5(int n)
+{
+  return (n / 5 + (n % 5 > 2)) * 5;
+}
+
+static float getBatteryPercentage(float voltage)
+{
+  int percent = ((voltage - battery_min) / (battery_max - battery_min)) * 100.0;
+  if (percent < 0.0f)
+    percent = 0.0f;
+  else if (percent > 100.0f)
+    percent = 100.0f;
+  return (float)(round5(percent));
+}
+
+void drawBattery(int x = 114, int y = 1, float percent = -1.0f)
+{
+  if (percent < 0.0f)
+    percent = getBatteryPercentage(batteryVoltage);
+  else if (percent > 100.0f)
+    percent = getBatteryPercentage(batteryVoltage);
+
+  int width = 12;
+  int height = 7;
+  int width_fill = (percent / 100.0) * width;
+  display.drawRect(x, y, width, height, WHITE);
+  display.fillRect(x, y, width_fill, height, WHITE);
+  display.drawPixel(x + width + 1, y + 2, WHITE);
+  display.drawPixel(x + width + 1, y + 3, WHITE);
+  display.drawPixel(x + width + 1, y + 4, WHITE);
+}
+
 boolean screenForce()
 {
   bType lastPress = buttonHandler();
@@ -86,26 +128,30 @@ boolean screenForce()
   }
 
   display.clearDisplay();
-
-  display.setTextSize(2);
+  drawBattery();
+  display.setTextSize(3);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(1, 1);
-  display.println(config.lastValue);
+  display.setCursor(1, 21);
+  float val = config.lastValue;
+  if (val >= 0.0f)
+    display.print(" ");
+  float absval = fabs(val);
+  int round = 2;
+  if (fabs(val) >= 1000.0f)
+  {
+    round = 1;
+    if (fabs(val) >= 10000.0f)
+      round = 0;
+  }
+  display.print(val, round);
 
   display.setTextSize(1);
-  display.setCursor(1, 36);
-  display.print("Min: ");
-  display.print(minForce, 2);
-  display.setCursor(1, 46);
-  display.print("Max: ");
-  display.print(maxForce, 2);
-
   display.setCursor(1, 56);
-  display.print("Battery: ");
-  int sensorValue = analogRead(BATTERY_VOLTAGE);
-  float voltage = sensorValue * BATTERY_SCALER; // convert the value to a true voltage.
-  display.print(voltage, 2);
-  display.print("V");
+  display.print("Min:");
+  display.print(minForce, 1);
+  display.setCursor(70, 56);
+  display.print("Max:");
+  display.print(maxForce, 1);
   display.display();
   return true;
 }
@@ -164,6 +210,7 @@ boolean screenSettings()
   }
 
   display.clearDisplay();
+  drawBattery();
   if (menuItem > 0)
   {
     display.setCursor(0, 6 + menuItem * 10);
@@ -199,11 +246,25 @@ boolean screenWifi()
   if (lastPress == B2_SHORT)
   {
     menuItem++;
-    if (menuItem > 1)
+    if (menuItem > 2)
       menuItem = 0;
   }
 
   if (menuItem == 1)
+  {
+    if (lastPress == B1_SHORT)
+    {
+      config.wifiAPEnable = false;
+      saveConfig(&config);
+    }
+    else if (lastPress == B3_SHORT)
+    {
+      config.wifiAPEnable = true;
+      saveConfig(&config);
+    }
+  }
+
+  if (menuItem == 2)
   {
     if (lastPress == B1_SHORT)
     {
@@ -216,9 +277,10 @@ boolean screenWifi()
   }
 
   display.clearDisplay();
+  drawBattery();
   if (menuItem > 0)
   {
-    display.setCursor(0, 36 + (menuItem - 1) * 10);
+    display.setCursor(0, 16 + (menuItem - 1) * 20);
     display.print(">");
   }
   display.setTextSize(1);
@@ -263,6 +325,7 @@ boolean screenWifi()
 boolean screenShutdown()
 {
   display.clearDisplay();
+  drawBattery();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(10, 10);
@@ -278,6 +341,7 @@ void screenTask(void *parameter)
 
   Serial.println("Screen Task Started");
   unsigned long lastRefresh = millis();
+  unsigned long lastBatteryRead = 0;
   while (1)
   {
     buzzerLoop();
@@ -286,6 +350,15 @@ void screenTask(void *parameter)
     {
       lastRefresh = millis();
       screenLoop();
+    }
+    if (millis() - lastBatteryRead >= 1000)
+    {
+      lastBatteryRead = millis();
+      readBatteryVoltage();
+      // Testing indicator
+      // batteryVoltage -= 0.05;
+      // if (batteryVoltage < 3.0)
+      //   batteryVoltage = 4.2;
     }
     delay(50);
   }

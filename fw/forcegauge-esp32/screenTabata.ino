@@ -116,6 +116,7 @@ void screenTabataList()
     }
 
     display.clearDisplay();
+    drawBattery();
     if (menuItem >= 0)
     {
         display.setCursor(0, 16 + (menuItem % itemPerScreen) * 10);
@@ -205,6 +206,7 @@ void screenWorkout()
     }
 
     display.clearDisplay();
+    drawBattery();
     display.setTextColor(SSD1306_WHITE);
     display.setTextSize(2);
     display.setCursor(10, 1);
@@ -274,6 +276,7 @@ void screenTargetForce()
         setTargetForce = 500;
 
     display.clearDisplay();
+    drawBattery();
     display.setTextColor(SSD1306_WHITE);
     display.setTextSize(1);
     display.setCursor(20, 10);
