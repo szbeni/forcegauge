@@ -290,17 +290,25 @@ String getContentType(String filename)
 
 void handleConfigUpdate()
 {
+  bool wasConfig = false;
   for (int i = 0; i < server.args(); i++)
   {
     if (configJSON.containsKey(server.argName(i)))
     {
       configJSON[server.argName(i)] = server.arg(i);
+      wasConfig = true;
     }
   }
-  copyConfig(&config);
-  saveConfig(&config);
-
-  handleFileRead("/configure.htm");
+  if (wasConfig)
+  {
+    copyConfig(&config);
+    saveConfig(&config);
+    handleFileRead("/index.htm");
+  }
+  else
+  {
+    handleFileRead("/configure.htm");
+  }
 }
 
 bool loggedIn = false;

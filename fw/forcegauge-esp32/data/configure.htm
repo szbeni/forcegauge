@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <link rel="stylesheet" href="btn.css">
     <style>
         table {
             width: 100%;
@@ -91,8 +92,8 @@
 </head>
 
 <body>
-    <div class="content">
-        <h2>ForceGauge<h2>
+    <div id="configureAll" class="content" style="display: none;">
+        <h2>Settings<h2>
                 <h3>Configure</h3>
                 <form id="configForm" action="?" method="POST">
                     <table class="table_config">
@@ -102,10 +103,32 @@
                                 <th>Enter</th>
                             </tr>
                         </thead>
-                        <tbody id="tableBody">
-                        </tbody>
+                        <tbody id="tableBody"></tbody>
+                    </table>
                 </form>
     </div>
+
+
+    <div id="form-main" style="display: none;">
+        <div id="form-div">
+            <form class="form" id="form1" action="?" method="POST">
+
+                <p class="name">
+                    <input name="ssid1" type="text" class="feedback-input" placeholder="WiFi name" id="ssid1" />
+                </p>
+
+                <p class="name">
+                    <input name="passwd1" type="password" class="feedback-input" id="passwd1" placeholder="Password" />
+                </p>
+
+                <input type="hidden" name="wifiAPEnable" value="false">
+
+                <div class="submit">
+                    <input id="button-blue" type="submit" value="Save Config" />
+                    <div class="ease"></div>
+                </div>
+            </form>
+        </div>
 </body>
 <script>
 
@@ -147,6 +170,10 @@
         table.append(tr);
     }
     function generateForm(configJson) {
+
+        myBody = document.getElementById("configureAll")
+        myBody.style.display = "block"
+
         for (key in configJson) {
             type = "text";
             // Hide elements starting with
@@ -162,16 +189,33 @@
     window.onload = function () {
         var xmlhttp = new XMLHttpRequest();
         var url = "/config.json";
+        params = getUrlParameters()
+        console.log(params)
+        if (params["type"] == "wifi") {
+            myBody = document.getElementById("form-main")
+            myBody.style.display = "block"
+        }
+        else {
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    //var obj = JSON.parse('{"mdnsName": "forcegauge","APssid": "ForceGauge","APpasswd": "1234567890","ssid1": "ABWifi","passwd1": "Secret_12345","ssid2": "","passwd2": "","ssid3": "","passwd3": "","offset": 0,"scale": 0.000231,"time": 0}');
+                    var obj = JSON.parse(this.responseText);
 
-        xmlhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                //var obj = JSON.parse('{"mdnsName": "forcegauge","APssid": "ForceGauge","APpasswd": "1234567890","ssid1": "ABWifi","passwd1": "Secret_12345","ssid2": "","passwd2": "","ssid3": "","passwd3": "","offset": 0,"scale": 0.000231,"time": 0}');
-                var obj = JSON.parse(this.responseText);
-                generateForm(obj);
-            }
-        };
-        xmlhttp.open("GET", url, true);
-        xmlhttp.send();
+                    generateForm(obj);
+
+                }
+            };
+            xmlhttp.open("GET", url, true);
+            xmlhttp.send();
+        }
+    }
+
+
+    function getUrlParameters() {
+        var out = {};
+        var str = window.location.search.replace("?", "");
+        var subs = str.split(`&`).map((si) => { var keyVal = si.split(`=`); out[keyVal[0]] = keyVal[1]; });
+        return out
     }
 </script>
 

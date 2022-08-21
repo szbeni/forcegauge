@@ -265,24 +265,35 @@ void wifiTask(void *parameter)
             WiFi.disconnect(false, true);
             WiFi.beginSmartConfig();
             Serial.println("Waiting for SmartConfig.");
+            bool success = true;
             while (!WiFi.smartConfigDone())
             {
                 checkSoftAPEnable();
                 delay(500);
                 Serial.print(".");
-            }
-            configJSON["ssid1"] = WiFi.SSID();
-            configJSON["passwd1"] = WiFi.psk();
 
-            Serial.println("Wifi connected: ");
-            Serial.println(WiFi.SSID());
-            Serial.println(WiFi.psk());
-            Serial.println(WiFi.localIP());
-            copyConfig(&config);
-            saveConfig(&config);
-            WiFi.stopSmartConfig();
-            WiFi.disconnect(false, true);
-            config.smartConfigEnable = false;
+                // Stop if wifi is configure in the meantime
+                if (isWifiConfig())
+                {
+                    config.smartConfigEnable = false;
+                    success = false;
+                    break;
+                }
+            }
+            if (success)
+            {
+                configJSON["ssid1"] = WiFi.SSID();
+                configJSON["passwd1"] = WiFi.psk();
+                Serial.println("Wifi connected: ");
+                Serial.println(WiFi.SSID());
+                Serial.println(WiFi.psk());
+                Serial.println(WiFi.localIP());
+                copyConfig(&config);
+                saveConfig(&config);
+                WiFi.stopSmartConfig();
+                WiFi.disconnect(false, true);
+                config.smartConfigEnable = false;
+            }
         }
 
         checkSoftAPEnable();
