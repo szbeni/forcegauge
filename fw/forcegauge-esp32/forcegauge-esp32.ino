@@ -1,5 +1,5 @@
 #include "forcegauge.h"
-#define VERSION "1.0.5"
+#define VERSION "1.0.6"
 
 configStruct config;
 const char configFilename[] = "/config.json";
@@ -74,8 +74,8 @@ void loop()
     float value = (data.v - config.offset) * config.scale;
 
     float diff = fabsf(value - config.lastValue);
-    // Filter out sudden spikes in reading, max 5 times in a row
-    if (diff > 30 && spike_cntr < 5)
+    // Filter out sudden spikes in reading, max 10 times in a row
+    if (diff > 30 && spike_cntr < 10)
     {
       Serial.print("Spike filter: ");
       Serial.print(config.lastValue);
