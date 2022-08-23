@@ -1,5 +1,5 @@
 #include "forcegauge.h"
-#define VERSION "1.0.6"
+#define VERSION "1.0.7"
 
 configStruct config;
 const char configFilename[] = "/config.json";
@@ -19,6 +19,7 @@ TaskHandle_t httpServerTaskHandle;
 TaskHandle_t websocketServerTaskHandle;
 TaskHandle_t bluetoothTaskHandle;
 TaskHandle_t screenTaskHandle;
+TaskHandle_t webUpdateTaskHandle;
 
 void setup()
 {
@@ -42,12 +43,13 @@ void setup()
   // (Same hw is used for both WiFi and Bluetooth)
   if (config.bluetoothEnable)
   {
-    xTaskCreate(bluetoothTask, "bluetoothTask", 20000, NULL, tskIDLE_PRIORITY + 1, &bluetoothTaskHandle);
+    // xTaskCreate(bluetoothTask, "bluetoothTask", 20000, NULL, tskIDLE_PRIORITY + 1, &bluetoothTaskHandle);
   }
   else
   {
 
     startWifi();
+    // xTaskCreate(webupdateTask, "webupdateTask", 20000, NULL, tskIDLE_PRIORITY + 1, &webUpdateTaskHandle);
     xTaskCreate(wifiTask, "wifiTask", 8192, NULL, tskIDLE_PRIORITY + 1, &wifiTaskHandle);
     xTaskCreate(httpServerTask, "httpServerTask", 80000, NULL, tskIDLE_PRIORITY + 1, &httpServerTaskHandle);
     // High prio task

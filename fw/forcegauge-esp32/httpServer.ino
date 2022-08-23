@@ -318,17 +318,17 @@ void handleLoginPage()
   Serial.println(loggedIn);
   if (loggedIn == false)
   {
-    if (server.method() == HTTP_POST)
-    {
-      server.send(204, "text/plain", "Logged in");
-      // handleConfigUpdate();
-      loggedIn = true;
-    }
-    else
-    {
-      // Serve configure
-      handleFileRead("./login.htm");
-    }
+    // if (server.method() == HTTP_POST)
+    //{
+    server.send(204, "text/plain", "Logged in");
+    // handleConfigUpdate();
+    loggedIn = true;
+    //}
+    // else
+    //{
+    // Serve configure
+    //  handleFileRead("./login.htm");
+    //}
   }
   else
   {
@@ -498,7 +498,9 @@ void httpServerTask(void *parameter)
   server.on("/gen_204", handleRoot);
   server.on("/configure.htm", HTTP_POST, handleConfigUpdate);
   server.on("/about", handleAbout);
+  server.on("/login", handleLoginPage);
 
+  server.on("/updatewebota", handleUpdateWebOTA);
   server.on("/update", HTTP_GET, []()
             {
       server.sendHeader("Connection", "close");

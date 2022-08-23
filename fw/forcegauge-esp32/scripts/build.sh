@@ -24,37 +24,26 @@ arduino-cli core install esp32:esp32 $CONFIG_FILE
 #RingBuffer - https://github.com/Locoduino/RingBuffer
 #arduinoWebSockets - https://github.com/Links2004/arduinoWebSockets
 
-# Platform esp32:esp32@2.0.4 already installed
-# Downloading Adafruit BusIO@1.13.2...
-# Adafruit BusIO@1.13.2 downloaded                                                                                                               
-# Installing Adafruit BusIO@1.13.2...
-# Replacing Adafruit_BusIO@1.12.0 with Adafruit BusIO@1.13.2...
-# Installed Adafruit BusIO@1.13.2
-# Downloading Adafruit GFX Library@1.11.3...
-# Adafruit GFX Library@1.11.3 already downloaded
-# Installing Adafruit GFX Library@1.11.3...
-# Already installed Adafruit GFX Library@1.11.3
-# Downloading Adafruit BusIO@1.13.2...
-# Adafruit BusIO@1.13.2 already downloaded
-# Installing Adafruit BusIO@1.13.2...
-# Already installed Adafruit BusIO@1.13.2
-# Downloading Adafruit SSD1306@2.5.7...
-# Adafruit SSD1306@2.5.7 downloaded                                                                                                              
-# Installing Adafruit SSD1306@2.5.7...
-# Replacing Adafruit_SSD1306@2.5.6 with Adafruit SSD1306@2.5.7...
-# Installed Adafruit SSD1306@2.5.7
-# Downloading Adafruit GFX Library@1.11.3...
-# Adafruit GFX Library@1.11.3 already downloaded
-# Installing Adafruit GFX Library@1.11.3...
-# Already installed Adafruit GFX Library@1.11.3
-# Downloading ArduinoJson@6.19.4...
-# ArduinoJson@6.19.4 already downloaded
-# Installing ArduinoJson@6.19.4...
-# Already installed ArduinoJson@6.19.4
-# Downloading RingBuffer@1.0.3...
-# RingBuffer@1.0.3 already downloaded
-# Installing RingBuffer@1.0.3...
-# Already installed RingBuffer@1.0.3
+# Used library         Version Path                                                                                
+# WiFi                 2.0.0   /home/beni/.arduino15/packages/esp32/hardware/esp32/2.0.4/libraries/WiFi            
+# WebServer            2.0.0   /home/beni/.arduino15/packages/esp32/hardware/esp32/2.0.4/libraries/WebServer       
+# ESPmDNS              2.0.0   /home/beni/.arduino15/packages/esp32/hardware/esp32/2.0.4/libraries/ESPmDNS         
+# arduinoWebSockets    2.3.7   /home/beni/Arduino/libraries/arduinoWebSockets                                      
+# WiFiClientSecure     2.0.0   /home/beni/.arduino15/packages/esp32/hardware/esp32/2.0.4/libraries/WiFiClientSecure
+# Update               2.0.0   /home/beni/.arduino15/packages/esp32/hardware/esp32/2.0.4/libraries/Update          
+# DNSServer            2.0.0   /home/beni/.arduino15/packages/esp32/hardware/esp32/2.0.4/libraries/DNSServer       
+# RingBuffer           1.0.3   /home/beni/Arduino/libraries/RingBuffer                                             
+# SPIFFS               2.0.0   /home/beni/.arduino15/packages/esp32/hardware/esp32/2.0.4/libraries/SPIFFS          
+# FS                   2.0.0   /home/beni/.arduino15/packages/esp32/hardware/esp32/2.0.4/libraries/FS              
+# ArduinoJson          6.19.4  /home/beni/Arduino/libraries/ArduinoJson                                            
+# Wire                 2.0.0   /home/beni/.arduino15/packages/esp32/hardware/esp32/2.0.4/libraries/Wire            
+# Adafruit_GFX_Library 1.11.3  /home/beni/Arduino/libraries/Adafruit_GFX_Library                                   
+# Adafruit_BusIO       1.13.2  /home/beni/Arduino/libraries/Adafruit_BusIO                                         
+# SPI                  2.0.0   /home/beni/.arduino15/packages/esp32/hardware/esp32/2.0.4/libraries/SPI             
+# Adafruit_SSD1306     2.5.7   /home/beni/Arduino/libraries/Adafruit_SSD1306                                       
+# HTTPClient           2.0.0   /home/beni/.arduino15/packages/esp32/hardware/esp32/2.0.4/libraries/HTTPClient      
+#Used platform Version Path                                                     
+#esp32:esp32   2.0.4   /home/beni/.arduino15/packages/esp32/hardware/esp32/2.0.4
 
 
 arduino-cli lib install "Adafruit GFX Library" "Adafruit SSD1306" "ArduinoJson" "RingBuffer" $CONFIG_FILE
