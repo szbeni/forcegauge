@@ -41,6 +41,7 @@ Pictures of the PCB:
 - Started wokring on firmware with ESP-IDF which supports multitasking
 
 ## Flutter based app (Tested on Android)
+- Available on Google play: https://play.google.com/store/apps/details?id=com.github.szbeni.forcegauge
 - Real time plotting
 - Built in tabata timer (Based on https://github.com/insin/tabata_timer)
 - Record history of traning 
