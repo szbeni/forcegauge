@@ -202,6 +202,7 @@ boolean screenSettings()
     if (lastPress == B1_SHORT)
     {
       config.smartConfigEnable = false;
+      saveConfig(&config);
     }
     else if (lastPress == B3_SHORT)
     {
@@ -215,6 +216,7 @@ boolean screenSettings()
     if (lastPress == B1_SHORT)
     {
       config.bluetoothEnable = false;
+      saveConfig(&config);
     }
     else if (lastPress == B3_SHORT)
     {
