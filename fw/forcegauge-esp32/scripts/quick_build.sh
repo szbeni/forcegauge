@@ -27,8 +27,7 @@ CONFIG_FILE="--config-file $SCRIPT_DIR/arduino-cli.yaml"
 # arduino-cli lib install --git-url https://github.com/Links2004/arduinoWebSockets $CONFIG_FILE
 
 # Compile
-arduino-cli compile -b esp32:esp32:esp32c3 --output-dir=$ARDUINO_OUTPUT_DIR $CONFIG_FILE
-
+arduino-cli compile -v -b esp32:esp32:esp32c3 --output-dir=$ARDUINO_OUTPUT_DIR $CONFIG_FILE
 
 #Upload via serial
 # python3 /home/beni/.arduino15/packages/esp32/tools/esptool_py/3.3.0/esptool.py --chip esp32c3 --port /dev/ttyUSB0 --baud 460800 --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size 4MB 0x0 ./build/forcegauge-esp32.ino.bootloader.bin 0x8000 ./build/forcegauge-esp32.ino.partitions.bin 0xe000 /home/beni/.arduino15/packages/esp32/hardware/esp32/2.0.3/tools/partitions/boot_app0.bin 0x10000 ./build/forcegauge-esp32.ino.bin 

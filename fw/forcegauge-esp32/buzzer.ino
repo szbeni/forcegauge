@@ -39,8 +39,7 @@ void nextBuzz()
 
 void startBuzzer()
 {
-  ledcSetup(CHN, 2000, 8);
-  ledcAttachPin(BUZZER_PIN, CHN);
+  ledcAttachChannel(BUZZER_PIN, 2000, 8, CHN);
   ledcWrite(CHN, 0);
 }
 

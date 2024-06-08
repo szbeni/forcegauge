@@ -1,5 +1,5 @@
 #include "forcegauge.h"
-#define VERSION "1.0.7"
+#define VERSION "1.0.8"
 
 configStruct config;
 const char configFilename[] = "/config.json";
@@ -43,7 +43,7 @@ void setup()
   // (Same hw is used for both WiFi and Bluetooth)
   if (config.bluetoothEnable)
   {
-    // xTaskCreate(bluetoothTask, "bluetoothTask", 20000, NULL, tskIDLE_PRIORITY + 1, &bluetoothTaskHandle);
+    xTaskCreate(bluetoothTask, "bluetoothTask", 20000, NULL, tskIDLE_PRIORITY + 1, &bluetoothTaskHandle);
   }
   else
   {
@@ -72,7 +72,8 @@ void loop()
     //    if (cntr > 100000)
     //      cntr = 0 ;
 
-    data.t = config.time + millis();
+    //data.t = config.time + millis();
+    data.t = millis();
     float value = (data.v - config.offset) * config.scale;
 
     float diff = fabsf(value - config.lastValue);

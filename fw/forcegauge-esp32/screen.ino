@@ -74,10 +74,11 @@ static float batteryVoltage = 4.1;
 const static float battery_min = 3.0;
 const static float battery_max = 4.15;
 
-static void readBatteryVoltage()
+float readBatteryVoltage()
 {
   int sensorValue = analogRead(BATTERY_VOLTAGE);
   batteryVoltage = sensorValue * BATTERY_SCALER; // convert the value to a true voltage.
+  return batteryVoltage;
 }
 
 int round5(int n)
@@ -164,7 +165,7 @@ boolean screenSettings()
   if (lastPress == B2_SHORT)
   {
     menuItem++;
-    if (menuItem > 3)
+    if (menuItem > 4)
       menuItem = 0;
   }
 
@@ -209,6 +210,19 @@ boolean screenSettings()
     }
   }
 
+  if (menuItem == 4)
+  {
+    if (lastPress == B1_SHORT)
+    {
+      config.bluetoothEnable = false;
+    }
+    else if (lastPress == B3_SHORT)
+    {
+      config.bluetoothEnable = true;
+      saveConfig(&config);
+    }
+  }
+
   display.clearDisplay();
   drawBattery();
   if (menuItem > 0)
@@ -229,6 +243,10 @@ boolean screenSettings()
   display.setCursor(5, 36);
   display.print("Smart Config: ");
   display.println(config.smartConfigEnable ? "X" : "O");
+  display.setCursor(5, 46);
+  display.print("Bluetooth: ");
+  display.println(config.bluetoothEnable ? "X" : "O");
+
 
   display.setCursor(5, 56);
   display.print("FW Version: ");

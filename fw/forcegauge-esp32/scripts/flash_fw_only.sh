@@ -1,9 +1,9 @@
 #!/bin/bash
 
-sudo python3 /home/beni/.arduino15/packages/esp32/tools/esptool_py/3.3.0/esptool.py \
+sudo python3 /home/beni/.arduino15/packages/esp32/tools/esptool_py/4.6/esptool.py \
 --chip esp32c3 \
 --port /dev/ttyUSB0 \
---baud 960000 \
+--baud 460800 \
 --before default_reset \
 --after hard_reset write_flash \
 -z --flash_mode dio \
