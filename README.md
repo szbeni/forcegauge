@@ -39,6 +39,7 @@ Pictures of the PCB:
 ## Firmware
 - Arudino IDE - Some lagging issues due to limitations of arduino environment
 - Started wokring on firmware with ESP-IDF which supports multitasking
+- Added Bluetooth support to come up as a Tindeq bluetooth device, when bluetooth is enabled
 
 ## Flutter based app (Tested on Android)
 - Available on Google play: https://play.google.com/store/apps/details?id=com.github.szbeni.forcegauge
