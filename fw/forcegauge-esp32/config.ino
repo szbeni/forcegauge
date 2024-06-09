@@ -63,7 +63,7 @@ void makeDefaultConfig(configStruct *c)
   configJSON["time"] = 0;
   configJSON["buzzerEnable"] = true;
   configJSON["wifiAPEnable"] = true;
-  configJSON["bluetoothEnable"] = false;
+  configJSON["bluetoothEnable"] = 0;
   copyConfig(c);
 }
 
@@ -76,7 +76,7 @@ bool saveConfig(configStruct *c)
   configJSON["time"] = c->time;
   configJSON["buzzerEnable"] = c->buzzerEnable ? "true" : "false";
   configJSON["wifiAPEnable"] = c->wifiAPEnable ? "true" : "false";
-  configJSON["bluetoothEnable"] = c->bluetoothEnable ? "true" : "false";
+  configJSON["bluetoothEnable"] = c->bluetoothEnable;
 
   File jsonFile = SPIFFS.open(configFilename, "w");
   if (serializeJsonPretty(configJSON, jsonFile) == 0)
@@ -129,7 +129,7 @@ void copyConfig(configStruct *c)
   c->filterCoeff = configJSON["filterCoeff"];
   c->buzzerEnable = (configJSON["buzzerEnable"] == "true") ? true : false;
   c->wifiAPEnable = (configJSON["wifiAPEnable"] == "true") ? true : false;
-  c->bluetoothEnable = (configJSON["bluetoothEnable"] == "true") ? true : false;
+  c->bluetoothEnable = configJSON["bluetoothEnable"];
 }
 
 const char *getConfigSSID(int n)

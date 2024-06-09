@@ -1,5 +1,5 @@
 #include "forcegauge.h"
-#define VERSION "1.0.8"
+#define VERSION "1.0.9"
 
 configStruct config;
 const char configFilename[] = "/config.json";
@@ -41,9 +41,16 @@ void setup()
   // as we are sending quite frequent updates from our sensor
   // and switching time of the hardware radio between BLE and WiFi is not very fast.
   // (Same hw is used for both WiFi and Bluetooth)
-  if (config.bluetoothEnable)
+  if (config.bluetoothEnable != 0)
   {
-    xTaskCreate(bluetoothTask, "bluetoothTask", 20000, NULL, tskIDLE_PRIORITY + 1, &bluetoothTaskHandle);
+    if (config.bluetoothEnable == BLUETOOTH_TYPE_TINDEQ)
+    {
+      xTaskCreate(bluetoothTaskTindeq, "bluetoothTaskTindeq", 20000, NULL, tskIDLE_PRIORITY + 1, &bluetoothTaskHandle);
+    }
+    else if (config.bluetoothEnable == BLUETOOTH_TYPE_CLIMBRO)
+    {
+      xTaskCreate(bluetoothTaskClimbro, "bluetoothTaskClimbro", 20000, NULL, tskIDLE_PRIORITY + 1, &bluetoothTaskHandle);
+    }
   }
   else
   {

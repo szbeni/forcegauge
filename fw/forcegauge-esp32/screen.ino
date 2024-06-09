@@ -93,7 +93,8 @@ static float getBatteryPercentage(float voltage)
     percent = 0.0f;
   else if (percent > 100.0f)
     percent = 100.0f;
-  return (float)(round5(percent));
+  config.lastBatteryPercent = (float)(round5(percent));
+  return config.lastBatteryPercent;
 }
 
 void drawBattery(int x = 114, int y = 1, float percent = -1.0f)
@@ -102,6 +103,7 @@ void drawBattery(int x = 114, int y = 1, float percent = -1.0f)
     percent = getBatteryPercentage(batteryVoltage);
   else if (percent > 100.0f)
     percent = getBatteryPercentage(batteryVoltage);
+  
 
   int width = 12;
   int height = 7;
@@ -215,12 +217,17 @@ boolean screenSettings()
   {
     if (lastPress == B1_SHORT)
     {
-      config.bluetoothEnable = false;
+      config.bluetoothEnable -= 1;
+      if (config.bluetoothEnable < 0)
+        config.bluetoothEnable = 2;
       saveConfig(&config);
     }
     else if (lastPress == B3_SHORT)
     {
-      config.bluetoothEnable = true;
+      config.bluetoothEnable +=1;
+      if (config.bluetoothEnable > 2)
+        config.bluetoothEnable = 2;
+
       saveConfig(&config);
     }
   }
@@ -247,7 +254,17 @@ boolean screenSettings()
   display.println(config.smartConfigEnable ? "X" : "O");
   display.setCursor(5, 46);
   display.print("Bluetooth: ");
-  display.println(config.bluetoothEnable ? "X" : "O");
+  if (config.bluetoothEnable == 0)
+    display.println("Off");
+  else if (config.bluetoothEnable == 1)
+    display.println("Tindeq");
+  else if (config.bluetoothEnable == 2)
+    display.println("Climbro");
+  else
+    display.println("Unknown");
+  
+  
+  
 
 
   display.setCursor(5, 56);

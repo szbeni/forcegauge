@@ -39,6 +39,11 @@
 
 #define TABATA_FILE "/tabatas.json"
 #define TABATA_JSON_BUFFER_SIZE 8192
+
+#define BLUETOOTH_TYPE_NONE 0
+#define BLUETOOTH_TYPE_TINDEQ 1
+#define BLUETOOTH_TYPE_CLIMBRO 2
+
 DynamicJsonDocument tabataJSON(TABATA_JSON_BUFFER_SIZE);
 TabataHandler tabataHandler(tabataJSON, TABATA_FILE);
 
@@ -61,8 +66,9 @@ typedef struct
   long lastRawValue;
   bool buzzerEnable;
   bool wifiAPEnable;
-  bool bluetoothEnable;
+  int bluetoothEnable;
   bool smartConfigEnable;
+  float lastBatteryPercent;
 } configStruct;
 
 typedef struct
