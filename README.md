@@ -39,7 +39,8 @@ Pictures of the PCB:
 ## Firmware
 - Arudino IDE - Some lagging issues due to limitations of arduino environment
 - Started wokring on firmware with ESP-IDF which supports multitasking
-- Added Bluetooth support to come up as a Tindeq Progressor bluetooth device, when bluetooth is enabled (https://tindeq.com/product/progressor)
+- Added Bluetooth support to come up as a Tindeq Progressor bluetooth device (https://tindeq.com/product/progressor) (CChange Bluetooth and restart device, WIFI wont work when BT is on)
+- Added Bluetooth support to come up as a Climbro bluetooth device (https://climbro.com/) (Change Bluetooth settings and restart device, WIFI wont work when BT is on)
 
 ## Flutter based app (Tested on Android)
 - Available on Google play: https://play.google.com/store/apps/details?id=com.github.szbeni.forcegauge
