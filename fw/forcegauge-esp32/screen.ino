@@ -219,14 +219,14 @@ boolean screenSettings()
     {
       config.bluetoothEnable -= 1;
       if (config.bluetoothEnable < 0)
-        config.bluetoothEnable = 2;
+        config.bluetoothEnable = 0;
       saveConfig(&config);
     }
     else if (lastPress == B3_SHORT)
     {
       config.bluetoothEnable +=1;
-      if (config.bluetoothEnable > 2)
-        config.bluetoothEnable = 2;
+      if (config.bluetoothEnable > BLUETOOTH_TYPE_LEN)
+        config.bluetoothEnable = BLUETOOTH_TYPE_LEN;
 
       saveConfig(&config);
     }
@@ -254,12 +254,14 @@ boolean screenSettings()
   display.println(config.smartConfigEnable ? "X" : "O");
   display.setCursor(5, 46);
   display.print("Bluetooth: ");
-  if (config.bluetoothEnable == 0)
+  if (config.bluetoothEnable == BLUETOOTH_TYPE_NONE)
     display.println("Off");
-  else if (config.bluetoothEnable == 1)
+  else if (config.bluetoothEnable == BLUETOOTH_TYPE_TINDEQ)
     display.println("Tindeq");
-  else if (config.bluetoothEnable == 2)
+  else if (config.bluetoothEnable == BLUETOOTH_TYPE_CLIMBRO)
     display.println("Climbro");
+  else if (config.bluetoothEnable == BLUETOOTH_TYPE_SMARTBOARD)
+    display.println("SmartBoard");
   else
     display.println("Unknown");
   

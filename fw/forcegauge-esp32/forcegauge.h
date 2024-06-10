@@ -43,6 +43,9 @@
 #define BLUETOOTH_TYPE_NONE 0
 #define BLUETOOTH_TYPE_TINDEQ 1
 #define BLUETOOTH_TYPE_CLIMBRO 2
+#define BLUETOOTH_TYPE_SMARTBOARD 3
+#define BLUETOOTH_TYPE_LEN 3
+
 
 DynamicJsonDocument tabataJSON(TABATA_JSON_BUFFER_SIZE);
 TabataHandler tabataHandler(tabataJSON, TABATA_FILE);

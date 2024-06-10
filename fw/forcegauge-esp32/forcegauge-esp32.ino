@@ -1,5 +1,5 @@
 #include "forcegauge.h"
-#define VERSION "1.0.9"
+#define VERSION "1.0.10"
 
 configStruct config;
 const char configFilename[] = "/config.json";
@@ -50,6 +50,10 @@ void setup()
     else if (config.bluetoothEnable == BLUETOOTH_TYPE_CLIMBRO)
     {
       xTaskCreate(bluetoothTaskClimbro, "bluetoothTaskClimbro", 20000, NULL, tskIDLE_PRIORITY + 1, &bluetoothTaskHandle);
+    }
+    else if (config.bluetoothEnable == BLUETOOTH_TYPE_SMARTBOARD)
+    {
+      xTaskCreate(bluetoothTaskSmartBoard, "bluetoothTaskSmartboard", 20000, NULL, tskIDLE_PRIORITY + 1, &bluetoothTaskHandle);
     }
   }
   else
