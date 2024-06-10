@@ -261,7 +261,7 @@ boolean screenSettings()
   else if (config.bluetoothEnable == BLUETOOTH_TYPE_CLIMBRO)
     display.println("Climbro");
   else if (config.bluetoothEnable == BLUETOOTH_TYPE_SMARTBOARD)
-    display.println("SmartBoard");
+    display.println("SmartBrd");
   else
     display.println("Unknown");
   
