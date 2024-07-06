@@ -51,6 +51,7 @@ void buttonsLoop()
 
     if (lastState[i] == releasedState && currentState[i] == pressedState)
     {
+      autoPowerOffReset();
       pressedTime[i] = millis();
     }
     else if (lastState[i] == pressedState && currentState[i] == releasedState)

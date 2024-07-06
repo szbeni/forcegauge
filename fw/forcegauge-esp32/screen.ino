@@ -8,6 +8,12 @@
 #define OLED_RESET -1       // Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 
+
+static float batteryVoltage = 4.1;
+const static float battery_min = 3.0;
+const static float battery_max = 4.15;
+static int bluetoothChanged = 0;    //restart required when bluetooth changed
+
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 boolean screenInit();
@@ -52,9 +58,13 @@ bType buttonHandler(bool defaultActions = true)
   if (defaultActions)
   {
     if (lastPress == B1_SHORT)
+    {
       screenHandler.prevScreen();
+    }
     else if (lastPress == B3_SHORT)
+    {
       screenHandler.nextScreen();
+    }
   }
   return lastPress;
 }
@@ -70,9 +80,7 @@ boolean screenInit()
   return true;
 }
 
-static float batteryVoltage = 4.1;
-const static float battery_min = 3.0;
-const static float battery_max = 4.15;
+
 
 float readBatteryVoltage()
 {
@@ -167,7 +175,13 @@ boolean screenSettings()
   if (lastPress == B2_SHORT)
   {
     menuItem++;
-    if (menuItem > 4)
+    if (bluetoothChanged)
+    {
+      //power off
+      digitalWrite(POWER_PIN, LOW);
+    }
+    
+    if (menuItem > 5)
       menuItem = 0;
   }
 
@@ -225,9 +239,25 @@ boolean screenSettings()
     else if (lastPress == B3_SHORT)
     {
       config.bluetoothEnable +=1;
+      bluetoothChanged = 1;
       if (config.bluetoothEnable > BLUETOOTH_TYPE_LEN)
         config.bluetoothEnable = BLUETOOTH_TYPE_LEN;
 
+      saveConfig(&config);
+    }
+  }
+
+
+  if (menuItem == 5)
+  {
+    if (lastPress == B1_SHORT)
+    {
+      config.autoPowerOffEnable = false;
+      saveConfig(&config);
+    }
+    else if (lastPress == B3_SHORT)
+    {
+      config.autoPowerOffEnable = true;
       saveConfig(&config);
     }
   }
@@ -264,14 +294,19 @@ boolean screenSettings()
     display.println("SmartBrd");
   else
     display.println("Unknown");
-  
-  
-  
-
 
   display.setCursor(5, 56);
-  display.print("FW Version: ");
-  display.println(version);
+  display.print("Auto power off: ");
+  display.println(config.autoPowerOffEnable ? "X" : "O");
+
+  
+  
+
+
+  display.setCursor(90, 16);
+  display.print(version);
+  // display.print("FW Version: ");
+  
 
   display.display();
   return true;
@@ -375,6 +410,7 @@ boolean screenShutdown()
 
 void screenTask(void *parameter)
 {
+  autoPowerOffInit();
   Serial.print("screenTask: priority = ");
   Serial.println(uxTaskPriorityGet(NULL));
 
@@ -385,6 +421,7 @@ void screenTask(void *parameter)
   {
     buzzerLoop();
     buttonsLoop();
+    autoPowerOffLoop();
     if (millis() - lastRefresh >= 50)
     {
       lastRefresh = millis();

@@ -72,6 +72,7 @@ typedef struct
   int bluetoothEnable;
   bool smartConfigEnable;
   float lastBatteryPercent;
+  bool autoPowerOffEnable;
 } configStruct;
 
 typedef struct

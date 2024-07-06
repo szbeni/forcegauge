@@ -1,5 +1,5 @@
 #include "forcegauge.h"
-#define VERSION "1.0.10"
+#define VERSION "1.0.11"
 
 configStruct config;
 const char configFilename[] = "/config.json";
